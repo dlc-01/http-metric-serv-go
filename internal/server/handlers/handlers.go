@@ -10,7 +10,7 @@ func createResponse(key string, value interface{}) string {
 	response := fmt.Sprintf("%s was adeed, value = %v", key, value)
 	return response
 }
-func parsUrl(url string, writer http.ResponseWriter) (string, string, string) {
+func parsURL(url string, writer http.ResponseWriter) (string, string, string) {
 	urlContainer := strings.Split(url, "/")
 	if len(urlContainer) != 5 {
 		http.Error(writer, "Unsupported URL.", http.StatusNotFound)

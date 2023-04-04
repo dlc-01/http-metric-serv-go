@@ -9,7 +9,7 @@ import (
 func UpdateHandlers(writer http.ResponseWriter, request *http.Request) {
 	check(writer, request)
 
-	types, key, valueStr := parsUrl(request.URL.String(), writer)
+	types, key, valueStr := parsURL(request.URL.String(), writer)
 	switch types {
 	case "counter":
 		value, err := strconv.ParseInt(valueStr, 10, 64)
