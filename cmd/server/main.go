@@ -1,9 +1,9 @@
 package main
 
 import (
-	"handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"net/http"
-	"storage"
 )
 
 func main() {

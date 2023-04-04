@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"net/http"
-	"storage"
 	"strconv"
 )
 
