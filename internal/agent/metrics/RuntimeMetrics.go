@@ -1,25 +1,24 @@
 package metrics
 
-import "runtime"
+import (
+	"fmt"
+	"math/rand"
+	"runtime"
+)
 
 type MemMetrics struct {
 	gauge   map[string]float64
 	counter map[string]int64
 }
 
+var gaugeMetrics = []string{"Alloc", "BuckHashSys", "Frees", "GCCPUFraction", "GCSys", "HeapAlloc", "HeapIdle", "HeapInuse", "HeapObjects",
+	"HeapReleased", "HeapSys", "LastGC", "Lookups", "MCacheInuse", "MCacheSys", "MSpanInuse", "MSpanSys", "Mallocs",
+	"NextGC", "NumForcedGC", "NumGC", "OtherSys", "PauseTotalNs", "StackInuse", "StackSys", "Sys", "TotalAlloc", "RandomValue"}
+
 func (metrics *MemMetrics) Init() {
 	metrics.gauge = make(map[string]float64)
 	metrics.counter = make(map[string]int64)
-	gaugeMetrics := []string{"Alloc", "BuckHashSys", "Frees", "GCCPUFraction", "GCSys", "HeapAlloc", "HeapIdle", "HeapInuse", "HeapObjects",
-		"HeapReleased", "HeapSys", "LastGC", "Lookups", "MCacheInuse", "MCacheSys", "MSpanInuse", "MSpanSys", "Mallocs",
-		"NextGC", "NumForcedGC", "NumGC", "OtherSys", "PauseTotalNs", "StackInuse", "StackSys", "Sys", "TotalAlloc"}
-	counterMetrics := []string{"PollCount"}
-	for _, metric := range gaugeMetrics {
-		metrics.gauge[metric] = 0
-	}
-	for _, metric := range counterMetrics {
-		metrics.counter[metric] = 0
-	}
+
 }
 func (metrics *MemMetrics) Check() {
 	var Runtime runtime.MemStats
@@ -51,8 +50,18 @@ func (metrics *MemMetrics) Check() {
 	metrics.gauge["StackSys"] = float64(Runtime.StackSys)
 	metrics.gauge["Sys"] = float64(Runtime.Sys)
 	metrics.gauge["TotalAlloc"] = float64(Runtime.TotalAlloc)
+	metrics.gauge["RandomValue"] = rand.Float64()
 	metrics.counter["PollCount"]++
 }
-func GenerateUrl(host string) {
-
+func (metrics *MemMetrics) GenerateUrlMetrics(host string) []string {
+	var urls []string
+	for metric, value := range metrics.gauge {
+		generatedUrl := fmt.Sprintf("%s/update/gauge/%s/%f", host, metric, value)
+		urls = append(urls, generatedUrl)
+	}
+	for metric, value := range metrics.counter {
+		generatedUrl := fmt.Sprintf("%s/update/counter/%s/%d", host, metric, value)
+		urls = append(urls, generatedUrl)
+	}
+	return urls
 }
