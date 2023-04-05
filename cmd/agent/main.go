@@ -18,7 +18,7 @@ func main() {
 		time.Sleep(2 * time.Second)
 		timeCounter++
 		if timeCounter%5 == 0 {
-			urls := metrics.GenerateUrlMetrics(host)
+			urls := metrics.GenerateURLMetrics(host)
 			for _, url := range urls {
 				req, err := http.NewRequest(http.MethodPost, url, nil)
 				if err != nil {
