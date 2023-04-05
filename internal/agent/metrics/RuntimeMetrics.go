@@ -60,8 +60,8 @@ func (metrics *MemMetrics) GenerateURLMetrics(host string) []string {
 		urls = append(urls, generatedURL)
 	}
 	for metric, value := range metrics.counter {
-		generatedUrl := fmt.Sprintf("%s/update/counter/%s/%d", host, metric, value)
-		urls = append(urls, generatedUrl)
+		generatedURL := fmt.Sprintf("%s/update/counter/%s/%d", host, metric, value)
+		urls = append(urls, generatedURL)
 	}
 	return urls
 }
