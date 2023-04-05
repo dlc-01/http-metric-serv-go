@@ -56,8 +56,8 @@ func (metrics *MemMetrics) Check() {
 func (metrics *MemMetrics) GenerateURLMetrics(host string) []string {
 	var urls []string
 	for metric, value := range metrics.gauge {
-		generatedUrl := fmt.Sprintf("%s/update/gauge/%s/%f", host, metric, value)
-		urls = append(urls, generatedUrl)
+		generatedURL := fmt.Sprintf("%s/update/gauge/%s/%f", host, metric, value)
+		urls = append(urls, generatedURL)
 	}
 	for metric, value := range metrics.counter {
 		generatedUrl := fmt.Sprintf("%s/update/counter/%s/%d", host, metric, value)
