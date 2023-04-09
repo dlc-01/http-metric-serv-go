@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
-	"log"
-	"net/http"
+	"github.com/go-resty/resty/v2"
 	"time"
 )
 
 func main() {
-	host := "http://localhost:8080"
+	client := resty.New()
+
 	metrics := new(metrics.MemMetrics)
 	metrics.Init()
 	timeCounter := 1
@@ -18,19 +18,9 @@ func main() {
 		time.Sleep(2 * time.Second)
 		timeCounter++
 		if timeCounter%5 == 0 {
-			urls := metrics.GenerateURLMetrics(host)
+			urls := metrics.GenerateURLMetrics()
 			for _, url := range urls {
-				req, err := http.NewRequest(http.MethodPost, url, nil)
-				if err != nil {
-					log.Println(err)
-				}
-				client := &http.Client{}
-				req.Header.Set("Content-Type", "text/plain")
-				resp, err := client.Do(req)
-				if err != nil {
-					log.Println(err)
-				}
-				resp.Body.Close()
+				client.R().SetHeader("Content-Type", "text/plain").Post(url)
 			}
 		}
 

@@ -3,17 +3,18 @@ package main
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	router := gin.Default()
+
 	storage.Ms.Init()
 
-	mux.HandleFunc("/update/", handlers.UpdateHandlers)
+	router.POST("/update/:types/:name/:value", handlers.UpdateHandler)
 
-	err := http.ListenAndServe(`:8080`, mux)
-	if err != nil {
-		panic(err)
-	}
+	router.GET("/value/:types/:name", handlers.ValueHandler)
+
+	router.Run(":8080")
+
 }

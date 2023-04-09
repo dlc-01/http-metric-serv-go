@@ -2,36 +2,36 @@ package handlers
 
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-func UpdateHandlers(writer http.ResponseWriter, request *http.Request) {
-	check(writer, request)
+func UpdateHandler(gin *gin.Context) {
 
-	types, key, valueStr := parsURL(request.URL.String(), writer)
+	types := gin.Param("types")
+	key := gin.Param("name")
 	switch types {
 	case "counter":
-		value, err := strconv.ParseInt(valueStr, 10, 64)
+		value, err := strconv.ParseInt(gin.Param("value"), 10, 64)
 		if err != nil {
-			http.Error(writer, "Unsupported value", http.StatusBadRequest)
+			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
 		}
 		storage.Ms.SetCounter(key, value)
-		writer.Write([]byte(createResponse(key, storage.Ms.GetCounter(key))))
-		writer.WriteHeader(http.StatusOK)
+		value, _ = storage.Ms.GetCounter(key)
+		gin.String(http.StatusOK, createResponse(key, value))
 	case "gauge":
-		value, err := strconv.ParseFloat(valueStr, 64)
+		value, err := strconv.ParseFloat(gin.Param("value"), 64)
 		if err != nil {
-			http.Error(writer, "Unsupported value", http.StatusBadRequest)
+			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
 		}
 		storage.Ms.SetGauge(key, value)
-		writer.Write([]byte(createResponse(key, storage.Ms.GetGauge(key))))
-		writer.WriteHeader(http.StatusOK)
+		value, _ = storage.Ms.GetGauge(key)
+		gin.String(http.StatusOK, createResponse(key, value))
 	default:
-		http.Error(writer, "Not a supported metric.", http.StatusNotImplemented)
+		gin.String(http.StatusNotImplemented, "Not a supported metric.")
 		return
 	}
-
 }
