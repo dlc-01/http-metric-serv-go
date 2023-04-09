@@ -17,14 +17,14 @@ func ValueHandler(gin *gin.Context) {
 			gin.String(http.StatusNotFound, "Not a supported metric.")
 			return
 		}
-		gin.String(http.StatusOK, fmt.Sprintf("%d", value))
+		gin.String(http.StatusOK, fmt.Sprintf("%v", value))
 	case "gauge":
 		value, exist := storage.Ms.GetGauge(key)
 		if !exist {
 			gin.String(http.StatusNotFound, "Not a supported metric.")
 			return
 		}
-		gin.String(http.StatusOK, fmt.Sprintf("%.3f", value))
+		gin.String(http.StatusOK, fmt.Sprintf("%v", value))
 	default:
 		gin.String(http.StatusNotFound, "Not a supported metric.")
 		return
