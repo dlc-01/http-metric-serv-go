@@ -17,11 +17,11 @@ func UpdateHandler(gin *gin.Context) {
 		gin.String(http.StatusNotFound, "Unsupported URL.")
 		return
 	}
-	key := url[2]
+	key := url[1]
 
 	switch types {
 	case "counter":
-		value, err := strconv.ParseInt(url[3], 10, 64)
+		value, err := strconv.ParseInt(url[2], 10, 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
