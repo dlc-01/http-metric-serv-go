@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	router := gin.Default()
 
 	storage.Ms.Init()

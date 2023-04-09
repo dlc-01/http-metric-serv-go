@@ -24,7 +24,7 @@ func ValueHandler(gin *gin.Context) {
 			gin.String(http.StatusNotFound, "Not a supported metric.")
 			return
 		}
-		gin.String(http.StatusOK, fmt.Sprintf("%3.f", value))
+		gin.String(http.StatusOK, fmt.Sprintf("%.3f", value))
 	default:
 		gin.String(http.StatusNotFound, "Not a supported metric.")
 		return
