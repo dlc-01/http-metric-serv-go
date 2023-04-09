@@ -30,7 +30,7 @@ func UpdateHandler(gin *gin.Context) {
 		value, _ = storage.Ms.GetCounter(key)
 		gin.String(http.StatusOK, createResponse(key, value))
 	case "gauge":
-		value, err := strconv.ParseFloat(url[3], 64)
+		value, err := strconv.ParseFloat(url[2], 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
