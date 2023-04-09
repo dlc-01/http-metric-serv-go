@@ -13,14 +13,14 @@ func ValueHandler(gin *gin.Context) {
 	switch types {
 	case "counter":
 		value, exist := storage.Ms.GetCounter(key)
-		if exist == false {
+		if !exist {
 			gin.String(http.StatusNotFound, "Not a supported metric.")
 			return
 		}
 		gin.String(http.StatusOK, fmt.Sprintf("%d", value))
 	case "gauge":
 		value, exist := storage.Ms.GetGauge(key)
-		if exist == false {
+		if !exist {
 			gin.String(http.StatusNotFound, "Not a supported metric.")
 			return
 		}

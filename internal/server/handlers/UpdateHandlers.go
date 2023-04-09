@@ -5,15 +5,23 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func UpdateHandler(gin *gin.Context) {
 
 	types := gin.Param("types")
-	key := gin.Param("name")
+	keyValue := gin.Param("name")
+	url := strings.Split(keyValue, "/")
+	if len(url) != 3 {
+		gin.String(http.StatusNotFound, "Unsupported URL.")
+		return
+	}
+	key := url[2]
+
 	switch types {
 	case "counter":
-		value, err := strconv.ParseInt(gin.Param("value"), 10, 64)
+		value, err := strconv.ParseInt(url[3], 10, 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
@@ -22,7 +30,7 @@ func UpdateHandler(gin *gin.Context) {
 		value, _ = storage.Ms.GetCounter(key)
 		gin.String(http.StatusOK, createResponse(key, value))
 	case "gauge":
-		value, err := strconv.ParseFloat(gin.Param("value"), 64)
+		value, err := strconv.ParseFloat(url[3], 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported value")
 			return

@@ -11,7 +11,7 @@ func main() {
 
 	storage.Ms.Init()
 
-	router.POST("/update/:types/:name/:value", handlers.UpdateHandler)
+	router.POST("/update/:types/*name", handlers.UpdateHandler)
 
 	router.GET("/value/:types/:name", handlers.ValueHandler)
 
