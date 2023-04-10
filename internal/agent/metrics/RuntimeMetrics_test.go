@@ -16,8 +16,8 @@ func TestMemMetrics_Check(t *testing.T) {
 		{
 			name: "firstTest",
 			fields: fields{gauge: map[string]float64{
-				"Alloc":  5.454,
-				"Pizdec": 5.7,
+				"Alloc": 5.454,
+				"Da":    5.7,
 			}, counter: map[string]int64{
 				"first":  1,
 				"second": 2,

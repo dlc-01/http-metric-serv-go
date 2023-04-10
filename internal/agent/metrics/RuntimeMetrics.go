@@ -53,14 +53,14 @@ func (metrics *MemMetrics) Check() {
 	metrics.gauge["RandomValue"] = rand.Float64()
 	metrics.counter["PollCount"]++
 }
-func (metrics *MemMetrics) GenerateURLMetrics() []string {
+func (metrics *MemMetrics) GenerateURLMetrics(host string) []string {
 	var urls []string
 	for metric, value := range metrics.gauge {
-		generatedURL := fmt.Sprintf("http://localhost:8080/update/gauge/%s/%f", metric, value)
+		generatedURL := fmt.Sprintf("http://%s/update/gauge/%s/%f", host, metric, value)
 		urls = append(urls, generatedURL)
 	}
 	for metric, value := range metrics.counter {
-		generatedURL := fmt.Sprintf("http://localhost:8080/update/counter/%s/%d", metric, value)
+		generatedURL := fmt.Sprintf("http://%s/update/counter/%s/%d", host, metric, value)
 		urls = append(urls, generatedURL)
 	}
 	return urls
