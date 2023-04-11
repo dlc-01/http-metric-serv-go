@@ -30,7 +30,7 @@ func parseFlagsOs() {
 		}
 		report = int(intReport)
 	}
-	if envPoll := os.Getenv("ADDRESS"); envPoll != "" {
+	if envPoll := os.Getenv("POLL_INTERVAL"); envPoll != "" {
 		intPoll, err := strconv.ParseInt(envPoll, 10, 32)
 		if err != nil {
 			panic(err)
