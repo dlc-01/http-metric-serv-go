@@ -9,7 +9,6 @@ import (
 )
 
 func UpdateHandler(gin *gin.Context) {
-
 	types := gin.Param("types")
 	keyValue := gin.Param("name")
 	url := strings.Split(keyValue, "/")
@@ -18,7 +17,6 @@ func UpdateHandler(gin *gin.Context) {
 		return
 	}
 	key := url[1]
-
 	switch types {
 	case "counter":
 		value, err := strconv.ParseInt(url[2], 10, 64)

@@ -45,11 +45,9 @@ func main() {
 	pollInterval := time.Duration(poll) * time.Second
 	reportInterval := time.Duration(report) * time.Second
 	client := resty.New()
-
 	metrics := new(metrics.MemMetrics)
 	metrics.Init()
 	timeCounter := 0
-
 	for {
 		metrics.Check()
 		time.Sleep(pollInterval)

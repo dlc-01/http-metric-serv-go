@@ -22,18 +22,14 @@ func parseFlagsOs() {
 }
 
 func setupRouter() *gin.Engine {
-
 	router := gin.Default()
-
 	router.POST("/update/:types/*name", handlers.UpdateHandler)
-
 	router.GET("/value/:types/:name", handlers.ValueHandler)
 	return router
 }
 
 func main() {
 	parseFlagsOs()
-
 	router := setupRouter()
 	storage.Ms.Init()
 	router.Run(serverAddress)
