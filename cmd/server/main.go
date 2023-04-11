@@ -6,16 +6,19 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
+	"os"
 )
 
 var (
 	serverAddress string
 )
 
-func parseFlags() {
+func parseFlagsOs() {
 	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
-
 	flag.Parse()
+	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
+		serverAddress = envServerAddress
+	}
 }
 
 func setupRouter() *gin.Engine {
@@ -29,7 +32,8 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-	parseFlags()
+	parseFlagsOs()
+
 	router := setupRouter()
 	storage.Ms.Init()
 	router.Run(serverAddress)

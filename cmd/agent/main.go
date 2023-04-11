@@ -4,6 +4,8 @@ import (
 	"flag"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
 	"github.com/go-resty/resty/v2"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -13,15 +15,33 @@ var (
 	poll          int
 )
 
-func parseFlags() {
+func parseFlagsOs() {
 	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
 	flag.IntVar(&report, "r", 10, "report interval")
 	flag.IntVar(&poll, "p", 2, "poll interval")
 	flag.Parse()
+	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
+		serverAddress = envServerAddress
+	}
+	if envReport := os.Getenv("REPORT_INTERVAL"); envReport != "" {
+		intReport, err := strconv.ParseInt(envReport, 10, 32)
+		if err != nil {
+			panic(err)
+		}
+		report = int(intReport)
+	}
+	if envPoll := os.Getenv("ADDRESS"); envPoll != "" {
+		intPoll, err := strconv.ParseInt(envPoll, 10, 32)
+		if err != nil {
+			panic(err)
+		}
+		report = int(intPoll)
+	}
+
 }
 
 func main() {
-	parseFlags()
+	parseFlagsOs()
 	pollInterval := time.Duration(poll) * time.Second
 	reportInterval := time.Duration(report) * time.Second
 	client := resty.New()
