@@ -35,7 +35,7 @@ func parseFlagsOs() {
 		if err != nil {
 			panic(err)
 		}
-		report = int(intPoll)
+		poll = int(intPoll)
 	}
 
 }
