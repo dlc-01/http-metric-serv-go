@@ -11,15 +11,11 @@ type MemMetrics struct {
 	counter map[string]int64
 }
 
-var gaugeMetrics = []string{"Alloc", "BuckHashSys", "Frees", "GCCPUFraction", "GCSys", "HeapAlloc", "HeapIdle", "HeapInuse", "HeapObjects",
-	"HeapReleased", "HeapSys", "LastGC", "Lookups", "MCacheInuse", "MCacheSys", "MSpanInuse", "MSpanSys", "Mallocs",
-	"NextGC", "NumForcedGC", "NumGC", "OtherSys", "PauseTotalNs", "StackInuse", "StackSys", "Sys", "TotalAlloc", "RandomValue"}
-
 func (metrics *MemMetrics) Init() {
 	metrics.gauge = make(map[string]float64)
 	metrics.counter = make(map[string]int64)
-
 }
+
 func (metrics *MemMetrics) Check() {
 	var Runtime runtime.MemStats
 	runtime.ReadMemStats(&Runtime)
@@ -53,12 +49,15 @@ func (metrics *MemMetrics) Check() {
 	metrics.gauge["RandomValue"] = rand.Float64()
 	metrics.counter["PollCount"]++
 }
+
 func (metrics *MemMetrics) GenerateURLMetrics(host string) []string {
 	var urls []string
+
 	for metric, value := range metrics.gauge {
 		generatedURL := fmt.Sprintf("http://%s/update/gauge/%s/%f", host, metric, value)
 		urls = append(urls, generatedURL)
 	}
+
 	for metric, value := range metrics.counter {
 		generatedURL := fmt.Sprintf("http://%s/update/counter/%s/%d", host, metric, value)
 		urls = append(urls, generatedURL)

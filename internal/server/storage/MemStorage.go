@@ -32,6 +32,7 @@ func (Ms *MemStorage) SetCounter(k string, v int64) {
 	if _, ok := Ms.counters[k]; !ok {
 		Ms.counters[k] = 0
 	}
+
 	Ms.counters[k] += v
 }
 

@@ -16,6 +16,7 @@ var (
 func parseFlagsOs() {
 	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
 	flag.Parse()
+
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		serverAddress = envServerAddress
 	}
@@ -30,8 +31,12 @@ func setupRouter() *gin.Engine {
 
 func main() {
 	parseFlagsOs()
+
 	router := setupRouter()
+
 	storage.Ms.Init()
+
 	router.Run(serverAddress)
+
 	fmt.Println("Server address:" + serverAddress)
 }
