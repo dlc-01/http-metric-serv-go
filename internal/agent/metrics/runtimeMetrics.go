@@ -6,17 +6,16 @@ import (
 	"runtime"
 )
 
-type MemMetrics struct {
+type MemStorage struct {
 	gauge   map[string]float64
 	counter map[string]int64
 }
 
-func (metrics *MemMetrics) Init() {
-	metrics.gauge = make(map[string]float64)
-	metrics.counter = make(map[string]int64)
+func Init() MemStorage {
+	return MemStorage{gauge: make(map[string]float64), counter: make(map[string]int64)}
 }
 
-func (metrics *MemMetrics) Check() {
+func (metrics *MemStorage) Check() {
 	var Runtime runtime.MemStats
 	runtime.ReadMemStats(&Runtime)
 	metrics.gauge["Alloc"] = float64(Runtime.Alloc)
@@ -50,7 +49,7 @@ func (metrics *MemMetrics) Check() {
 	metrics.counter["PollCount"]++
 }
 
-func (metrics *MemMetrics) GenerateURLMetrics(host string) []string {
+func (metrics *MemStorage) GenerateURLMetrics(host string) []string {
 	var urls []string
 
 	for metric, value := range metrics.gauge {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ func parseFlagsOs() {
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	router.POST("/update/:types/*name", handlers.UpdateHandler)
+	router.POST("/update/:types/:name", handlers.UpdateHandler)
 	router.GET("/value/:types/:name", handlers.ValueHandler)
 	return router
 }
@@ -34,9 +33,8 @@ func main() {
 
 	router := setupRouter()
 
-	storage.Ms.Init()
+	storage.Init()
 
 	router.Run(serverAddress)
 
-	fmt.Println("Server address:" + serverAddress)
 }

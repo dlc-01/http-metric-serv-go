@@ -5,48 +5,45 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 func UpdateHandler(gin *gin.Context) {
 	types := gin.Param("types")
-	keyValue := gin.Param("name")
+	key := gin.Param("name")
+	value := gin.Param("value")
 
-	url := strings.Split(keyValue, "/")
-	if len(url) != 3 {
-		gin.String(http.StatusNotFound, "Unsupported URL.")
-		return
-	}
-
-	key := url[1]
+	//url := strings.Split(keyValue, "/")
+	//if len(url) != 3 {
+	//	gin.String(http.StatusNotFound, "Unsupported URL.")
+	//	return
+	//}
+	//
+	//key := url[1]
 
 	switch types {
 	case "counter":
-		value, err := strconv.ParseInt(url[2], 10, 64)
+		value, err := strconv.ParseInt(value, 10, 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
 		}
-
-		storage.Ms.SetCounter(key, value)
-		value, _ = storage.Ms.GetCounter(key)
+		storage.SetCounter(key, value)
 
 		gin.String(http.StatusOK, createResponse(key, value))
 
 	case "gauge":
-		value, err := strconv.ParseFloat(url[2], 64)
+		value, err := strconv.ParseFloat(value, 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported value")
 			return
 		}
 
-		storage.Ms.SetGauge(key, value)
-		value, _ = storage.Ms.GetGauge(key)
+		storage.SetGauge(key, value)
 
 		gin.String(http.StatusOK, createResponse(key, value))
 
 	default:
-		gin.String(http.StatusNotImplemented, "Not a supported metric.")
+		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return
 	}
 }

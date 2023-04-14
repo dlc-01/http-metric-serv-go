@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
 	"github.com/go-resty/resty/v2"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -15,7 +18,7 @@ var (
 	poll          int
 )
 
-func parseFlagsOs() {
+func parseFlagsOs() error {
 	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
 	flag.IntVar(&report, "r", 10, "report interval")
 	flag.IntVar(&poll, "p", 2, "poll interval")
@@ -28,7 +31,7 @@ func parseFlagsOs() {
 	if envReport := os.Getenv("REPORT_INTERVAL"); envReport != "" {
 		intReport, err := strconv.ParseInt(envReport, 10, 32)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("cannot parse REPORT_INTERVAL: %w", err)
 		}
 		report = int(intReport)
 	}
@@ -36,38 +39,39 @@ func parseFlagsOs() {
 	if envPoll := os.Getenv("POLL_INTERVAL"); envPoll != "" {
 		intPoll, err := strconv.ParseInt(envPoll, 10, 32)
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("cannot parse POLL_INTERVAL: %w", err)
 		}
 		poll = int(intPoll)
 	}
+	return nil
 }
 
 func main() {
 	parseFlagsOs()
 
-	pollInterval := time.Duration(poll) * time.Second
-	reportInterval := time.Duration(report) * time.Second
-
 	client := resty.New()
 
-	metrics := new(metrics.MemMetrics)
-	metrics.Init()
+	m := metrics.Init()
 
-	timeCounter := 0
+	term := make(chan os.Signal, 1)
+	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
+	t1 := time.NewTicker(time.Second * time.Duration(report))
+	t2 := time.NewTicker(time.Second * time.Duration(poll))
+	running := true
 
-	for {
-		metrics.Check()
-
-		time.Sleep(pollInterval)
-
-		timeCounter++
-
-		if timeCounter == int(reportInterval/pollInterval) {
-			urls := metrics.GenerateURLMetrics(serverAddress)
-			
+	for running {
+		select {
+		case <-t1.C:
+			urls := m.GenerateURLMetrics(serverAddress)
 			for _, url := range urls {
 				client.R().SetHeader("Content-Type", "text/plain").Post(url)
 			}
+		case <-t2.C:
+			m.Check()
+		case <-term:
+			fmt.Printf("%+v\n", "termination")
+			running = false
 		}
 	}
+
 }
