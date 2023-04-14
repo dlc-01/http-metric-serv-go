@@ -29,9 +29,9 @@ func TestUpdateHandler1(t *testing.T) {
 			666.35,
 		},
 		{
-			"/update/gauge/",
-			"/update/gauge/",
-			http.StatusTemporaryRedirect,
+			"/update/gauge",
+			"/update/gauge",
+			http.StatusNotFound,
 			"nil",
 			0,
 		},
@@ -53,8 +53,8 @@ func TestUpdateHandler1(t *testing.T) {
 		},
 		{
 			"/update/counter/",
-			"/update/counter/",
-			http.StatusTemporaryRedirect,
+			"/update/counter",
+			http.StatusNotFound,
 			"nil",
 			0,
 		},
