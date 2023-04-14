@@ -12,7 +12,7 @@ type MemStorage struct {
 }
 
 func Init() MemStorage {
-	return MemStorage{gauge: make(map[string]float64), counter: make(map[string]int64)}
+	return MemStorage{make(map[string]float64), make(map[string]int64)}
 }
 
 func (metrics *MemStorage) Check() {
