@@ -10,7 +10,7 @@ import (
 func UpdateHandler(gin *gin.Context) {
 	types := gin.Param("types")
 	key := gin.Param("name")
-	value := gin.Param("value")
+	values := gin.Param("value")
 
 	//url := strings.Split(keyValue, "/")
 	//if len(url) != 3 {
@@ -22,9 +22,9 @@ func UpdateHandler(gin *gin.Context) {
 
 	switch types {
 	case "counter":
-		value, err := strconv.ParseInt(value, 10, 64)
+		value, err := strconv.ParseInt(values, 10, 64)
 		if err != nil {
-			gin.String(http.StatusBadRequest, "Unsupported value")
+			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
 		storage.SetCounter(key, value)
@@ -32,9 +32,9 @@ func UpdateHandler(gin *gin.Context) {
 		gin.String(http.StatusOK, createResponse(key, value))
 
 	case "gauge":
-		value, err := strconv.ParseFloat(value, 64)
+		value, err := strconv.ParseFloat(values, 64)
 		if err != nil {
-			gin.String(http.StatusBadRequest, "Unsupported value")
+			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
 

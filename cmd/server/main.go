@@ -23,7 +23,7 @@ func parseFlagsOs() {
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	router.POST("/update/:types/:name", handlers.UpdateHandler)
+	router.POST("/update/:types/:name/:value", handlers.UpdateHandler)
 	router.GET("/value/:types/:name", handlers.ValueHandler)
 	return router
 }
