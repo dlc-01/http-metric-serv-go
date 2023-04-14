@@ -12,14 +12,6 @@ func UpdateHandler(gin *gin.Context) {
 	key := gin.Param("name")
 	values := gin.Param("value")
 
-	//url := strings.Split(keyValue, "/")
-	//if len(url) != 3 {
-	//	gin.String(http.StatusNotFound, "Unsupported URL.")
-	//	return
-	//}
-	//
-	//key := url[1]
-
 	switch types {
 	case "counter":
 		value, err := strconv.ParseInt(values, 10, 64)
