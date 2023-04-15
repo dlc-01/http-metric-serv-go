@@ -15,7 +15,6 @@ var (
 func parseFlagsOs() {
 	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
 	flag.Parse()
-
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		serverAddress = envServerAddress
 	}

@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestValueHandler(t *testing.T) {
+func TestValueHandlerGauge(t *testing.T) {
 	router := gin.Default()
 	router.POST("/update/:types/:name/:value", UpdateHandler)
 	router.GET("/value/:types/:name", ValueHandler)
@@ -38,6 +38,28 @@ func TestValueHandler(t *testing.T) {
 		},
 	}
 
+	for _, tt := range testsGauge {
+		reqPost, _ := http.NewRequest(http.MethodPost, tt.urlPost, nil)
+		wPost := httptest.NewRecorder()
+		router.ServeHTTP(wPost, reqPost)
+		reqGet, _ := http.NewRequest(http.MethodGet, tt.urlGet, nil)
+		wGet := httptest.NewRecorder()
+		router.ServeHTTP(wGet, reqGet)
+		assert.Equal(t, tt.expectedCode, wGet.Code)
+		if wGet.Code == http.StatusOK {
+
+			assert.Equal(t, tt.expectedValueFloat, wGet.Body.String())
+
+		}
+	}
+
+}
+func TestValueHandlerCounter(t *testing.T) {
+	router := gin.Default()
+	router.POST("/update/:types/:name/:value", UpdateHandler)
+	router.GET("/value/:types/:name", ValueHandler)
+	storage.Init()
+
 	testsCounter := []struct {
 		name             string
 		urlPost          string
@@ -61,20 +83,6 @@ func TestValueHandler(t *testing.T) {
 		},
 	}
 
-	for _, tt := range testsGauge {
-		reqPost, _ := http.NewRequest(http.MethodPost, tt.urlPost, nil)
-		wPost := httptest.NewRecorder()
-		router.ServeHTTP(wPost, reqPost)
-		reqGet, _ := http.NewRequest(http.MethodGet, tt.urlGet, nil)
-		wGet := httptest.NewRecorder()
-		router.ServeHTTP(wGet, reqGet)
-		assert.Equal(t, tt.expectedCode, wGet.Code)
-		if wGet.Code == http.StatusOK {
-
-			assert.Equal(t, tt.expectedValueFloat, wGet.Body.String())
-
-		}
-	}
 	for _, tt := range testsCounter {
 		reqPost, _ := http.NewRequest(http.MethodPost, tt.urlPost, nil)
 		wPost := httptest.NewRecorder()
@@ -89,4 +97,5 @@ func TestValueHandler(t *testing.T) {
 
 		}
 	}
+
 }

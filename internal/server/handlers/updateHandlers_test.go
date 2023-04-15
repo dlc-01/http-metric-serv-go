@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestUpdateHandler1(t *testing.T) {
+func TestUpdateHandlerGauge(t *testing.T) {
 	router := gin.Default()
 	router.POST("/update/:types/:name/:value", UpdateHandler)
 	storage.Init()
@@ -37,6 +37,25 @@ func TestUpdateHandler1(t *testing.T) {
 		},
 	}
 
+	for _, tt := range testsGauge {
+		req, _ := http.NewRequest(http.MethodPost, tt.url, nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		assert.Equal(t, tt.expectedCode, w.Code)
+		if w.Code == http.StatusOK {
+			val, _ := storage.GetGauge(tt.nameValue)
+			assert.Equal(t, tt.expectedValueFloat, val)
+
+		}
+	}
+
+}
+
+func TestUpdateHandlerCounter(t *testing.T) {
+	router := gin.Default()
+	router.POST("/update/:types/:name/:value", UpdateHandler)
+	storage.Init()
+
 	testsCounter := []struct {
 		name             string
 		url              string
@@ -60,17 +79,6 @@ func TestUpdateHandler1(t *testing.T) {
 		},
 	}
 
-	for _, tt := range testsGauge {
-		req, _ := http.NewRequest(http.MethodPost, tt.url, nil)
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-		assert.Equal(t, tt.expectedCode, w.Code)
-		if w.Code == http.StatusOK {
-			val, _ := storage.GetGauge(tt.nameValue)
-			assert.Equal(t, tt.expectedValueFloat, val)
-
-		}
-	}
 	for _, tt := range testsCounter {
 		req, _ := http.NewRequest(http.MethodPost, tt.url, nil)
 		w := httptest.NewRecorder()
@@ -81,4 +89,5 @@ func TestUpdateHandler1(t *testing.T) {
 			assert.Equal(t, tt.expectedValueInt, val)
 		}
 	}
+
 }

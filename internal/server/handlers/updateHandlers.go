@@ -29,7 +29,6 @@ func UpdateHandler(gin *gin.Context) {
 			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
-
 		storage.SetGauge(key, value)
 
 		gin.String(http.StatusOK, createResponse(key, value))
