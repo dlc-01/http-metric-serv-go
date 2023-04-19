@@ -30,7 +30,7 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-	middleware.InitLogging()
+	middleware.InitLogger()
 
 	parseFlagsOs()
 

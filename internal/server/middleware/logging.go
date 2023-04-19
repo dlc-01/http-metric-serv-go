@@ -7,15 +7,15 @@ import (
 	"time"
 )
 
-var sugarLog zap.SugaredLogger
+var sLog zap.SugaredLogger
 
-func InitLogging() {
+func InitLogger() {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Fatalf("cannot init logger: %v", err)
 	}
 	defer logger.Sync()
-	sugarLog = *logger.Sugar()
+	sLog = *logger.Sugar()
 }
 
 func Logger() gin.HandlerFunc {
@@ -23,13 +23,13 @@ func Logger() gin.HandlerFunc {
 		t := time.Now()
 		c.Next()
 		latency := time.Since(t)
-		sugarLog.Infoln(
+		sLog.Infoln(
 			"type", "request",
 			"uri", c.Request.RequestURI,
 			"method", c.Request.Method,
 			"duration", latency,
 		)
-		sugarLog.Infoln(
+		sLog.Infoln(
 			"type", "response",
 			"status", c.Writer.Status(),
 			"size", c.Writer.Size(),
