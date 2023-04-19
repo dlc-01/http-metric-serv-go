@@ -8,6 +8,7 @@ import (
 )
 
 func UpdateHandler(gin *gin.Context) {
+
 	types := gin.Param("types")
 	key := gin.Param("name")
 	values := gin.Param("value")
@@ -20,6 +21,7 @@ func UpdateHandler(gin *gin.Context) {
 			return
 		}
 		storage.SetCounter(key, value)
+		value, _ = storage.GetCounter(key)
 
 		gin.String(http.StatusOK, createResponse(key, value))
 
