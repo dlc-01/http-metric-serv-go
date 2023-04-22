@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func ValueJsonHandler(gin *gin.Context) {
+func ValueJSONHandler(gin *gin.Context) {
 	var metrics storage.Metrics
 	var buf bytes.Buffer
 

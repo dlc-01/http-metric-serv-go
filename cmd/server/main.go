@@ -26,8 +26,8 @@ func setupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(middleware.Logger())
 	router.POST("/update/:types/:name/:value", url.UpdateHandler)
-	router.POST("/update/", json.UpdateJsonHandler)
-	router.POST("/value/", json.ValueJsonHandler)
+	router.POST("/update/", json.UpdateJSONHandler)
+	router.POST("/value/", json.ValueJSONHandler)
 	router.GET("/value/:types/:name", url.ValueHandler)
 	return router
 }

@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func UpdateJsonHandler(gin *gin.Context) {
+func UpdateJSONHandler(gin *gin.Context) {
 	var metrics storage.Metrics
 	var buf bytes.Buffer
 
