@@ -1,4 +1,4 @@
-package flagsOs
+package flagsandos
 
 import (
 	"flag"

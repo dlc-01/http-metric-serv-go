@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	flagsOs.ParseFlagsOs()
+	flagsandos.ParseFlagsOs()
 
 	client := resty.New()
 
@@ -21,8 +21,8 @@ func main() {
 
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
-	t1 := time.NewTicker(time.Second * time.Duration(flagsOs.Report))
-	t2 := time.NewTicker(time.Second * time.Duration(flagsOs.Poll))
+	t1 := time.NewTicker(time.Second * time.Duration(flagsandos.Report))
+	t2 := time.NewTicker(time.Second * time.Duration(flagsandos.Poll))
 	running := true
 
 	for running {
@@ -36,7 +36,7 @@ func main() {
 			for _, request := range requests {
 				client.R().SetHeader("Content-Type", "application/json").
 					SetBody(request).
-					Post(fmt.Sprintf("http://%s/update/", flagsOs.ServerAddress))
+					Post(fmt.Sprintf("http://%s/update/", flagsandos.ServerAddress))
 
 			}
 		case <-t2.C:
