@@ -1,6 +1,7 @@
-package handlers
+package url
 
 import (
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -14,7 +15,7 @@ func UpdateHandler(gin *gin.Context) {
 	values := gin.Param("value")
 
 	switch types {
-	case "counter":
+	case CounterTypeName:
 		value, err := strconv.ParseInt(values, 10, 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported values")
@@ -23,9 +24,9 @@ func UpdateHandler(gin *gin.Context) {
 		storage.SetCounter(key, value)
 		value, _ = storage.GetCounter(key)
 
-		gin.String(http.StatusOK, createResponse(key, value))
+		gin.String(http.StatusOK, handlers.CreateResponse(key, value))
 
-	case "gauge":
+	case GaugeTypeName:
 		value, err := strconv.ParseFloat(values, 64)
 		if err != nil {
 			gin.String(http.StatusBadRequest, "Unsupported values")
@@ -33,7 +34,7 @@ func UpdateHandler(gin *gin.Context) {
 		}
 		storage.SetGauge(key, value)
 
-		gin.String(http.StatusOK, createResponse(key, value))
+		gin.String(http.StatusOK, handlers.CreateResponse(key, value))
 
 	default:
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")

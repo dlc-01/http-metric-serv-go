@@ -1,4 +1,4 @@
-package handlers
+package url
 
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"

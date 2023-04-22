@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"math/rand"
 	"runtime"
 )
@@ -62,4 +63,27 @@ func (metrics *MemStorage) GenerateURLMetrics(host string) []string {
 		urls = append(urls, generatedURL)
 	}
 	return urls
+}
+
+func (metrics *MemStorage) GenerateStructMetrics() []interface{} {
+	var requests []interface{}
+
+	for metric, value := range metrics.gauge {
+		request := storage.Metrics{
+			ID:    metric,
+			MType: "gauge",
+			Value: &value,
+		}
+		requests = append(requests, request)
+	}
+
+	for metric, value := range metrics.counter {
+		request := storage.Metrics{
+			ID:    metric,
+			MType: "counter",
+			Delta: &value,
+		}
+		requests = append(requests, request)
+	}
+	return requests
 }
