@@ -1,4 +1,4 @@
-package flagsos
+package flags
 
 import (
 	"flag"
