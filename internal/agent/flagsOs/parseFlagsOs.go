@@ -1,4 +1,4 @@
-package flagsandos
+package flagsos
 
 import (
 	"flag"
