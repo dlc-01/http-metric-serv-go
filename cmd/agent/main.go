@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/flagsOs"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/go-resty/resty/v2"
 
 	"os"
@@ -32,13 +33,40 @@ func main() {
 			//for _, url := range urls {
 			//	client.R().SetHeader("Content-Type", "text/plain").Post(url)
 			//}
-			requests := m.GenerateStructMetrics()
-			for _, request := range requests {
+
+			for metric, value := range m.Gauge {
+				request := storage.Metrics{
+					ID:    metric,
+					MType: "gauge",
+					Value: &value,
+				}
 				client.R().SetHeader("Content-Type", "application/json").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flagsos.ServerAddress))
-
 			}
+			for metric, value := range m.Counter {
+				request := storage.Metrics{
+					ID:    metric,
+					MType: "counter",
+					Delta: &value,
+				}
+				client.R().SetHeader("Content-Type", "application/json").
+					SetBody(request).
+					Post(fmt.Sprintf("http://%s/update/", flagsos.ServerAddress))
+			}
+
+			/*
+				Как лучше сделать?
+				Как ниже коммит или как используется?
+			*/
+
+			//requests := m.GenerateStructMetrics()
+			//for _, request := range requests {
+			//	client.R().SetHeader("Content-Type", "application/json").
+			//		SetBody(request).
+			//		Post(fmt.Sprintf("http://%s/update/", flagsos.ServerAddress))
+			//}
+
 		case <-t2.C:
 			m.Check()
 		case <-term:
