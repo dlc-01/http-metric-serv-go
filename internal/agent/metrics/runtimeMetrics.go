@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"math/rand"
 	"runtime"
@@ -50,40 +50,28 @@ func (metrics *MemStorage) Check() {
 	metrics.Counter["PollCount"]++
 }
 
-func (metrics *MemStorage) GenerateURLMetrics(host string) []string {
-	var urls []string
-
-	for metric, value := range metrics.Gauge {
-		generatedURL := fmt.Sprintf("http://%s/update/gauge/%s/%f", host, metric, value)
-		urls = append(urls, generatedURL)
-	}
-
-	for metric, value := range metrics.Counter {
-		generatedURL := fmt.Sprintf("http://%s/update/counter/%s/%d", host, metric, value)
-		urls = append(urls, generatedURL)
-	}
-	return urls
-}
-
-func (metrics *MemStorage) GenerateStructMetrics() []interface{} {
-	var requests []interface{}
-
-	for metric, value := range metrics.Gauge {
+func (metrics *MemStorage) GenerateStructMetrics(types string, metric string, i64 int64, f64 float64) storage.Metrics {
+	switch types {
+	case url.GaugeTypeName:
 		request := storage.Metrics{
 			ID:    metric,
-			MType: "Gauge",
-			Value: &value,
+			MType: types,
+			Value: &f64,
 		}
-		requests = append(requests, request)
-	}
-
-	for metric, value := range metrics.Counter {
+		return request
+	case url.CounterTypeName:
 		request := storage.Metrics{
 			ID:    metric,
-			MType: "Counter",
-			Delta: &value,
+			MType: types,
+			Delta: &i64,
 		}
-		requests = append(requests, request)
+		return request
+	default:
+		request := storage.Metrics{
+			ID:    metric,
+			MType: types,
+		}
+		return request
 	}
-	return requests
+
 }

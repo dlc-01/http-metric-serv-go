@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/flags"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/go-resty/resty/v2"
 
 	"os"
@@ -29,44 +28,18 @@ func main() {
 	for running {
 		select {
 		case <-t1.C:
-			//urls := m.GenerateURLMetrics(flags.ServerAddress)
-			//for _, url := range urls {
-			//	client.R().SetHeader("Content-Type", "text/plain").Post(url)
-			//}
-
 			for metric, value := range m.Gauge {
-				request := storage.Metrics{
-					ID:    metric,
-					MType: "gauge",
-					Value: &value,
-				}
+				request := m.GenerateStructMetrics("gauge", metric, 0, value)
 				client.R().SetHeader("Content-Type", "application/json").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}
 			for metric, value := range m.Counter {
-				request := storage.Metrics{
-					ID:    metric,
-					MType: "counter",
-					Delta: &value,
-				}
+				request := m.GenerateStructMetrics("counter", metric, value, 0)
 				client.R().SetHeader("Content-Type", "application/json").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}
-
-			/*
-				Как лучше сделать?
-				Как ниже коммит или как используется?
-			*/
-
-			//requests := m.GenerateStructMetrics()
-			//for _, request := range requests {
-			//	client.R().SetHeader("Content-Type", "application/json").
-			//		SetBody(request).
-			//		Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
-			//}
-
 		case <-t2.C:
 			m.Check()
 		case <-term:
