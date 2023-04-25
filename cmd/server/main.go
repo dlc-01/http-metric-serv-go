@@ -4,7 +4,8 @@ import (
 	"flag"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -24,7 +25,7 @@ func parseFlagsOs() {
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(middleware.Logger())
+	router.Use(logging.Logger(), gzip.DefaultDecompressHandle)
 	router.POST("/update/:types/:name/:value", url.UpdateHandler)
 	router.POST("/update/", json.UpdateJSONHandler)
 	router.POST("/value/", json.ValueJSONHandler)
@@ -33,7 +34,7 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
-	middleware.InitLogger()
+	logging.InitLogger()
 
 	parseFlagsOs()
 

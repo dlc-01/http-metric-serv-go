@@ -1,6 +1,10 @@
 package metrics
 
 import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
+	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"math/rand"
@@ -50,28 +54,41 @@ func (metrics *MemStorage) Check() {
 	metrics.Counter["PollCount"]++
 }
 
-func (metrics *MemStorage) GenerateStructMetrics(types string, metric string, i64 int64, f64 float64) storage.Metrics {
+func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 int64, f64 float64) (*bytes.Buffer, error) {
 	switch types {
 	case url.GaugeTypeName:
-		request := storage.Metrics{
+		json, err := json.Marshal(storage.Metrics{
 			ID:    metric,
 			MType: types,
 			Value: &f64,
+		})
+		if err != nil {
+			fmt.Errorf("cannot marshal request to json")
+			return nil, err
 		}
-		return request
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		gz.Write(json)
+		gz.Close()
+		return &buf, nil
 	case url.CounterTypeName:
-		request := storage.Metrics{
+		json, err := json.Marshal(storage.Metrics{
 			ID:    metric,
 			MType: types,
 			Delta: &i64,
+		})
+		if err != nil {
+			fmt.Errorf("cannot marshal request to json")
+			return nil, err
 		}
-		return request
+		var buf bytes.Buffer
+		gz := gzip.NewWriter(&buf)
+		gz.Write(json)
+		gz.Close()
+		return &buf, nil
 	default:
-		request := storage.Metrics{
-			ID:    metric,
-			MType: types,
-		}
-		return request
-	}
 
+		return nil, fmt.Errorf("unsupported metric type")
+	}
+	return nil, nil
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/flags"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/go-resty/resty/v2"
 
 	"os"
@@ -28,15 +29,22 @@ func main() {
 	for running {
 		select {
 		case <-t1.C:
+
 			for metric, value := range m.Gauge {
-				request := m.GenerateStructMetrics("gauge", metric, 0, value)
-				client.R().SetHeader("Content-Type", "application/json").
+				request, err := m.GenerateRequestBody(url.GaugeTypeName, metric, 0, value)
+				if err != nil {
+					panic(err)
+				}
+				client.R().SetHeader("Content-Encoding", "gzip").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}
 			for metric, value := range m.Counter {
-				request := m.GenerateStructMetrics("counter", metric, value, 0)
-				client.R().SetHeader("Content-Type", "application/json").
+				request, err := m.GenerateRequestBody(url.CounterTypeName, metric, value, 0)
+				if err != nil {
+					panic(err)
+				}
+				client.R().SetHeader("Content-Encoding", "gzip").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}

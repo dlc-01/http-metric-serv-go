@@ -48,7 +48,6 @@ func ValueJSONHandler(gin *gin.Context) {
 			gin.String(http.StatusNotFound, fmt.Sprintf("Gauge %q not found", key))
 			return
 		}
-
 		result := storage.Metrics{
 			ID:    metrics.ID,
 			MType: metrics.MType,
