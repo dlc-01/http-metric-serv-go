@@ -247,7 +247,7 @@ jobs:
             -source-path=. \
             -server-port=$SERVER_PORT \
             -agent-binary-path=cmd/agent/agent \
-            -binary-path=cmd/server/server \
+            -binary-path=cmd/server/server
 
 
       - name: "Code increment #9"
