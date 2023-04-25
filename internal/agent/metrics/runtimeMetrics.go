@@ -63,8 +63,7 @@ func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 
 			Value: &f64,
 		})
 		if err != nil {
-			fmt.Errorf("cannot marshal request to json: %w", err)
-			return nil
+			panic(fmt.Errorf("cannot marshal request to json: %w", err))
 		}
 		var buf bytes.Buffer
 		gz := gzip.NewWriter(&buf)
@@ -78,8 +77,7 @@ func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 
 			Delta: &i64,
 		})
 		if err != nil {
-			fmt.Errorf("cannot marshal request to json: %w", err)
-			return nil
+			panic(fmt.Errorf("cannot marshal request to json: %w", err))
 		}
 		var buf bytes.Buffer
 		gz := gzip.NewWriter(&buf)

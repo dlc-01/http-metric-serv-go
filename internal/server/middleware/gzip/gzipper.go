@@ -7,7 +7,7 @@ import (
 )
 
 func DefaultDecompressHandle(gin *gin.Context) {
-	if gin.Request.Header.Get("Accept-Encoding") != "gzip" {
+	if gin.Request.Header.Get("Content-Encoding") != "gzip" {
 		return
 	}
 	if gin.Request.Body == nil {
