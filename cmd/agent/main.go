@@ -31,19 +31,14 @@ func main() {
 		case <-t1.C:
 
 			for metric, value := range m.Gauge {
-				request, err := m.GenerateRequestBody(url.GaugeTypeName, metric, 0, value)
-				if err != nil {
-					panic(err)
-				}
+				request := m.GenerateRequestBody(url.GaugeTypeName, metric, 0, value)
+
 				client.R().SetHeader("Content-Encoding", "gzip").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}
 			for metric, value := range m.Counter {
-				request, err := m.GenerateRequestBody(url.CounterTypeName, metric, value, 0)
-				if err != nil {
-					panic(err)
-				}
+				request := m.GenerateRequestBody(url.CounterTypeName, metric, value, 0)
 				client.R().SetHeader("Content-Encoding", "gzip").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))

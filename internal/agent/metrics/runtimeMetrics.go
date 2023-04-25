@@ -54,7 +54,7 @@ func (metrics *MemStorage) Check() {
 	metrics.Counter["PollCount"]++
 }
 
-func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 int64, f64 float64) (*bytes.Buffer, error) {
+func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 int64, f64 float64) *bytes.Buffer {
 	switch types {
 	case url.GaugeTypeName:
 		json, err := json.Marshal(storage.Metrics{
@@ -63,14 +63,14 @@ func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 
 			Value: &f64,
 		})
 		if err != nil {
-			fmt.Errorf("cannot marshal request to json")
-			return nil, err
+			fmt.Errorf("cannot marshal request to json: %w", err)
+			return nil
 		}
 		var buf bytes.Buffer
 		gz := gzip.NewWriter(&buf)
 		gz.Write(json)
 		gz.Close()
-		return &buf, nil
+		return &buf
 	case url.CounterTypeName:
 		json, err := json.Marshal(storage.Metrics{
 			ID:    metric,
@@ -78,17 +78,15 @@ func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 
 			Delta: &i64,
 		})
 		if err != nil {
-			fmt.Errorf("cannot marshal request to json")
-			return nil, err
+			fmt.Errorf("cannot marshal request to json: %w", err)
+			return nil
 		}
 		var buf bytes.Buffer
 		gz := gzip.NewWriter(&buf)
 		gz.Write(json)
 		gz.Close()
-		return &buf, nil
+		return &buf
 	default:
-
-		return nil, fmt.Errorf("unsupported metric type")
+		return nil
 	}
-	return nil, nil
 }
