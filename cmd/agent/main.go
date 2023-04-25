@@ -32,7 +32,6 @@ func main() {
 
 			for metric, value := range m.Gauge {
 				request := m.GenerateRequestBody(url.GaugeTypeName, metric, 0, value)
-
 				client.R().SetHeader("Content-Encoding", "gzip").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))

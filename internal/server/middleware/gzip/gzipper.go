@@ -8,16 +8,17 @@ import (
 
 func DefaultDecompressHandle(gin *gin.Context) {
 	if gin.Request.Header.Get("Content-Encoding") != "gzip" {
+		gin.Next()
 		return
 	}
 	if gin.Request.Body == nil {
+		gin.Next()
 		return
 	}
 	r, err := gzip.NewReader(gin.Request.Body)
 	if err != nil {
-		_ = gin.AbortWithError(http.StatusBadRequest, err)
+		gin.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 	gin.Request.Body = r
-
 }
