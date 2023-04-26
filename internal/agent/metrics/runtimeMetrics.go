@@ -8,7 +8,6 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"math/rand"
-	"os"
 	"runtime"
 )
 
@@ -77,7 +76,6 @@ func (metrics *MemStorage) GenerateRequestBody(types string, metric string, i64 
 			MType: types,
 			Delta: &i64,
 		})
-		os.Stdout.Write(json)
 		if err != nil {
 			panic(fmt.Errorf("cannot marshal request to json: %w", err))
 		}
