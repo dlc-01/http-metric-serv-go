@@ -6,6 +6,11 @@ import (
 	"net/http"
 )
 
+type gzipWriter struct {
+	gin.ResponseWriter
+	writer *gzip.Writer
+}
+
 func DefaultDecompressHandle(gin *gin.Context) {
 	if gin.Request.Header.Get("Content-Encoding") != "gzip" {
 		gin.Next()
@@ -22,4 +27,19 @@ func DefaultDecompressHandle(gin *gin.Context) {
 	}
 	gin.Request.Body = r
 
+	if gin.Request.Header.Get("Accept-Encoding") != "gzip" {
+		gin.Next()
+		return
+	}
+	gz, err := gzip.NewWriterLevel(gin.Writer, gzip.BestSpeed)
+	defer gz.Close()
+	if err != nil {
+		gin.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	gin.Header("Content-Encoding", "gzip")
+
+	gin.Writer = &gzipWriter{gin.Writer, gz}
 }
+
