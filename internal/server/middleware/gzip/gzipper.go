@@ -21,4 +21,5 @@ func DefaultDecompressHandle(gin *gin.Context) {
 		return
 	}
 	gin.Request.Body = r
+	gin.Writer.Header().Add("Content-Encoding", "gzip")
 }
