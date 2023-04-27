@@ -14,6 +14,9 @@ func ValueJSONHandler(gin *gin.Context) {
 	var metrics storage.Metrics
 	var buf bytes.Buffer
 
+	if gin.Request.Header.Get("Content-Encoding") == "gzip" {
+		gin.Writer.Header().Add("Content-Encoding", "gzip")
+	}
 	_, err := buf.ReadFrom(gin.Request.Body)
 	if err != nil {
 		gin.String(http.StatusBadRequest, "Unsupported request body")
