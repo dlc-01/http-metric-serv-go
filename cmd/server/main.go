@@ -26,7 +26,7 @@ func parseFlagsOs() {
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(logging.Logger(), gzip.DefaultDecompressHandle)
+	router.Use(logging.Logger(), gzip.Gzip(gzip.BestSpeed))
 	router.POST("/update/:types/:name/:value", url.UpdateHandler)
 	router.POST("/update/", json.UpdateJSONHandler)
 	router.POST("/value/", json.ValueJSONHandler)

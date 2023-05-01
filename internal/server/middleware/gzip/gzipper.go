@@ -4,45 +4,59 @@ import (
 	"compress/gzip"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"path/filepath"
 	"strings"
 )
 
-type gzipWriter struct {
-	gin.ResponseWriter
-	gz *gzip.Writer
+const (
+	BestCompression    = gzip.BestCompression
+	BestSpeed          = gzip.BestSpeed
+	DefaultCompression = gzip.DefaultCompression
+	NoCompression      = gzip.NoCompression
+)
+
+func Gzip(level int) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !shouldCompress(c.Request) {
+			return
+		}
+		gz, err := gzip.NewWriterLevel(c.Writer, level)
+		if err != nil {
+			return
+		}
+
+		c.Header("Content-Encoding", "gzip")
+		c.Header("Vary", "Accept-Encoding")
+		c.Writer = &gzipWriter{c.Writer, gz}
+		defer func() {
+			c.Header("Content-Length", "0")
+			gz.Close()
+		}()
+		c.Next()
+	}
 }
 
-func DefaultDecompressHandle(gin *gin.Context) {
-	if gin.Request.Header.Get("Content-Encoding") == "gzip" {
-		gz, err := gzip.NewWriterLevel(gin.Writer, gzip.BestSpeed)
-		if err != nil {
-			gin.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+type gzipWriter struct {
+	gin.ResponseWriter
+	writer *gzip.Writer
+}
 
-		gin.Writer = &gzipWriter{gin.Writer, gz}
-		gz.Close()
-		gin.Writer.Header().Set("Content-Encoding", "gzip")
+func (g *gzipWriter) WriteString(s string) (int, error) {
+	return g.writer.Write([]byte(s))
+}
 
-		r, err := gzip.NewReader(gin.Request.Body)
-		if err != nil {
-			gin.AbortWithError(http.StatusBadRequest, err)
-			return
-		}
-		gin.Request.Body = r
-		r.Close()
+func (g *gzipWriter) Write(data []byte) (int, error) {
+	return g.writer.Write(data)
+}
 
-	} else if strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip") && !strings.Contains(gin.Request.Header.Get("Content-Encoding"), "gzip") {
-		gz, err := gzip.NewWriterLevel(gin.Writer, gzip.BestSpeed)
-		if err != nil {
-			gin.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
-
-		gin.Writer = &gzipWriter{gin.Writer, gz}
-		gz.Close()
-		gin.Writer.Header().Set("Content-Encoding", "gzip")
-
+func shouldCompress(req *http.Request) bool {
+	if !strings.Contains(req.Header.Get("Accept-Encoding"), "gzip") {
+		return false
+	}
+	extension := filepath.Ext(req.URL.Path)
+	if len(extension) < 4 { // fast path
+		return true
 	}
 
+	return true
 }
