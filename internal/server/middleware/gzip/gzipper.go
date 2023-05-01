@@ -16,23 +16,36 @@ const (
 )
 
 func Gzip(level int) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if !shouldCompress(c.Request) {
+	return func(gin *gin.Context) {
+		if gin.Request.Header.Get("Content-Encoding") == "gzip" {
+
+			gin.Writer.Header().Set("Content-Encoding", "gzip")
+
+			r, err := gzip.NewReader(gin.Request.Body)
+			if err != nil {
+				gin.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+			gin.Request.Body = r
+			r.Close()
+			gin.Next()
+		}
+		if !shouldCompress(gin.Request) {
 			return
 		}
-		gz, err := gzip.NewWriterLevel(c.Writer, level)
+		gz, err := gzip.NewWriterLevel(gin.Writer, level)
 		if err != nil {
 			return
 		}
 
-		c.Header("Content-Encoding", "gzip")
-		c.Header("Vary", "Accept-Encoding")
-		c.Writer = &gzipWriter{c.Writer, gz}
+		gin.Header("Content-Encoding", "gzip")
+		gin.Header("Vary", "Accept-Encoding")
+		gin.Writer = &gzipWriter{gin.Writer, gz}
 		defer func() {
-			c.Header("Content-Length", "0")
+			gin.Header("Content-Length", "0")
 			gz.Close()
 		}()
-		c.Next()
+		gin.Next()
 	}
 }
 
@@ -58,5 +71,10 @@ func shouldCompress(req *http.Request) bool {
 		return true
 	}
 
-	return true
+	switch extension {
+	case ".png", ".gif", ".jpeg", ".jpg":
+		return false
+	default:
+		return true
+	}
 }
