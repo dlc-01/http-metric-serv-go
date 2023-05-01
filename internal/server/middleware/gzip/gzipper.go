@@ -21,6 +21,7 @@ func DefaultDecompressHandle(gin *gin.Context) {
 
 		gin.Writer = &gzipWriter{gin.Writer, gz}
 		gz.Close()
+		gin.Writer.Header().Set("Content-Encoding", "gzip")
 
 		r, err := gzip.NewReader(gin.Request.Body)
 		if err != nil {
