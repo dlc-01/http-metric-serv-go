@@ -33,12 +33,16 @@ func main() {
 			for metric, value := range m.Gauge {
 				request := m.GenerateRequestBody(url.GaugeTypeName, metric, 0, value)
 				client.R().SetHeader("Content-Encoding", "gzip").
+					SetHeader("Accept-Encoding", "gzip").
+					SetHeader("Content-Type", "application/json").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}
 			for metric, value := range m.Counter {
 				request := m.GenerateRequestBody(url.CounterTypeName, metric, value, 0)
 				client.R().SetHeader("Content-Encoding", "gzip").
+					SetHeader("Accept-Encoding", "gzip").
+					SetHeader("Content-Type", "application/json").
 					SetBody(request).
 					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
 			}

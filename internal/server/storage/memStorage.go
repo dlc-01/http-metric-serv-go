@@ -39,3 +39,13 @@ func GetCounter(k string) (int64, bool) {
 	v, exist := ms.counters[k]
 	return v, exist
 }
+func GetAll() []string {
+	names := make([]string, 0)
+	for cm := range ms.counters {
+		names = append(names, cm)
+	}
+	for gm := range ms.gauges {
+		names = append(names, gm)
+	}
+	return names
+}
