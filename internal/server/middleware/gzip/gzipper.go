@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strings"
 )
 
 type gzipWriter struct {
@@ -25,17 +24,19 @@ func DefaultDecompressHandle(gin *gin.Context) {
 		}
 		gin.Request.Body = r
 		r.Close()
-	} else if !strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip") && !strings.Contains(gin.Request.Header.Get("Content-Encoding"), "gzip") {
-		gz, err := gzip.NewWriterLevel(gin.Writer, gzip.BestSpeed)
-		defer gz.Close()
-		if err != nil {
-			gin.AbortWithError(http.StatusInternalServerError, err)
-			return
-		}
+		//} else if !strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip") && !strings.Contains(gin.Request.Header.Get("Content-Encoding"), "gzip") {
+		//	gz, err := gzip.NewWriterLevel(gin.Writer, gzip.BestSpeed)
+		//
+		//	if err != nil {
+		//		gin.AbortWithError(http.StatusInternalServerError, err)
+		//		return
+		//	}
+		//
+		//	gin.Header("Content-Encoding", "gzip")
+		//
+		//	gin.Writer = &gzipWriter{gin.Writer, gz}
+		//	gz.Close()
+		//}
 
-		gin.Header("Content-Encoding", "gzip")
-
-		gin.Writer = &gzipWriter{gin.Writer, gz}
 	}
-
 }
