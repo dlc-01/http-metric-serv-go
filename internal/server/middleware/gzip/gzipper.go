@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type gzipWriter struct {
@@ -24,7 +25,7 @@ func DefaultDecompressHandle(gin *gin.Context) {
 		}
 		gin.Request.Body = r
 		r.Close()
-	} else if gin.Request.Header.Get("Accept-Encoding") == "gzip" && gin.Request.Header.Get("Content-Encoding") != "gzip" {
+	} else if !strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip") && !strings.Contains(gin.Request.Header.Get("Content-Encoding"), "gzip") {
 		gz, err := gzip.NewWriterLevel(gin.Writer, gzip.BestSpeed)
 		defer gz.Close()
 		if err != nil {
