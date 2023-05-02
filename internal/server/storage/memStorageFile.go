@@ -3,50 +3,51 @@ package storage
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/logging"
 	"os"
 )
 
-func Restore(filename string) {
+func Restore(filename string) error {
 	file, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
 	reader := bufio.NewReader(file)
 
 	data, err := reader.ReadBytes('\n')
-
 	if err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
 
 	if err := json.Unmarshal(data, &ms); err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
+
+	return nil
 }
 
-func Save(filename string) {
+func Save(filename string) error {
 	file, err := os.OpenFile(filename, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
 
 	writer := bufio.NewWriter(file)
 
 	data, err := json.Marshal(&ms)
 	if err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
 
 	if _, err := writer.Write(data); err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
 
 	if err := writer.WriteByte('\n'); err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
 
 	if err := writer.Flush(); err != nil {
-		logging.SLog.Info(err)
+		return err
 	}
+	return nil
 }

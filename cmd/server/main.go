@@ -33,12 +33,16 @@ func main() {
 	storage.Init()
 
 	if paramss.Restore {
-		storage.Restore(paramss.FileStoragePath)
+		if err := storage.Restore(paramss.FileStoragePath); err != nil {
+			logging.SLog.Error(err, "restore")
+		}
 	}
 
 	go func() {
 		for {
-			storage.Save(paramss.FileStoragePath)
+			if err := storage.Save(paramss.FileStoragePath); err != nil {
+				logging.SLog.Error(err, "saved")
+			}
 			time.Sleep(time.Duration(paramss.StoreInterval) * time.Second)
 		}
 	}()
