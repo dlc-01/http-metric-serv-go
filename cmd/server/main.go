@@ -12,10 +12,6 @@ import (
 	"time"
 )
 
-var (
-	serverAddress string
-)
-
 func setupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(logging.Logger(), gzip.Gzip(gzip.BestSpeed))
@@ -47,6 +43,6 @@ func main() {
 		}
 	}()
 
-	router.Run(serverAddress)
+	router.Run(paramss.ServerAddress)
 
 }
