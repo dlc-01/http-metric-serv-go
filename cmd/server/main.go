@@ -1,28 +1,16 @@
 package main
 
 import (
-	"flag"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/html"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/params"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
-	"os"
+	"time"
 )
-
-var (
-	serverAddress string
-)
-
-func parseFlagsOs() {
-	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
-	flag.Parse()
-	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
-		serverAddress = envServerAddress
-	}
-}
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
@@ -38,11 +26,27 @@ func setupRouter() *gin.Engine {
 func main() {
 	logging.InitLogger()
 
-	parseFlagsOs()
+	params.ParseFlagsOs()
 
 	router := setupRouter()
 
 	storage.Init()
 
-	router.Run(serverAddress)
+	if params.Restore {
+		if err := storage.Restore(); err != nil {
+			logging.SLog.Error(err, "restore")
+		}
+	}
+	go func() {
+		if params.FileStoragePath != "" {
+			for {
+				if err := storage.Save(); err != nil {
+					logging.SLog.Error(err, "save")
+				}
+				time.Sleep(time.Duration(params.StoreInterval) * time.Second)
+			}
+		}
+	}()
+	router.Run(params.ServerAddress)
+	defer storage.Save()
 }
