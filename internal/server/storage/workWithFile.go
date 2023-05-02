@@ -19,7 +19,7 @@ func Restore() error {
 	}
 
 	data := scanner.Bytes()
-	
+
 	err = json.Unmarshal(data, &ms)
 	if err != nil {
 		return err
