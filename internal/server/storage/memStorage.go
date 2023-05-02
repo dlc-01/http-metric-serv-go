@@ -8,43 +8,43 @@ type Storage interface {
 }
 
 type MemStorage struct {
-	gauges   map[string]float64
-	counters map[string]int64
+	Gauges   map[string]float64
+	Counters map[string]int64
 }
 
 var ms MemStorage
 
 func Init() {
-	ms.gauges = make(map[string]float64)
-	ms.counters = make(map[string]int64)
+	ms.Gauges = make(map[string]float64)
+	ms.Counters = make(map[string]int64)
 }
 func SetGauge(k string, v float64) {
-	ms.gauges[k] = v
+	ms.Gauges[k] = v
 }
 
 func GetGauge(k string) (float64, bool) {
-	v, exist := ms.gauges[k]
+	v, exist := ms.Gauges[k]
 	return v, exist
 }
 
 func SetCounter(k string, v int64) {
-	if _, ok := ms.counters[k]; !ok {
-		ms.counters[k] = 0
+	if _, ok := ms.Counters[k]; !ok {
+		ms.Counters[k] = 0
 	}
 
-	ms.counters[k] += v
+	ms.Counters[k] += v
 }
 
 func GetCounter(k string) (int64, bool) {
-	v, exist := ms.counters[k]
+	v, exist := ms.Counters[k]
 	return v, exist
 }
 func GetAll() []string {
 	names := make([]string, 0)
-	for cm := range ms.counters {
+	for cm := range ms.Counters {
 		names = append(names, cm)
 	}
-	for gm := range ms.gauges {
+	for gm := range ms.Gauges {
 		names = append(names, gm)
 	}
 	return names
