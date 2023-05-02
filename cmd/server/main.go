@@ -33,19 +33,14 @@ func main() {
 	storage.Init()
 
 	if params.Restore {
-		if err := storage.Restore(); err != nil {
-			logging.SLog.Error(err, "restore")
-		}
+		storage.Restore()
 	}
 	go func() {
-		if params.FileStoragePath != "" {
-			for {
-				if err := storage.Save(); err != nil {
-					logging.SLog.Error(err, "save")
-				}
-				time.Sleep(time.Duration(params.StoreInterval) * time.Second)
-			}
+		for {
+			storage.Save()
+			time.Sleep(time.Duration(params.StoreInterval) * time.Second)
 		}
+
 	}()
 	router.Run(params.ServerAddress)
 	defer storage.Save()
