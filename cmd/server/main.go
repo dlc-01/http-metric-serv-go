@@ -9,7 +9,6 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/paramss"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 func setupRouter() *gin.Engine {
@@ -32,20 +31,20 @@ func main() {
 
 	storage.Init()
 
-	if paramss.Restore {
-		if err := storage.Restore(paramss.FileStoragePath); err != nil {
-			logging.SLog.Error(err, "restore")
-		}
-	}
-
-	go func() {
-		for {
-			if err := storage.Save(paramss.FileStoragePath); err != nil {
-				logging.SLog.Error(err, "saved")
-			}
-			time.Sleep(time.Duration(paramss.StoreInterval) * time.Second)
-		}
-	}()
+	//if paramss.Restore {
+	//	if err := storage.Restore(paramss.FileStoragePath); err != nil {
+	//		logging.SLog.Error(err, "restore")
+	//	}
+	//}
+	//
+	//go func() {
+	//	for {
+	//		if err := storage.Save(paramss.FileStoragePath); err != nil {
+	//			logging.SLog.Error(err, "saved")
+	//		}
+	//		time.Sleep(time.Duration(paramss.StoreInterval) * time.Second)
+	//	}
+	//}()
 
 	router.Run(paramss.ServerAddress)
 
