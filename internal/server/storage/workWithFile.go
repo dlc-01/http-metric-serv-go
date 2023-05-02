@@ -16,14 +16,14 @@ func Restore() error {
 	}
 	scanner := bufio.NewScanner(file)
 	if !scanner.Scan() {
-		logging.SLog.Error(err, "scanner Restore")
+		logging.SLog.Error(err, "Scanner Restore")
 	}
 
 	data := scanner.Bytes()
 
 	err = json.Unmarshal(data, &ms)
 	if err != nil {
-		logging.SLog.Error(err, " unmarshal json Restore")
+		logging.SLog.Error(err, "Unmarshal Json Restore")
 	}
 	return nil
 }
