@@ -45,5 +45,4 @@ func main() {
 	storage.Init()
 
 	router.Run(serverAddress)
-
 }
