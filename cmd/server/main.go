@@ -1,48 +1,51 @@
 package main
 
 import (
-	"flag"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/html"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/htmlh"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonh"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/paramss"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
-	"os"
+	"time"
 )
 
 var (
 	serverAddress string
 )
 
-func parseFlagsOs() {
-	flag.StringVar(&serverAddress, "a", "localhost:8080", "server address")
-	flag.Parse()
-	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
-		serverAddress = envServerAddress
-	}
-}
-
 func setupRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(logging.Logger(), gzip.Gzip(gzip.BestSpeed))
 	router.POST("/update/:types/:name/:value", url.UpdateHandler)
-	router.POST("/update/", json.UpdateJSONHandler)
-	router.POST("/value/", json.ValueJSONHandler)
+	router.POST("/update/", jsonh.UpdateJSONHandler)
+	router.POST("/value/", jsonh.ValueJSONHandler)
 	router.GET("/value/:types/:name", url.ValueHandler)
-	router.GET("/", html.ShowMetrics)
+	router.GET("/", htmlh.ShowMetrics)
 	return router
 }
 
 func main() {
 	logging.InitLogger()
 
-	parseFlagsOs()
+	paramss.ParseFlagsOs()
 
 	router := setupRouter()
 
 	storage.Init()
+
+	if paramss.Restore {
+		storage.Restore(paramss.FileStoragePath)
+	}
+
+	go func() {
+		for {
+			storage.Save(paramss.FileStoragePath)
+			time.Sleep(time.Duration(paramss.StoreInterval) * time.Second)
+		}
+	}()
 
 	router.Run(serverAddress)
 

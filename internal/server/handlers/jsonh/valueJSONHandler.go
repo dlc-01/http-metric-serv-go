@@ -1,15 +1,16 @@
-package json
+package jsonh
 
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func UpdateJSONHandler(gin *gin.Context) {
+func ValueJSONHandler(gin *gin.Context) {
 	var metrics storage.Metrics
 	var buf bytes.Buffer
 
@@ -28,10 +29,11 @@ func UpdateJSONHandler(gin *gin.Context) {
 
 	switch types {
 	case url.CounterTypeName:
-		value := *metrics.Delta
-
-		storage.SetCounter(key, value)
-		value, _ = storage.GetCounter(key)
+		value, exist := storage.GetCounter(key)
+		if !exist {
+			gin.String(http.StatusNotFound, fmt.Sprintf("Counter %q not found", key))
+			return
+		}
 
 		result := storage.Metrics{
 			ID:    metrics.ID,
@@ -41,10 +43,11 @@ func UpdateJSONHandler(gin *gin.Context) {
 		gin.SecureJSON(http.StatusOK, result)
 
 	case url.GaugeTypeName:
-		value := *metrics.Value
-
-		storage.SetGauge(key, value)
-
+		value, exist := storage.GetGauge(key)
+		if !exist {
+			gin.String(http.StatusNotFound, fmt.Sprintf("Gauge %q not found", key))
+			return
+		}
 		result := storage.Metrics{
 			ID:    metrics.ID,
 			MType: metrics.MType,
@@ -53,8 +56,7 @@ func UpdateJSONHandler(gin *gin.Context) {
 		gin.SecureJSON(http.StatusOK, result)
 
 	default:
-		gin.String(http.StatusNotImplemented, "Unsupported metric type")
+		gin.String(http.StatusNotFound, "Unsupported metric type")
 		return
 	}
-
 }

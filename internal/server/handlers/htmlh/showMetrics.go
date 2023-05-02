@@ -1,4 +1,4 @@
-package html
+package htmlh
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 )
 
 func ShowMetrics(gin *gin.Context) {
-	gin.Writer.Header().Set("content-type", "Content-Type: text/html; charset=utf-8")
+	gin.Writer.Header().Set("content-type", "Content-Type: text/htmlh; charset=utf-8")
 
 	page := ""
 	for _, n := range storage.GetAll() {
@@ -18,5 +18,5 @@ func ShowMetrics(gin *gin.Context) {
 	if err := tmpl.Execute(gin.Writer, storage.GetAll()); err != nil {
 		return
 	}
-	gin.Writer.Header().Set("content-type", "Content-Type: text/html; charset=utf-8")
+	gin.Writer.Header().Set("content-type", "Content-Type: text/htmlh; charset=utf-8")
 }

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/dlc-01/http-metric-serv-go/internal/agent/flags"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/agent/paramsa"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/go-resty/resty/v2"
 
@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	flags.ParseFlagsOs()
+	paramsa.ParseFlagsOs()
 
 	client := resty.New()
 
@@ -22,29 +22,28 @@ func main() {
 
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
-	t1 := time.NewTicker(time.Second * time.Duration(flags.Report))
-	t2 := time.NewTicker(time.Second * time.Duration(flags.Poll))
+	t1 := time.NewTicker(time.Second * time.Duration(paramsa.Report))
+	t2 := time.NewTicker(time.Second * time.Duration(paramsa.Poll))
 	running := true
 
 	for running {
 		select {
 		case <-t1.C:
-
 			for metric, value := range m.Gauge {
 				request := m.GenerateRequestBody(url.GaugeTypeName, metric, 0, value)
 				client.R().SetHeader("Content-Encoding", "gzip").
 					SetHeader("Accept-Encoding", "gzip").
-					SetHeader("Content-Type", "application/json").
+					SetHeader("Content-Type", "application/jsonh").
 					SetBody(request).
-					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
+					Post(fmt.Sprintf("http://%s/update/", paramsa.ServerAddress))
 			}
 			for metric, value := range m.Counter {
 				request := m.GenerateRequestBody(url.CounterTypeName, metric, value, 0)
 				client.R().SetHeader("Content-Encoding", "gzip").
 					SetHeader("Accept-Encoding", "gzip").
-					SetHeader("Content-Type", "application/json").
+					SetHeader("Content-Type", "application/jsonh").
 					SetBody(request).
-					Post(fmt.Sprintf("http://%s/update/", flags.ServerAddress))
+					Post(fmt.Sprintf("http://%s/update/", paramsa.ServerAddress))
 			}
 		case <-t2.C:
 			m.Check()
