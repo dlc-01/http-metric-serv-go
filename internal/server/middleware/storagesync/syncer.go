@@ -18,14 +18,14 @@ func GetSyncMiddleware() gin.HandlerFunc {
 
 		gin.Next()
 
-		//if skipDumpMetrics {
-		if err := dump(); err != nil {
-			logging.Fatalf("cannot dump metrics to file: %s", err)
+		if skipDumpMetrics {
+			if err := dump(); err != nil {
+				logging.Fatalf("cannot dump metrics to file: %s", err)
+			}
+		} else {
+			//FIXME Called from everyone
+			go runDumper()
 		}
-		//} else {
-		//	//FIXME Called from everyone
-		//	go runDumper()
-		//}
 
 	}
 }
