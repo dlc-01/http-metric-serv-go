@@ -12,8 +12,8 @@ func sendMetrics(addr string) error {
 			return fmt.Errorf("cannot generate request body: %w", err)
 		}
 		//FIXME ERROR: gzip: Invalid header if we will check error
+
 		client.R().SetHeader("Content-Encoding", "gzip").
-			SetHeader("Accept-Encoding", "gzip").
 			SetHeader("Content-Type", "application/json").
 			SetBody(json).
 			Post(fmt.Sprintf("http://%s/update/", addr))

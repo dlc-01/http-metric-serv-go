@@ -25,7 +25,6 @@ func Init() {
 }
 func SetGauge(k string, v float64) {
 	defaultStorage.Gauges[k] = v
-
 }
 
 func GetGauge(k string) (float64, bool) {
@@ -37,7 +36,6 @@ func SetCounter(k string, v int64) {
 	if _, ok := defaultStorage.Counters[k]; !ok {
 		defaultStorage.Counters[k] = 0
 	}
-
 	defaultStorage.Counters[k] += v
 
 }
@@ -63,6 +61,7 @@ func GetMetrics() []metrics.Metric {
 	for name := range defaultStorage.Counters {
 		v := defaultStorage.Counters[name]
 		res = append(res, metrics.Metric{
+			ID:    name,
 			MType: metrics.CounterType,
 			Delta: &v,
 		})
@@ -70,6 +69,7 @@ func GetMetrics() []metrics.Metric {
 	for name := range defaultStorage.Gauges {
 		v := defaultStorage.Gauges[name]
 		res = append(res, metrics.Metric{
+			ID:    name,
 			MType: metrics.GaugeType,
 			Value: &v,
 		})

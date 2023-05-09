@@ -3,14 +3,10 @@ package url
 import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
-)
-
-const (
-	GaugeTypeName   = "gauge"
-	CounterTypeName = "counter"
 )
 
 func ValueHandler(gin *gin.Context) {
@@ -18,7 +14,7 @@ func ValueHandler(gin *gin.Context) {
 	key := gin.Param("name")
 
 	switch types {
-	case CounterTypeName:
+	case metrics.CounterType:
 		value, exist := storage.GetCounter(key)
 		if !exist {
 			gin.String(http.StatusNotFound, fmt.Sprintf("Counter %q not found", key))
@@ -28,7 +24,7 @@ func ValueHandler(gin *gin.Context) {
 
 		gin.String(http.StatusOK, fmt.Sprintf("%v", value))
 
-	case GaugeTypeName:
+	case metrics.GaugeType:
 		value, exist := storage.GetGauge(key)
 		if !exist {
 			gin.String(http.StatusNotFound, fmt.Sprintf("Gauge %q not found", key))

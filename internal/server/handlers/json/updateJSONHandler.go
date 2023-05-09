@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -31,7 +30,7 @@ func UpdateJSONHandler(gin *gin.Context) {
 	key := metric.ID
 
 	switch types {
-	case url.CounterTypeName:
+	case metrics.CounterType:
 		value := *metric.Delta
 
 		storage.SetCounter(key, value)
@@ -44,7 +43,7 @@ func UpdateJSONHandler(gin *gin.Context) {
 		}
 		gin.SecureJSON(http.StatusOK, result)
 
-	case url.GaugeTypeName:
+	case metrics.GaugeType:
 		value := *metric.Value
 
 		storage.SetGauge(key, value)
