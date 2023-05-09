@@ -7,7 +7,7 @@ import (
 
 func sendMetrics(addr string) error {
 	for _, m := range storage.GetMetrics() {
-		json, err := m.ToJson()
+		json, err := m.ToJSON()
 		if err != nil {
 			return fmt.Errorf("cannot generate request body: %w", err)
 		}

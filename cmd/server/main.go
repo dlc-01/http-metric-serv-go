@@ -12,6 +12,7 @@ import (
 
 func main() {
 	cfg, err := config.LoadServerConfig()
+
 	if err != nil {
 		log.Fatalf("cannot load config: %s", err)
 	}
@@ -23,7 +24,7 @@ func main() {
 	storage.Init()
 
 	if err := storagesync.RunSync(cfg); err != nil {
-		fmt.Errorf("cannot load config: %w", err)
+		fmt.Errorf("cannot load config: %s", err)
 	}
 
 	app.Run(cfg.ServerAddress)

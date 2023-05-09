@@ -56,7 +56,7 @@ func ShutdownSync() error {
 func runDumper() {
 	dumpTicker := time.NewTicker(time.Duration(conf.StoreInterval) * time.Second)
 
-	for {
+	for true {
 		select {
 		case <-dumpTicker.C:
 			if err := dump(); err != nil {

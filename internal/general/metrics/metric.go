@@ -19,7 +19,7 @@ type Metric struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
-func (m *Metric) ToJson() (*bytes.Buffer, error) {
+func (m *Metric) ToJSON() (*bytes.Buffer, error) {
 	json, err := json.Marshal(m)
 	if err != nil {
 		return nil, fmt.Errorf("cannot marshal request to json: %w", err)

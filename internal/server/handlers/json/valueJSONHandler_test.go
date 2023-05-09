@@ -141,7 +141,7 @@ func TestValueJSONHandlerWithGzip(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		jsons, err := tt.expectedBody.ToJson()
+		jsons, err := tt.expectedBody.ToJSON()
 		if err != nil {
 			logging.Fatalf("cannot generate request body: %w", err)
 		}
@@ -154,7 +154,7 @@ func TestValueJSONHandlerWithGzip(t *testing.T) {
 		wSet := httptest.NewRecorder()
 		router.ServeHTTP(wSet, set)
 
-		jsons, err = tt.expectedBody.ToJson()
+		jsons, err = tt.expectedBody.ToJSON()
 		if err != nil {
 			logging.Fatalf("cannot generate request body: %w", err)
 		}
