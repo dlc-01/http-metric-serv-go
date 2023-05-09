@@ -1,39 +1,51 @@
 package logging
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"log"
 	"time"
 )
 
-var SLog zap.SugaredLogger
+var sLog zap.SugaredLogger
 
-func InitLogger() {
+func InitLogger() error {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
-		log.Fatalf("cannot init logger: %v", err)
+		return fmt.Errorf("cannot init logger: %w", err)
 	}
 	defer logger.Sync()
-	SLog = *logger.Sugar()
+	sLog = *logger.Sugar()
+	return nil
 }
 
-func Logger() gin.HandlerFunc {
+func Fatalf(format string, opts ...any) {
+	sLog.Fatalf(format, opts)
+}
+
+func Errorf(format string, opts ...any) {
+	sLog.Errorf(format, opts)
+}
+
+func Info(msg string) {
+	sLog.Info(msg)
+}
+
+func GetMiddlewareLogger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		t := time.Now()
 		c.Next()
 		latency := time.Since(t)
-		SLog.Infoln(
+		sLog.Infoln(
 			"type", "request",
 			"uri", c.Request.RequestURI,
 			"method", c.Request.Method,
 			"duration", latency,
 		)
-		SLog.Infoln(
+		sLog.Infoln(
 			"type", "response",
 			"status", c.Writer.Status(),
 			"size", c.Writer.Size(),
 		)
 	}
-
 }

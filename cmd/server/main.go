@@ -1,47 +1,35 @@
 package main
 
 import (
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/html"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/params"
+	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/app"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"time"
+	"log"
 )
 
-func setupRouter() *gin.Engine {
-	router := gin.Default()
-	router.Use(logging.Logger(), gzip.Gzip(gzip.BestSpeed))
-	router.POST("/update/:types/:name/:value", url.UpdateHandler)
-	router.POST("/update/", json.UpdateJSONHandler)
-	router.POST("/value/", json.ValueJSONHandler)
-	router.GET("/value/:types/:name", url.ValueHandler)
-	router.GET("/", html.ShowMetrics)
-	return router
-}
-
 func main() {
-	logging.InitLogger()
+	cfg, err := config.LoadServerConfig()
+	if err != nil {
+		log.Fatalf("cannot load config: %s", err)
+	}
 
-	params.ParseFlagsOs()
-
-	router := setupRouter()
+	if err := logging.InitLogger(); err != nil {
+		log.Fatalf("cannot init loger: %s", err)
+	}
 
 	storage.Init()
 
-	if params.Restore {
-		storage.Restore()
+	if err := storagesync.RunSync(cfg); err != nil {
+		fmt.Errorf("cannot load config: %w", err)
 	}
-	go func() {
-		for {
-			storage.Save()
-			time.Sleep(time.Duration(params.StoreInterval) * time.Second)
-		}
 
-	}()
-	router.Run(params.ServerAddress)
-	defer storage.Save()
+	app.Run(cfg.ServerAddress)
+
+	if err := storagesync.ShutdownSync(); err != nil {
+		logging.Fatalf("cannot shutdown storage syncer: %s", err)
+	}
+
 }

@@ -1,6 +1,7 @@
 package url
 
 import (
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -10,6 +11,7 @@ import (
 )
 
 func TestValueHandlerGauge(t *testing.T) {
+	logging.InitLogger()
 	router := gin.Default()
 	router.POST("/update/:types/:name/:value", UpdateHandler)
 	router.GET("/value/:types/:name", ValueHandler)

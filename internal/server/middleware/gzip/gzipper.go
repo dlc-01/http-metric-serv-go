@@ -2,6 +2,7 @@ package gzip
 
 import (
 	"compress/gzip"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"path/filepath"
@@ -24,6 +25,7 @@ func Gzip(level int) gin.HandlerFunc {
 			r, err := gzip.NewReader(gin.Request.Body)
 			if err != nil {
 				gin.AbortWithError(http.StatusBadRequest, err)
+				logging.Errorf("cannot uncompressed request body: %s", err)
 				return
 			}
 			gin.Request.Body = r
@@ -35,11 +37,12 @@ func Gzip(level int) gin.HandlerFunc {
 		}
 		gz, err := gzip.NewWriterLevel(gin.Writer, level)
 		if err != nil {
+			logging.Errorf("cannot compress request body: %s", err)
 			return
 		}
 
 		gin.Header("Content-Encoding", "gzip")
-		gin.Header("Vary", "Accept-Encoding")
+
 		gin.Writer = &gzipWriter{gin.Writer, gz}
 		defer func() {
 			gin.Header("Content-Length", "0")
