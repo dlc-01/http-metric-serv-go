@@ -4,6 +4,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/app"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"log"
 )
@@ -21,14 +22,14 @@ func main() {
 
 	storage.Init()
 
-	//if err := storagesync.RunSync(cfg); err != nil {
-	//	log.Print("cannot load config: ", err)
-	//}
+	if err := storagesync.RunSync(cfg); err != nil {
+		log.Print("cannot load config: ", err)
+	}
 
 	app.Run(cfg.ServerAddress)
 
-	//if err := storagesync.ShutdownSync(); err != nil {
-	//	logging.Fatalf("cannot shutdown storage syncer: %s", err)
-	//}
+	if err := storagesync.ShutdownSync(); err != nil {
+		logging.Fatalf("cannot shutdown storage syncer: %s", err)
+	}
 
 }
