@@ -11,7 +11,6 @@ import (
 
 func main() {
 	cfg, err := config.LoadServerConfig()
-
 	if err != nil {
 		log.Fatalf("cannot load config: %s", err)
 	}

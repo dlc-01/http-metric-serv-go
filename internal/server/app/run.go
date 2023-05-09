@@ -22,11 +22,11 @@ func setupRouter() *gin.Engine {
 	router.POST("/value/", json.ValueJSONHandler)
 	router.GET("/value/:types/:name", url.ValueHandler)
 	router.GET("/", html.ShowMetrics)
-	updateRouterGroup := router.Group("/update")
+	updateRouterGroup := router.Group("/")
 	updateRouterGroup.Use(storagesync.GetSyncMiddleware())
 	{
-		updateRouterGroup.POST("/", json.UpdateJSONHandler)
-		updateRouterGroup.POST("/:types/:name/:value", url.UpdateHandler)
+		updateRouterGroup.POST("/update", json.UpdateJSONHandler)
+		updateRouterGroup.POST("/update/:types/:name/:value", url.UpdateHandler)
 	}
 
 	return router
