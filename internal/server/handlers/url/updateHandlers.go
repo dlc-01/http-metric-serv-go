@@ -23,6 +23,7 @@ func UpdateHandler(gin *gin.Context) {
 			//logging.Errorf("cannot parse counter: %s", err)
 			return
 		}
+
 		storage.SetCounter(key, value)
 		value, _ = storage.GetCounter(key)
 
@@ -35,6 +36,7 @@ func UpdateHandler(gin *gin.Context) {
 			//logging.Errorf("cannot parse gauge: %s", err)
 			return
 		}
+		
 		storage.SetGauge(key, value)
 		gin.String(http.StatusOK, handlers.CreateResponse(key, value))
 
