@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/app"
@@ -24,7 +23,7 @@ func main() {
 	storage.Init()
 
 	if err := storagesync.RunSync(cfg); err != nil {
-		fmt.Errorf("cannot load config: %s", err)
+		log.Print("cannot load config: ", err)
 	}
 
 	app.Run(cfg.ServerAddress)

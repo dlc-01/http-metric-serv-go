@@ -56,12 +56,9 @@ func ShutdownSync() error {
 func runDumper() {
 	dumpTicker := time.NewTicker(time.Duration(conf.StoreInterval) * time.Second)
 
-	for true {
-		select {
-		case <-dumpTicker.C:
-			if err := dump(); err != nil {
-				logging.Fatalf("cannot dump metrics to file: %s", err)
-			}
+	for range dumpTicker.C {
+		if err := dump(); err != nil {
+			logging.Fatalf("cannot dump metrics to file: %s", err)
 		}
 	}
 }
