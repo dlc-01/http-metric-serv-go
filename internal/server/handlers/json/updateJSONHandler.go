@@ -18,12 +18,12 @@ func UpdateJSONHandler(gin *gin.Context) {
 	_, err := buf.ReadFrom(gin.Request.Body)
 	if err != nil {
 		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
-		logging.Errorf("cannot read postRequest body", err)
+		logging.Errorf("cannot read postRequest body: %s", err)
 		return
 	}
 	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
 		gin.String(http.StatusBadRequest, "Unsupported type JSON")
-		logging.Errorf("cannot unmarshal json", err)
+		logging.Errorf("cannot unmarshal json: %s", err)
 		return
 	}
 
