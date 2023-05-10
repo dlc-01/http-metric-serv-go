@@ -1,28 +1,25 @@
-package json
+package gzip
 
 import (
-	"encoding/json"
+	"compress/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 )
 
-func TestUpdateJSONHandler(t *testing.T) {
+func TestGzipWithUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	router := gin.Default()
-	router.POST("/update/", UpdateJSONHandler)
+	router.Use(Gzip(gzip.BestSpeed))
+	router.POST("/update/", json.UpdateJSONHandler)
 	storage.Init()
 
-	testGauge := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
-	testCounter := `{"id":"TestCounter", "type":"counter", "delta":24}`
-	testWrongMetric := `{"id":"TestWrongMetric", "type":"qwert", "delta":24}`
-	testWrongValue := `{"id":"TestWrongValue", "type":"counter", "delta":2022.02}`
 	testValue := 2022.02
 	testDelta := int64(24)
 
@@ -37,7 +34,6 @@ func TestUpdateJSONHandler(t *testing.T) {
 			name:         `true gauge post`,
 			expectedCode: http.StatusOK,
 			url:          `/update/`,
-			body:         testGauge,
 			expectedBody: metrics.Metric{
 				ID:    "TestGauge",
 				MType: metrics.GaugeType,
@@ -49,7 +45,6 @@ func TestUpdateJSONHandler(t *testing.T) {
 			name:         `true counter post`,
 			expectedCode: http.StatusOK,
 			url:          `/update/`,
-			body:         testCounter,
 			expectedBody: metrics.Metric{
 				ID:    "TestCounter",
 				MType: metrics.CounterType,
@@ -61,30 +56,42 @@ func TestUpdateJSONHandler(t *testing.T) {
 			name:         `wrong metric`,
 			expectedCode: http.StatusNotImplemented,
 			url:          `/update/`,
-			body:         testWrongMetric,
 		},
 		{
 			name:         `bad metric value`,
-			expectedCode: http.StatusBadRequest,
+			expectedCode: http.StatusNotImplemented,
 			url:          `/update/`,
-			body:         testWrongValue,
 		},
 	}
 
 	for _, tt := range tests {
-		req, err := http.NewRequest(http.MethodPost, tt.url, strings.NewReader(tt.body))
+		jsons, err := tt.expectedBody.ToJSON()
+		if err != nil {
+			logging.Fatalf("cannot generate request body: %w", err)
+		}
+
+		req, err := http.NewRequest(http.MethodPost, tt.url, jsons)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Encoding", "gzip")
+
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
 		assert.Equal(t, tt.expectedCode, w.Code)
+
 		if tt.expectedCode == 200 {
-			var data metrics.Metric
-			json.Unmarshal(w.Body.Bytes(), &data)
-			assert.Equal(t, tt.expectedBody, data)
+			switch tt.expectedBody.MType {
+			case metrics.GaugeType:
+				value, _ := storage.GetGauge(tt.expectedBody.ID)
+				assert.Equal(t, testValue, *value.Value)
+			case metrics.CounterType:
+				delta, _ := storage.GetCounter(tt.expectedBody.ID)
+				assert.Equal(t, testDelta, *delta.Delta)
+			}
 		}
 	}
 

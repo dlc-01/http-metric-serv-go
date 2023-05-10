@@ -19,6 +19,7 @@ var shouldDumpMetricsOnMetrics bool
 func GetSyncMiddleware() gin.HandlerFunc {
 	return func(gin *gin.Context) {
 		logging.Infof("%+v/n", "GetSyncMiddleware")
+
 		gin.Next()
 		if shouldDumpMetricsOnMetrics {
 			if err := dump(); err != nil {
@@ -59,12 +60,12 @@ func runDumper() {
 }
 
 func restore(filePath string) error {
-
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
 	}
 	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	if !scanner.Scan() {
 		return errors.New("cannot scan file")
@@ -83,7 +84,6 @@ func restore(filePath string) error {
 }
 
 func dump() error {
-
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)

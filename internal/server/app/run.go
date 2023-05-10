@@ -16,7 +16,6 @@ func Run(serverAddress string) {
 }
 
 func setupRouter() *gin.Engine {
-
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	router.POST("/value/", json.ValueJSONHandler)

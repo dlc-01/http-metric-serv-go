@@ -89,14 +89,14 @@ func TestValueHandlerCounter(t *testing.T) {
 		reqPost, _ := http.NewRequest(http.MethodPost, tt.urlPost, nil)
 		wPost := httptest.NewRecorder()
 		router.ServeHTTP(wPost, reqPost)
+
 		reqGet, _ := http.NewRequest(http.MethodGet, tt.urlGet, nil)
 		wGet := httptest.NewRecorder()
 		router.ServeHTTP(wGet, reqGet)
+
 		assert.Equal(t, tt.expectedCode, wGet.Code)
 		if wGet.Code == http.StatusOK {
-
 			assert.Equal(t, tt.expectedValueInt, wGet.Body.String())
-
 		}
 	}
 

@@ -85,6 +85,7 @@ func TestUpdateHandlerCounter(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodPost, tt.url, nil)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
+
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
 			val, _ := storage.GetCounter(tt.nameValue)

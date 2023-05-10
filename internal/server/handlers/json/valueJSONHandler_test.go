@@ -84,10 +84,10 @@ func TestValueJSONHandler(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-
 			get.Header.Set("Content-Type", "application/json")
 			wGet := httptest.NewRecorder()
 			router.ServeHTTP(wGet, get)
+
 			assert.Equal(t, tt.expectedCode, wGet.Code)
 			if tt.expectedCode == 200 {
 				var data metrics.Metric
