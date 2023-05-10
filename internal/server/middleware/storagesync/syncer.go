@@ -3,7 +3,6 @@ package storagesync
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
@@ -58,19 +57,13 @@ func runDumper() {
 }
 
 func restore(filePath string) error {
-	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0666)
+	buf, err := os.ReadFile(s.Cfg.FileStoragePath)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
 	}
-	scanner := bufio.NewScanner(file)
-	if !scanner.Scan() {
-		return errors.New("cannot scan file")
-	}
-
-	data := scanner.Bytes()
-
+	
 	new := storage.GetStorage()
-	err = json.Unmarshal(data, &new)
+	err = json.Unmarshal(buf, &new)
 	if err != nil {
 		return fmt.Errorf("cannot decode line: %s", err)
 	}
