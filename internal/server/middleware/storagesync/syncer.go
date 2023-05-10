@@ -3,6 +3,7 @@ package storagesync
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
@@ -17,9 +18,7 @@ func GetSyncMiddleware() gin.HandlerFunc {
 
 		gin.Next()
 
-		dump()
-
-		gin.Next()
+		go runDumper()
 
 	}
 }
@@ -49,6 +48,7 @@ func ShutdownSync() error {
 
 func runDumper() {
 	dumpTicker := time.NewTicker(time.Duration(conf.StoreInterval) * time.Second)
+	defer dumpTicker.Stop()
 	for range dumpTicker.C {
 		if err := dump(); err != nil {
 			logging.Fatalf("cannot dump metrics to file: %s", err)
@@ -57,13 +57,20 @@ func runDumper() {
 }
 
 func restore(filePath string) error {
-	buf, err := os.ReadFile(filePath)
+	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
 	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	if !scanner.Scan() {
+		return errors.New("cannot scan file")
+	}
+
+	data := scanner.Bytes()
 
 	new := storage.GetStorage()
-	err = json.Unmarshal(buf, &new)
+	err = json.Unmarshal(data, &new)
 	if err != nil {
 		return fmt.Errorf("cannot decode line: %s", err)
 	}
@@ -84,7 +91,7 @@ func dump() error {
 	data, err := json.Marshal(&old)
 
 	if err != nil {
-		return fmt.Errorf("cannot open file: %w", err)
+		return fmt.Errorf("cannot marshal metrics: %w", err)
 	}
 	if _, err := writer.Write(data); err != nil {
 		return fmt.Errorf("cannot encode runtimeMetrics: %w", err)
