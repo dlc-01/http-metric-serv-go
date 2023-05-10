@@ -21,9 +21,7 @@ func main() {
 
 	storage.Init()
 
-	if err := storagesync.RunSync(cfg); err != nil {
-		logging.Errorf("cannot load config: ", err)
-	}
+	storagesync.RunSync(cfg)
 
 	app.Run(cfg.ServerAddress)
 
