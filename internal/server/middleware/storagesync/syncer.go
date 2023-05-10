@@ -18,8 +18,6 @@ var shouldDumpMetricsOnMetrics bool
 
 func GetSyncMiddleware() gin.HandlerFunc {
 	return func(gin *gin.Context) {
-		logging.Infof("%+v/n", "GetSyncMiddleware")
-
 		gin.Next()
 		if shouldDumpMetricsOnMetrics {
 			if err := dump(); err != nil {

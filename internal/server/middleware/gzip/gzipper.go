@@ -17,10 +17,13 @@ const (
 
 func Gzip(level int) gin.HandlerFunc {
 	return func(gin *gin.Context) {
-		if gin.Request.Header.Get("Content-Encoding") == "gzip" {
+		headerContentGzip := strings.Contains(gin.Request.Header.Get("Content-Encoding"), "gzip")
+		headerAcceptGzip := strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip")
+
+		if headerContentGzip {
 			newCompressReader(gin)
 			newCompressWriter(gin, level)
-		} else if strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip") && gin.Request.Header.Get("Content-Encoding") != "gzip" {
+		} else if headerAcceptGzip && !headerContentGzip {
 			newCompressWriter(gin, level)
 		}
 	}
@@ -46,8 +49,10 @@ func newCompressReader(gin *gin.Context) {
 		logging.Errorf("cannot uncompressed request body: %s", err)
 		return
 	}
+
 	gin.Request.Body = r
 	defer r.Close()
+
 	gin.Next()
 }
 
@@ -61,5 +66,6 @@ func newCompressWriter(gin *gin.Context, level int) {
 	gin.Writer = &gzipWriter{gin.Writer, gz}
 	defer gz.Close()
 	gin.Header("Content-Encoding", "gzip")
+
 	gin.Next()
 }
