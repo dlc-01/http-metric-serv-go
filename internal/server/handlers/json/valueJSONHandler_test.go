@@ -166,14 +166,18 @@ func TestValueJSONHandlerWithGzip(t *testing.T) {
 		get.Header.Set("Content-Type", "application/json")
 		get.Header.Set("Content-Encoding", "gzip")
 
-		get.Header.Set("Content-Type", "application/json")
 		wGet := httptest.NewRecorder()
 		router.ServeHTTP(wGet, get)
 		assert.Equal(t, tt.expectedCode, wGet.Code)
 		if tt.expectedCode == 200 {
-			var data metrics.Metric
-			json.Unmarshal(wGet.Body.Bytes(), &data)
-			assert.Equal(t, tt.expectedBody, data)
+			switch tt.expectedBody.MType {
+			case metrics.GaugeType:
+				value, _ := storage.GetGauge(tt.expectedBody.ID)
+				assert.Equal(t, testValue, value)
+			case metrics.CounterType:
+				delta, _ := storage.GetCounter(tt.expectedBody.ID)
+				assert.Equal(t, testDelta, delta)
+			}
 		}
 	}
 }

@@ -23,7 +23,6 @@ func Gzip(level int) gin.HandlerFunc {
 		} else if strings.Contains(gin.Request.Header.Get("Accept-Encoding"), "gzip") && gin.Request.Header.Get("Content-Encoding") != "gzip" {
 			newCompressWriter(gin, level)
 		}
-
 	}
 }
 
