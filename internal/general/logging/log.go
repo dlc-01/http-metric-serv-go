@@ -14,7 +14,6 @@ func InitLogger() error {
 	if err != nil {
 		return fmt.Errorf("cannot init logger: %w", err)
 	}
-	defer logger.Sync()
 	sLog = *logger.Sugar()
 	return nil
 }
@@ -25,6 +24,14 @@ func Fatalf(format string, opts ...any) {
 
 func Errorf(format string, opts ...any) {
 	sLog.Errorf(format, opts)
+}
+
+func Infof(format string, opts ...any) {
+	sLog.Infof(format, opts)
+}
+
+func Warnf(format string, opts ...any) {
+	sLog.Warnf(format, opts)
 }
 
 func Info(msg string) {

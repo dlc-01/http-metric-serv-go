@@ -155,14 +155,13 @@ func TestUpdateJSONHandlerWithGzip(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if tt.expectedCode == 200 {
-
 			switch tt.expectedBody.MType {
 			case metrics.GaugeType:
 				value, _ := storage.GetGauge(tt.expectedBody.ID)
-				assert.Equal(t, testValue, value)
+				assert.Equal(t, testValue, *value.Value)
 			case metrics.CounterType:
 				delta, _ := storage.GetCounter(tt.expectedBody.ID)
-				assert.Equal(t, testDelta, delta)
+				assert.Equal(t, testDelta, *delta.Delta)
 			}
 
 		}

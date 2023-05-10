@@ -17,52 +17,36 @@ func ValueJSONHandler(gin *gin.Context) {
 
 	_, err := buf.ReadFrom(gin.Request.Body)
 	if err != nil {
-		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
 		logging.Errorf("cannot read postRequest body", err)
+		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
 		return
 	}
 	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
-		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		logging.Errorf("cannot unmarshal JSON", err)
+		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		return
 	}
+	var exist bool
 
-	types := metric.MType
-	key := metric.ID
+	switch metric.MType {
 
-	switch types {
 	case metrics.CounterType:
-		value, exist := storage.GetCounter(key)
-		if !exist {
-			gin.String(http.StatusNotFound, fmt.Sprintf("Counter %q not found", key))
-			logging.Info(fmt.Sprintf("cannot found counter %q ", key))
-			return
-		}
-
-		result := metrics.Metric{
-			ID:    metric.ID,
-			MType: metric.MType,
-			Delta: &value,
-		}
-		gin.SecureJSON(http.StatusOK, result)
+		metric, exist = storage.GetCounter(metric.ID)
 
 	case metrics.GaugeType:
-		value, exist := storage.GetGauge(key)
-		if !exist {
-			gin.String(http.StatusNotFound, fmt.Sprintf("Gauge %q not found", key))
-			logging.Info(fmt.Sprintf("cannot found gauge %q", key))
-			return
-		}
-		result := metrics.Metric{
-			ID:    metric.ID,
-			MType: metric.MType,
-			Value: &value,
-		}
-		gin.SecureJSON(http.StatusOK, result)
+		metric, exist = storage.GetGauge(metric.ID)
 
 	default:
-		gin.String(http.StatusNotFound, "Unsupported metric type")
 		logging.Info("cannot find metric type")
+		gin.String(http.StatusNotFound, "Unsupported metric type")
 		return
 	}
+
+	if !exist {
+		logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
+		gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))
+		return
+	}
+
+	gin.SecureJSON(http.StatusOK, metric)
 }

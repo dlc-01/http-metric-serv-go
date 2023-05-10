@@ -16,49 +16,35 @@ func UpdateJSONHandler(gin *gin.Context) {
 
 	_, err := buf.ReadFrom(gin.Request.Body)
 	if err != nil {
-		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
 		logging.Errorf("cannot read postRequest body: %s", err)
+		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
 		return
 	}
 	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
-		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		logging.Errorf("cannot unmarshal json: %s", err)
+		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		return
 	}
 
-	types := metric.MType
-	key := metric.ID
-
-	switch types {
+	switch metric.MType {
 	case metrics.CounterType:
 		value := *metric.Delta
 
-		storage.SetCounter(key, value)
-		value, _ = storage.GetCounter(key)
-
-		result := metrics.Metric{
-			ID:    metric.ID,
-			MType: metric.MType,
-			Delta: &value,
-		}
-		gin.SecureJSON(http.StatusOK, result)
+		storage.SetCounter(metric.ID, value)
+		metric, _ = storage.GetCounter(metric.ID)
 
 	case metrics.GaugeType:
 		value := *metric.Value
 
-		storage.SetGauge(key, value)
-
-		result := metrics.Metric{
-			ID:    metric.ID,
-			MType: metric.MType,
-			Value: &value,
-		}
-		gin.SecureJSON(http.StatusOK, result)
+		storage.SetGauge(metric.ID, value)
+		metric, _ = storage.GetGauge(metric.ID)
 
 	default:
-		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		logging.Info("cannot find metric type")
+		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return
 	}
+
+	gin.SecureJSON(http.StatusOK, metric)
 
 }

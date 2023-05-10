@@ -13,29 +13,32 @@ func ValueHandler(gin *gin.Context) {
 	types := gin.Param("types")
 	key := gin.Param("name")
 
+	var exist bool
+	var metric metrics.Metric
 	switch types {
 	case metrics.CounterType:
-		value, exist := storage.GetCounter(key)
-		if !exist {
-			gin.String(http.StatusNotFound, fmt.Sprintf("Counter %q not found", key))
-			logging.Info(fmt.Sprintf("cannot found caounter %q", key))
-			return
-		}
-
-		gin.String(http.StatusOK, fmt.Sprintf("%v", value))
+		metric, exist = storage.GetCounter(key)
 
 	case metrics.GaugeType:
-		value, exist := storage.GetGauge(key)
-		if !exist {
-			gin.String(http.StatusNotFound, fmt.Sprintf("Gauge %q not found", key))
-			logging.Info(fmt.Sprintf("cannot found gauge %q", key))
-			return
-		}
-		gin.String(http.StatusOK, fmt.Sprintf("%v", value))
+		metric, exist = storage.GetGauge(key)
 
 	default:
-		gin.String(http.StatusNotFound, "Unsupported metric type")
 		logging.Info("cannot find metric type")
+		gin.String(http.StatusNotFound, "Unsupported metric type")
 		return
 	}
+
+	if !exist {
+		logging.Info(fmt.Sprintf("cannot found metric %q", key))
+		gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", key))
+		return
+	}
+	switch types {
+	case metrics.CounterType:
+		gin.String(http.StatusOK, fmt.Sprintf("%v", *metric.Delta))
+
+	case metrics.GaugeType:
+		gin.String(http.StatusOK, fmt.Sprintf("%v", *metric.Value))
+	}
+
 }

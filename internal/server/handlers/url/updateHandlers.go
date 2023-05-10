@@ -20,21 +20,21 @@ func UpdateHandler(gin *gin.Context) {
 	case metrics.CounterType:
 		value, err := strconv.ParseInt(values, 10, 64)
 		if err != nil {
-			gin.String(http.StatusBadRequest, "Unsupported values")
 			logging.Errorf("cannot parse counter: %s", err)
+			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
 
 		storage.SetCounter(key, value)
-		value, _ = storage.GetCounter(key)
+		metric, _ := storage.GetCounter(key)
 
-		gin.String(http.StatusOK, handlers.CreateResponse(key, value))
+		gin.String(http.StatusOK, handlers.CreateResponse(key, *metric.Delta))
 
 	case metrics.GaugeType:
 		value, err := strconv.ParseFloat(values, 64)
 		if err != nil {
-			gin.String(http.StatusBadRequest, "Unsupported values")
 			logging.Errorf("cannot parse gauge: %s", err)
+			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
 
@@ -42,8 +42,8 @@ func UpdateHandler(gin *gin.Context) {
 		gin.String(http.StatusOK, handlers.CreateResponse(key, value))
 
 	default:
+		logging.Info("cannot find metric type")
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
-		//logging.Info("cannot find metric type")
 		return
 	}
 }

@@ -46,7 +46,7 @@ func TestUpdateHandlerGauge(t *testing.T) {
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
 			val, _ := storage.GetGauge(tt.nameValue)
-			assert.Equal(t, tt.expectedValueFloat, val)
+			assert.Equal(t, tt.expectedValueFloat, *val.Value)
 
 		}
 	}
@@ -88,7 +88,7 @@ func TestUpdateHandlerCounter(t *testing.T) {
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
 			val, _ := storage.GetCounter(tt.nameValue)
-			assert.Equal(t, tt.expectedValueInt, val)
+			assert.Equal(t, tt.expectedValueInt, *val.Delta)
 		}
 	}
 

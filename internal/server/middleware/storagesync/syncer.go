@@ -13,33 +13,35 @@ import (
 	"time"
 )
 
-func GetSyncMiddleware() gin.HandlerFunc {
+var conf *config.ServerConfig
+var shouldDumpMetricsOnMetrics bool
+
+func GetSyncMiddleware(cfg *config.ServerConfig) gin.HandlerFunc {
 	return func(gin *gin.Context) {
-
+		logging.Infof("%+v/n", "GetSyncMiddleware")
 		gin.Next()
-
-		go runDumper()
-
+		if shouldDumpMetricsOnMetrics {
+			if err := dump(); err != nil {
+				logging.Fatalf("cannot dump metrics to file: %s", err)
+			}
+		}
+		gin.Next()
 	}
 }
 
-var conf *config.ServerConfig
-var skipDumpMetrics bool
-
-func RunSync(cfg *config.ServerConfig) error {
+func RunSync(cfg *config.ServerConfig) {
 	conf = cfg
 	if cfg.Restore {
 		if err := restore(conf.FileStoragePath); err != nil {
-			return fmt.Errorf("cannot load metrics from file %w", err)
+			logging.Warnf("cannot load metrics from file %w", err)
 		}
 	}
 	if conf.StoreInterval > 0 {
 		go runDumper()
 	} else {
-		skipDumpMetrics = true
+		shouldDumpMetricsOnMetrics = true
 	}
 
-	return nil
 }
 
 func ShutdownSync() error {
@@ -57,6 +59,7 @@ func runDumper() {
 }
 
 func restore(filePath string) error {
+
 	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
@@ -80,23 +83,23 @@ func restore(filePath string) error {
 }
 
 func dump() error {
+
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
 	}
 	defer file.Close()
-	writer := bufio.NewWriter(file)
 
 	old := storage.GetStorage()
-	data, err := json.Marshal(&old)
 
+	data, err := json.Marshal(&old)
 	if err != nil {
 		return fmt.Errorf("cannot marshal metrics: %w", err)
 	}
-	if _, err := writer.Write(data); err != nil {
+	if _, err := file.Write(data); err != nil {
 		return fmt.Errorf("cannot encode runtimeMetrics: %w", err)
 	}
-	if err := writer.WriteByte('\n'); err != nil {
+	if _, err := file.Write([]byte("\n")); err != nil {
 		return fmt.Errorf("cannot write runtimeMetrics to the file: %w", err)
 	}
 
