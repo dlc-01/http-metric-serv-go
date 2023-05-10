@@ -29,19 +29,6 @@ func Gzip(level int) gin.HandlerFunc {
 	}
 }
 
-type gzipWriter struct {
-	gin.ResponseWriter
-	writer *gzip.Writer
-}
-
-func (g *gzipWriter) WriteString(s string) (int, error) {
-	return g.writer.Write([]byte(s))
-}
-
-func (g *gzipWriter) Write(data []byte) (int, error) {
-	return g.writer.Write(data)
-}
-
 func newCompressReader(gin *gin.Context) {
 	r, err := gzip.NewReader(gin.Request.Body)
 	if err != nil {
@@ -68,4 +55,17 @@ func newCompressWriter(gin *gin.Context, level int) {
 	gin.Header("Content-Encoding", "gzip")
 
 	gin.Next()
+}
+
+type gzipWriter struct {
+	gin.ResponseWriter
+	writer *gzip.Writer
+}
+
+func (g *gzipWriter) WriteString(s string) (int, error) {
+	return g.writer.Write([]byte(s))
+}
+
+func (g *gzipWriter) Write(data []byte) (int, error) {
+	return g.writer.Write(data)
 }
