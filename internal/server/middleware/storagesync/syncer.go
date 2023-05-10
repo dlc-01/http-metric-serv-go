@@ -57,11 +57,11 @@ func runDumper() {
 }
 
 func restore(filePath string) error {
-	buf, err := os.ReadFile(s.Cfg.FileStoragePath)
+	buf, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
 	}
-	
+
 	new := storage.GetStorage()
 	err = json.Unmarshal(buf, &new)
 	if err != nil {
