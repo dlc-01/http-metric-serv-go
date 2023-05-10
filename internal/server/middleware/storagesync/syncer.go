@@ -18,14 +18,9 @@ func GetSyncMiddleware() gin.HandlerFunc {
 
 		gin.Next()
 
-		if skipDumpMetrics {
-			if err := dump(); err != nil {
-				logging.Fatalf("cannot dump metrics to file: %s", err)
-			}
-		} else {
-			//FIXME Called from everyone
-			go runDumper()
-		}
+		dump()
+
+		gin.Next()
 
 	}
 }
@@ -55,7 +50,6 @@ func ShutdownSync() error {
 
 func runDumper() {
 	dumpTicker := time.NewTicker(time.Duration(conf.StoreInterval) * time.Second)
-
 	for range dumpTicker.C {
 		if err := dump(); err != nil {
 			logging.Fatalf("cannot dump metrics to file: %s", err)
