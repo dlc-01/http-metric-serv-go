@@ -26,20 +26,8 @@ func UpdateJSONHandler(gin *gin.Context) {
 		return
 	}
 
-	switch metric.MType {
-	case metrics.CounterType:
-		value := *metric.Delta
-
-		storage.SetCounter(metric.ID, value)
-		metric, _ = storage.GetCounter(metric.ID)
-
-	case metrics.GaugeType:
-		value := *metric.Value
-
-		storage.SetGauge(metric.ID, value)
-		metric, _ = storage.GetGauge(metric.ID)
-
-	default:
+	check := storage.SetMetric(metric.ID, metric.MType, metric.Value, metric.Delta)
+	if !check {
 		logging.Info("cannot find metric type")
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return

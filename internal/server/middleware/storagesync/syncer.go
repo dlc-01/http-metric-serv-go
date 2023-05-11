@@ -17,6 +17,7 @@ var conf *config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
 
 func GetSyncMiddleware() gin.HandlerFunc {
+	logging.Infof("%+v/n", "GetSyncMiddleware")
 	return func(gin *gin.Context) {
 		gin.Next()
 		if shouldDumpMetricsOnMetrics {

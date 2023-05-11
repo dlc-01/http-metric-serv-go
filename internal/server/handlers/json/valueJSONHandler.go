@@ -27,21 +27,15 @@ func ValueJSONHandler(gin *gin.Context) {
 		return
 	}
 	var exist bool
+	var typeCheck bool
 
-	switch metric.MType {
+	metric, exist, typeCheck = storage.GetMetric(metric.ID, metric.MType)
 
-	case metrics.CounterType:
-		metric, exist = storage.GetCounter(metric.ID)
-
-	case metrics.GaugeType:
-		metric, exist = storage.GetGauge(metric.ID)
-
-	default:
+	if !typeCheck {
 		logging.Info("cannot find metric type")
 		gin.String(http.StatusNotFound, "Unsupported metric type")
 		return
 	}
-
 	if !exist {
 		logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
 		gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))

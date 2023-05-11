@@ -23,6 +23,33 @@ func Init() {
 	defaultStorage.Gauges = make(map[string]float64)
 	defaultStorage.Counters = make(map[string]int64)
 }
+
+func SetMetric(k string, t string, f *float64, i *int64) bool {
+	switch t {
+	case metrics.CounterType:
+		SetCounter(k, *i)
+		return true
+	case metrics.GaugeType:
+		SetGauge(k, *f)
+		return true
+	default:
+		return false
+	}
+}
+
+func GetMetric(k string, t string) (metrics.Metric, bool, bool) {
+	switch t {
+	case metrics.CounterType:
+		v, e := GetCounter(k)
+		return v, e, true
+	case metrics.GaugeType:
+		v, e := GetGauge(k)
+		return v, e, true
+	default:
+		return metrics.Metric{}, false, false
+	}
+}
+
 func SetGauge(k string, v float64) {
 	defaultStorage.Gauges[k] = v
 }
