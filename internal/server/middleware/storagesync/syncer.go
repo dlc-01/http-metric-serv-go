@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-var conf *config.ServerConfig
+var conf config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
 
 func GetSyncMiddleware() gin.HandlerFunc {
@@ -29,7 +29,7 @@ func GetSyncMiddleware() gin.HandlerFunc {
 	}
 }
 
-func RunSync(cfg *config.ServerConfig) {
+func RunSync(cfg config.ServerConfig) {
 	conf = cfg
 	if cfg.Restore {
 		if err := restore(conf.FileStoragePath); err != nil {

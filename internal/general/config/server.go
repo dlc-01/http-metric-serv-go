@@ -14,8 +14,8 @@ type ServerConfig struct {
 	Restore         bool
 }
 
-func LoadServerConfig() (*ServerConfig, error) {
-	cfg := &ServerConfig{}
+func LoadServerConfig() (ServerConfig, error) {
+	cfg := ServerConfig{}
 	flag.StringVar(&cfg.ServerAddress, "a", "localhost:8080", "server address")
 	flag.IntVar(&cfg.StoreInterval, "i", 300, "store time interval")
 	flag.StringVar(&cfg.FileStoragePath, "f", "/tmp/runtimeMetrics-db.json", "file data path")
@@ -28,7 +28,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 		if storeInt, err := strconv.Atoi(envStoreInterval); err == nil {
 			cfg.StoreInterval = storeInt
 		} else {
-			return nil, fmt.Errorf("cannot convert STORE_INTERVAL to int: %w", err)
+			return cfg, fmt.Errorf("cannot convert STORE_INTERVAL to int: %w", err)
 		}
 	}
 	if envFileStoragePath := os.Getenv("FILE_STORAGE_PATH"); envFileStoragePath != "" {
@@ -38,7 +38,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 		if restoreBoll, err := strconv.ParseBool(envRestore); err == nil {
 			cfg.Restore = restoreBoll
 		} else {
-			return nil, fmt.Errorf("cannot convert RESTORE to boolean: %w", err)
+			return cfg, fmt.Errorf("cannot convert RESTORE to boolean: %w", err)
 		}
 	}
 	return cfg, nil
