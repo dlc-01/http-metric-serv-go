@@ -31,7 +31,7 @@ func TestDumpRestore(t *testing.T) {
 	}
 	storage.Init()
 	os.Remove(cfg.FileStoragePath)
-	RunSync(cfg)
+	RunSync(&cfg)
 
 	tests := []struct {
 		name          string
@@ -86,7 +86,7 @@ func TestGetSyncMiddleware(t *testing.T) {
 
 	storage.Init()
 
-	RunSync(cfg)
+	RunSync(&cfg)
 
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware())
