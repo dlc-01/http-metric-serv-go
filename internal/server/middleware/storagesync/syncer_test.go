@@ -24,15 +24,11 @@ func TestDumpRestore(t *testing.T) {
 	testValue2 := 2003.03
 	testDelta2 := int64(23)
 
-	cfg, err := config.LoadServerConfig()
-	if err != nil {
-		log.Fatalf("cannot load config: %s", err)
-	}
+	cfg := &config.ServerConfig{FileStoragePath: "/tmp/test_save.json"}
 
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
 	}
-	cfg.FileStoragePath = "/tmp/test_save.json"
 	storage.Init()
 	os.Remove(cfg.FileStoragePath)
 	RunSync(cfg)
@@ -81,17 +77,13 @@ func TestGetSyncMiddleware(t *testing.T) {
 	testValue2 := 2003.03
 	testDelta2 := int64(23)
 
-	cfg, err := config.LoadServerConfig()
-	if err != nil {
-		log.Fatalf("cannot load config: %s", err)
-	}
+	cfg := &config.ServerConfig{FileStoragePath: "/tmp/test_save.json", StoreInterval: 1}
 
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 	os.Remove(cfg.FileStoragePath)
-	cfg.StoreInterval = 1
-	cfg.FileStoragePath = "/tmp/test_save.json"
+
 	storage.Init()
 
 	RunSync(cfg)
