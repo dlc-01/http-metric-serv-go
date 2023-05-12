@@ -12,7 +12,7 @@ type ServerConfig struct {
 	StoreInterval   int
 	FileStoragePath string
 	Restore         bool
-	DatabasePath    string
+	DatabaseAdress  string
 }
 
 func LoadServerConfig() (*ServerConfig, error) {
@@ -21,7 +21,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	flag.IntVar(&cfg.StoreInterval, "i", 300, "store time interval")
 	flag.StringVar(&cfg.FileStoragePath, "f", "/tmp/runtimeMetrics-db.json", "file data path")
 	flag.BoolVar(&cfg.Restore, "r", true, "restore data")
-	flag.StringVar(&cfg.DatabasePath, "d", "", "database filepath")
+	flag.StringVar(&cfg.DatabaseAdress, "d", "", "database adress")
 	flag.Parse()
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		cfg.ServerAddress = envServerAddress
@@ -44,7 +44,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 		}
 	}
 	if envDatabasePath := os.Getenv("DATABASE_DSN"); envDatabasePath != "" {
-		cfg.FileStoragePath = envDatabasePath
+		cfg.DatabaseAdress = envDatabasePath
 	}
 	return cfg, nil
 }

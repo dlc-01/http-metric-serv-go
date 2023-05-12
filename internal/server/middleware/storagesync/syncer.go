@@ -50,7 +50,7 @@ func RunSync(cfg *config.ServerConfig) {
 func ConnectDB() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	db, err := sql.Open("pgx", conf.DatabasePath)
+	db, err := sql.Open("pgx", conf.DatabaseAdress)
 	if err != nil {
 		logging.Panicf("cannot open db: %s", err)
 
