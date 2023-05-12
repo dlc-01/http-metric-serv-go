@@ -64,7 +64,7 @@ func ConnectDB() bool {
 	//	return true
 	//}
 
-	conn, err := pgx.Connect(context.Background(), conf.DatabaseAddress)
+	conn, err := pgx.Connect(ctx, conf.DatabaseAddress)
 	if err != nil {
 		logging.Errorf("can't connect to db: %s", err)
 		return false
