@@ -3,7 +3,6 @@ package storagesync
 import (
 	"bufio"
 	"context"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"os"
 	"time"
@@ -50,20 +50,28 @@ func RunSync(cfg *config.ServerConfig) {
 func ConnectDB() bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	db, err := sql.Open("pgx", conf.DatabaseAdress)
-	if err != nil {
-		logging.Panicf("cannot open db: %s", err)
+	//db, err := sql.Open("pgx", conf.DatabaseAddress)
+	//if err != nil {
+	//	logging.Panicf("cannot open db: %s", err)
+	//
+	//}
+	//defer db.Close()
+	//if err = db.PingContext(ctx); err != nil {
+	//	logging.Errorf("can't connect to db: %s", err)
+	//	return false
+	//} else {
+	//	logging.Info("connected to db")
+	//	return true
+	//}
 
-	}
-	defer db.Close()
-	if err = db.PingContext(ctx); err != nil {
+	conn, err := pgx.Connect(context.Background(), conf.DatabaseAddress)
+	if err != nil {
 		logging.Errorf("can't connect to db: %s", err)
 		return false
-	} else {
-		logging.Info("connected to db")
-		return true
 	}
-
+	defer conn.Close(ctx)
+	logging.Info("connected to db")
+	return true
 }
 
 func ShutdownSync() error {
