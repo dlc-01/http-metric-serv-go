@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type ServerConfig struct {
@@ -28,6 +29,9 @@ func LoadServerConfig() (*ServerConfig, error) {
 
 	}
 	if envStoreInterval := os.Getenv("STORE_INTERVAL"); envStoreInterval != "" {
+		if strings.HasSuffix(envStoreInterval, "s") {
+			envStoreInterval, _ = strings.CutSuffix(envStoreInterval, "s")
+		}
 		if storeInt, err := strconv.Atoi(envStoreInterval); err == nil {
 			cfg.StoreInterval = storeInt
 
