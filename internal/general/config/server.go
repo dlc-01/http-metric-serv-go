@@ -8,10 +8,11 @@ import (
 )
 
 type ServerConfig struct {
-	ServerAddress   string
-	StoreInterval   int
-	FileStoragePath string
-	Restore         bool
+	ServerAddress    string
+	StoreInterval    int
+	FileStoragePath  string
+	Restore          bool
+	DatabaseFilePath string
 }
 
 func LoadServerConfig() (*ServerConfig, error) {
@@ -20,6 +21,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	flag.IntVar(&cfg.StoreInterval, "i", 300, "store time interval")
 	flag.StringVar(&cfg.FileStoragePath, "f", "/tmp/runtimeMetrics-db.json", "file data path")
 	flag.BoolVar(&cfg.Restore, "r", true, "restore data")
+	flag.StringVar(&cfg.DatabaseFilePath, "d", "", "database filepath")
 	flag.Parse()
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		cfg.ServerAddress = envServerAddress
@@ -40,6 +42,9 @@ func LoadServerConfig() (*ServerConfig, error) {
 		} else {
 			return nil, fmt.Errorf("cannot convert RESTORE to boolean: %w", err)
 		}
+	}
+	if envDatabaseFilePath := os.Getenv("DATABASE_DSN"); envDatabaseFilePath != "" {
+		cfg.FileStoragePath = envDatabaseFilePath
 	}
 	return cfg, nil
 }

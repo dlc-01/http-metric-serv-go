@@ -2,6 +2,8 @@ package storagesync
 
 import (
 	"bufio"
+	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +11,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"os"
 	"time"
 )
@@ -40,6 +43,25 @@ func RunSync(cfg *config.ServerConfig) {
 		go runDumper()
 	} else {
 		shouldDumpMetricsOnMetrics = true
+	}
+
+}
+
+func ConnectDB() bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	db, err := sql.Open("pgx", conf.DatabaseFilePath)
+	if err != nil {
+		logging.Fatalf("cannot open db: %s", err)
+
+	}
+	defer db.Close()
+	if err = db.PingContext(ctx); err == nil {
+		logging.Info("connected to db")
+		return true
+	} else {
+		logging.Errorf("can't connect to db: %s", err)
+		return false
 	}
 
 }
