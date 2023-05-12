@@ -50,7 +50,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	}
 	if envDatabasePath := os.Getenv("DATABASE_DSN"); envDatabasePath != "" {
 		cfg.DatabaseAddress = envDatabasePath
-		logging.Infof("\"DATABASE_DSN: %s", envDatabasePath)
+		logging.Infof("DATABASE_DSN: %s", envDatabasePath)
 	}
 	return cfg, nil
 }
