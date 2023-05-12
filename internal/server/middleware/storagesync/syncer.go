@@ -48,20 +48,20 @@ func RunSync(cfg *config.ServerConfig) {
 }
 
 func ConnectDB() bool {
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
-	db, err := sql.Open("pgx", conf.DatabaseFilePath)
+	db, err := sql.Open("pgx", conf.DatabasePath)
 	if err != nil {
-		logging.Fatalf("cannot open db: %s", err)
+		logging.Panicf("cannot open db: %s", err)
 
 	}
 	defer db.Close()
-	if err = db.PingContext(ctx); err == nil {
-		logging.Info("connected to db")
-		return true
-	} else {
+	if err = db.PingContext(ctx); err != nil {
 		logging.Errorf("can't connect to db: %s", err)
 		return false
+	} else {
+		logging.Info("connected to db")
+		return true
 	}
 
 }

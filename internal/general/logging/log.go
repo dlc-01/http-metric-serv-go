@@ -33,6 +33,9 @@ func Infof(format string, opts ...any) {
 func Warnf(format string, opts ...any) {
 	sLog.Warnf(format, opts)
 }
+func Panicf(format string, opts ...any) {
+	sLog.Panicf(format, opts)
+}
 
 func Info(msg string) {
 	sLog.Info(msg)
