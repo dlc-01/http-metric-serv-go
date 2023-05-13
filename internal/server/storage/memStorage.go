@@ -24,13 +24,13 @@ func Init() {
 	defaultStorage.Counters = make(map[string]int64)
 }
 
-func SetMetric(k string, t string, f *float64, i *int64) bool {
+func SetMetric(id string, t string, f *float64, i *int64) bool {
 	switch t {
 	case metrics.CounterType:
-		SetCounter(k, *i)
+		SetCounter(id, *i)
 		return true
 	case metrics.GaugeType:
-		SetGauge(k, *f)
+		SetGauge(id, *f)
 		return true
 	default:
 		return false

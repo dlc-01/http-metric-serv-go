@@ -1,32 +1,34 @@
 package storagesync
 
 import (
-	"bufio"
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync/database"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync/file"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"os"
-	"time"
 )
 
+var ctx context.Context
 var conf *config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
+var workWithDB bool
 
 func GetSyncMiddleware() gin.HandlerFunc {
-	logging.Infof("GetSync")
 	return func(gin *gin.Context) {
 		gin.Next()
 		if shouldDumpMetricsOnMetrics {
-			if err := dump(); err != nil {
-				logging.Fatalf("cannot dump metrics to file: %s", err)
+			if workWithDB {
+				if err := database.DumpDB(); err != nil {
+					logging.Warnf("cannot dump metrics to db %w", err)
+				}
+			} else {
+				if err := file.DumpFile(); err != nil {
+					logging.Fatalf("cannot dump file metrics to file: %s", err)
+				}
 			}
+
 		}
 		gin.Next()
 	}
@@ -34,103 +36,55 @@ func GetSyncMiddleware() gin.HandlerFunc {
 
 func RunSync(cfg *config.ServerConfig) {
 	conf = cfg
-	if cfg.Restore {
-		if err := restore(conf.FileStoragePath); err != nil {
-			logging.Warnf("cannot load metrics from file %w", err)
+	conf.DatabaseAddress = "postgresql://localhost:5432"
+	conf.StoreInterval = 0
+	ctx = context.Background()
+	checkDB(conf.DatabaseAddress)
+	if workWithDB {
+		if err := database.InitDB(ctx, conf); err != nil {
+			logging.Errorf("cannot init db: %s", err)
 		}
+	} else {
+		file.InitForFile(conf)
+	}
+	if cfg.Restore {
+		if workWithDB {
+			if err := database.RestoreDB(); err != nil {
+				logging.Warnf("cannot load metrics from db %w", err)
+			}
+		} else {
+			if err := file.RestoreFile(); err != nil {
+				logging.Warnf("cannot load metrics from file %w", err)
+			}
+		}
+
 	}
 	if conf.StoreInterval > 0 {
-		go runDumper()
+		if workWithDB {
+			go database.RunDumperDB()
+		} else {
+			go file.RunDumperFile()
+		}
+
 	} else {
 		shouldDumpMetricsOnMetrics = true
 	}
 
 }
 
-func ConnectDB() bool {
-	//ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	//defer cancel()
-	//db, err := sql.Open("pgx", conf.DatabaseAddress)
-	//if err != nil {
-	//	logging.Panicf("cannot open db: %s", err)
-	//
-	//}
-	//defer db.Close()
-	//if err = db.PingContext(ctx); err != nil {
-	//	logging.Errorf("can't connect to db: %s", err)
-	//	return false
-	//} else {
-	//	logging.Info("connected to db")
-	//	return true
-	//}
-
-	conn, err := pgx.Connect(context.Background(), conf.DatabaseAddress)
-	if err != nil {
-		logging.Errorf("can't connect to db: %s", err)
-		return false
+func checkDB(DB string) {
+	if DB != "" {
+		workWithDB = true
+		return
+	} else {
+		workWithDB = false
+		return
 	}
-	defer conn.Close(context.Background())
-	logging.Info("connected to db")
-	return true
 }
 
 func ShutdownSync() error {
-	return dump()
-}
-
-func runDumper() {
-	dumpTicker := time.NewTicker(time.Duration(conf.StoreInterval) * time.Second)
-	defer dumpTicker.Stop()
-	for range dumpTicker.C {
-		if err := dump(); err != nil {
-			logging.Fatalf("cannot dump metrics to file: %s", err)
-		}
+	if workWithDB {
+		return database.DumpDB()
 	}
-}
-
-func restore(filePath string) error {
-	file, err := os.OpenFile(filePath, os.O_RDONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return fmt.Errorf("cannot open file: %w", err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	if !scanner.Scan() {
-		return errors.New("cannot scan file")
-	}
-
-	data := scanner.Bytes()
-
-	new := storage.GetStorage()
-	err = json.Unmarshal(data, &new)
-	if err != nil {
-		return fmt.Errorf("cannot decode line: %s", err)
-	}
-	storage.SetStorage(new)
-
-	return nil
-}
-
-func dump() error {
-	file, err := os.OpenFile(conf.FileStoragePath, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return fmt.Errorf("cannot open file: %w", err)
-	}
-	defer file.Close()
-
-	old := storage.GetStorage()
-
-	data, err := json.Marshal(&old)
-	if err != nil {
-		return fmt.Errorf("cannot marshal metrics: %w", err)
-	}
-	if _, err := file.Write(data); err != nil {
-		return fmt.Errorf("cannot encode runtimeMetrics: %w", err)
-	}
-	if _, err := file.Write([]byte("\n")); err != nil {
-		return fmt.Errorf("cannot write runtimeMetrics to the file: %w", err)
-	}
-
-	return nil
+	return file.DumpFile()
 }
