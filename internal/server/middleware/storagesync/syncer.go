@@ -36,8 +36,6 @@ func GetSyncMiddleware() gin.HandlerFunc {
 
 func RunSync(cfg *config.ServerConfig) {
 	conf = cfg
-	conf.DatabaseAddress = "postgresql://localhost:5432"
-	conf.StoreInterval = 0
 	ctx = context.Background()
 	checkDB(conf.DatabaseAddress)
 	if workWithDB {
