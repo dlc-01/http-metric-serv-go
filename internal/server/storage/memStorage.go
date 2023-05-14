@@ -111,3 +111,12 @@ func GetMetrics() []metrics.Metric {
 	}
 	return res
 }
+
+func SetMetrics(res []metrics.Metric) bool {
+	for _, m := range res {
+		if !SetMetric(m.ID, m.MType, m.Value, m.Delta) {
+			return false
+		}
+	}
+	return true
+}

@@ -26,7 +26,23 @@ func (m *Metric) ToJSON() (*bytes.Buffer, error) {
 	}
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
-	
+
+	defer gz.Close()
+
+	if _, err = gz.Write(json); err != nil {
+		return nil, fmt.Errorf("cannot compresed data: %w", err)
+	}
+	return &buf, nil
+}
+
+func ToJSONMetrics(m []Metric) (*bytes.Buffer, error) {
+	json, err := json.Marshal(m)
+	if err != nil {
+		return nil, fmt.Errorf("cannot marshal request to json: %w", err)
+	}
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
 	defer gz.Close()
 
 	if _, err = gz.Write(json); err != nil {

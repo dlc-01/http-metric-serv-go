@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/butchjson"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/db"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/html"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
@@ -23,11 +24,13 @@ func setupRouter() *gin.Engine {
 	router.GET("/value/:types/:name", url.ValueHandler)
 	router.GET("/", html.ShowMetrics)
 	router.GET("/ping", db.ConnectDB)
-	updateRouterGroup := router.Group("/update")
+	updateRouterGroup := router.Group("/")
 	updateRouterGroup.Use(storagesync.GetSyncMiddleware())
 	{
-		updateRouterGroup.POST("/", json.UpdateJSONHandler)
-		updateRouterGroup.POST("/:types/:name/:value", url.UpdateHandler)
+		updateRouterGroup.POST("/update", json.UpdateJSONHandler)
+		updateRouterGroup.POST("/update/:types/:name/:value", url.UpdateHandler)
+		updateRouterGroup.POST("/updates", butchjson.UpdatesButchJSONHandler)
+
 	}
 
 	return router

@@ -1,13 +1,13 @@
 package storagesync
 
 import (
+	"context"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync/file"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +33,7 @@ func TestDumpRestoreFile(t *testing.T) {
 	os.Remove(cfg.FileStoragePath)
 	storage.Init()
 
-	RunSync(&cfg)
+	RunSync(context.Background(), &cfg)
 
 	tests := []struct {
 		name          string
@@ -57,11 +57,11 @@ func TestDumpRestoreFile(t *testing.T) {
 			storage.SetGauge(tt.metricGauge.ID, *tt.metricGauge.Value)
 			storage.SetCounter(tt.metricCounter.ID, *tt.metricCounter.Delta)
 
-			file.DumpFile()
+			dumpFile()
 
 			storage.Init()
 
-			file.RestoreFile()
+			restoreFile()
 
 			gauge, _ := storage.GetGauge(tt.metricGauge.ID)
 			counter, _ := storage.GetCounter(tt.metricCounter.ID)
@@ -89,7 +89,7 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 
 	storage.Init()
 
-	RunSync(&cfg)
+	RunSync(context.Background(), &cfg)
 
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware())
@@ -149,7 +149,7 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 			new := storage.GetStorage()
 			fmt.Println(new)
 			storage.Init()
-			file.RestoreFile()
+			restoreFile()
 			new = storage.GetStorage()
 			fmt.Println(new)
 			gauge, _ := storage.GetGauge(tt.metricGauge.ID)

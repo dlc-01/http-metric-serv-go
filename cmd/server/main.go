@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/app"
@@ -21,7 +22,7 @@ func main() {
 
 	storage.Init()
 
-	storagesync.RunSync(cfg)
+	storagesync.RunSync(context.Background(), cfg)
 
 	app.Run(cfg.ServerAddress)
 
