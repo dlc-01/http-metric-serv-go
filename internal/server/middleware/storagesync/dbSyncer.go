@@ -63,12 +63,12 @@ func restoreDB() error {
 
 	for rows.Next() {
 		var (
-			id      string
-			mtype   string
+			idDB    string
+			mtypeDB string
 			deltaDB sql.NullInt64
 			valueDB sql.NullFloat64
 		)
-		if err := rows.Scan(&id, &mtype, &deltaDB, &valueDB); err != nil {
+		if err := rows.Scan(&idDB, &mtypeDB, &deltaDB, &valueDB); err != nil {
 			return err
 		}
 		var delta *int64
@@ -79,7 +79,7 @@ func restoreDB() error {
 		if valueDB.Valid {
 			value = &valueDB.Float64
 		}
-		storage.SetMetric(id, mtype, value, delta)
+		storage.SetMetric(idDB, mtypeDB, value, delta)
 	}
 	return nil
 }

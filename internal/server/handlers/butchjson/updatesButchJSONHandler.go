@@ -11,7 +11,7 @@ import (
 )
 
 func UpdatesButchJSONHandler(gin *gin.Context) {
-	var metric []metrics.Metric
+	var data []metrics.Metric
 	var buf bytes.Buffer
 
 	_, err := buf.ReadFrom(gin.Request.Body)
@@ -20,19 +20,19 @@ func UpdatesButchJSONHandler(gin *gin.Context) {
 		gin.String(http.StatusBadRequest, "Unsupported request body")
 		return
 	}
-	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
+	if err = json.Unmarshal(buf.Bytes(), &data); err != nil {
 		logging.Errorf("cannot unmarshal json: %s", err)
 		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		return
 	}
 
-	check := storage.SetMetrics(metric)
+	check := storage.SetMetrics(data)
 	if !check {
 		logging.Info("cannot find metric type")
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return
 	}
 
-	gin.SecureJSON(http.StatusOK, metric)
+	gin.SecureJSON(http.StatusOK, data)
 
 }

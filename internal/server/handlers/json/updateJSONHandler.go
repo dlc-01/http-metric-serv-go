@@ -8,6 +8,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func UpdateJSONHandler(gin *gin.Context) {
@@ -33,6 +34,7 @@ func UpdateJSONHandler(gin *gin.Context) {
 		return
 	}
 
+	time.Sleep(time.Second)
 	gin.SecureJSON(http.StatusOK, metric)
 
 }
