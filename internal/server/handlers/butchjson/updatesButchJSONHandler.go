@@ -26,9 +26,8 @@ func UpdatesButchJSONHandler(gin *gin.Context) {
 		return
 	}
 
-	check := storage.SetMetrics(data)
-	if !check {
-		logging.Info("cannot find metric type")
+	if err = storage.SetMetrics(data); err != nil {
+		logging.Errorf("cannot find metric type: %s", err)
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return
 	}

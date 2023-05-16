@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 )
 
@@ -112,11 +113,11 @@ func GetMetrics() []metrics.Metric {
 	return res
 }
 
-func SetMetrics(res []metrics.Metric) bool {
+func SetMetrics(res []metrics.Metric) error {
 	for _, m := range res {
 		if !SetMetric(m.ID, m.MType, m.Value, m.Delta) {
-			return false
+			return fmt.Errorf("Unsuported metric type")
 		}
 	}
-	return true
+	return nil
 }
