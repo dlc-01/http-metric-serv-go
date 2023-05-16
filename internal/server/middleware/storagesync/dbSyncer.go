@@ -91,7 +91,7 @@ func dumpDB() error {
 		return err
 	}
 	for _, metric := range storage.GetMetrics() {
-		query := `INSERT INTO metrics (id, mtype, mdelta, mvalue) VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO UPDATE SET mvalue = EXCLUDED.mvalue, mdelta =  coalesce(metrics.delta, 0) + EXCLUDED.mdelta;`
+		query := `INSERT INTO metrics (id, mtype, mdelta, mvalue) VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO UPDATE SET mvalue = EXCLUDED.mvalue, mdelta =  coalesce(metrics.mdelta, 0) + EXCLUDED.mdelta;`
 		if _, err := tx.Exec(db.ctx, query, metric.ID, metric.MType, metric.Delta, metric.Value); err != nil {
 			tx.Rollback(db.ctx)
 			return fmt.Errorf("cann't dump metric %q: %w", metric.ID, err)
