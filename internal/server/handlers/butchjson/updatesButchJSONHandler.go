@@ -32,6 +32,6 @@ func UpdatesButchJSONHandler(gin *gin.Context) {
 		return
 	}
 
-	gin.SecureJSON(http.StatusOK, data)
+	gin.Status(http.StatusOK)
 
 }

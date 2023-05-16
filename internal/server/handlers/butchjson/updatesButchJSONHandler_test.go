@@ -19,9 +19,9 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 	router.POST("/updates/", UpdatesButchJSONHandler)
 
 	testValue := 2022.02
-	testValues := 2022.01
+	testValueOther := 2022.01
 	testDelta := int64(24)
-	testDeltas := int64(48)
+	testDeltaSum := int64(48)
 
 	tests := []struct {
 		name         string
@@ -78,7 +78,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 					ID:    "TestGauge",
 					MType: metrics.GaugeType,
 					Delta: nil,
-					Value: &testValues,
+					Value: &testValueOther,
 				},
 				{
 					ID:    "TestCounter",
@@ -97,7 +97,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 				{
 					ID:    "TestCounter",
 					MType: metrics.CounterType,
-					Delta: &(testDeltas),
+					Delta: &(testDeltaSum),
 					Value: nil,
 				},
 				{

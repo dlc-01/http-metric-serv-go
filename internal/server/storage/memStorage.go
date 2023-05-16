@@ -116,7 +116,7 @@ func GetMetrics() []metrics.Metric {
 func SetMetrics(res []metrics.Metric) error {
 	for _, m := range res {
 		if !SetMetric(m.ID, m.MType, m.Value, m.Delta) {
-			return fmt.Errorf("Unsuported metric type")
+			return fmt.Errorf("unsuported metric type")
 		}
 	}
 	return nil
