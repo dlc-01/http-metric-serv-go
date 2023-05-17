@@ -37,7 +37,7 @@ func initDB() error {
 		return fmt.Errorf("cann't connect to db: %w", err)
 	}
 	logging.Info("connected to db")
-	_, err = db.conn.Exec(context.Background(), "CREATE TABLE IF NOT EXISTS metrics (id TEXT PRIMARY KEY, mtype TEXT, mdelta BIGINT, mvalue DOUBLE PRECISION)")
+	_, err = db.conn.Exec(db.ctx, "CREATE TABLE IF NOT EXISTS metrics (id TEXT PRIMARY KEY, mtype TEXT, mdelta BIGINT, mvalue DOUBLE PRECISION)")
 	if err != nil {
 		return fmt.Errorf("cann't create table: %w", err)
 	}
