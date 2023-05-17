@@ -37,5 +37,8 @@ func CollectMetrics() {
 	storage.SetGauge("Sys", float64(Runtime.Sys))
 	storage.SetGauge("TotalAlloc", float64(Runtime.TotalAlloc))
 	storage.SetGauge("RandomValue", rand.Float64())
+	storage.SetGauge("TotalMemory", rand.Float64())
+	storage.SetGauge("FreeMemory", rand.Float64())
+	storage.SetGauge("CPUutilization1", rand.Float64())
 	storage.SetCounter("PollCount", 1)
 }
