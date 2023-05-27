@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"os"
 	"time"
 )
@@ -46,10 +47,12 @@ func restoreFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot get storage: %w", err)
 	}
+	handlers.ServerStor.Storage = syncStor
 	return nil
 }
 
 func dumpFile() error {
+	syncStor = handlers.ServerStor.Storage
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
