@@ -1,4 +1,4 @@
-package checkingHash
+package checkinghash
 
 import (
 	"context"
