@@ -23,7 +23,6 @@ func Init(ctx context.Context, conf *config.ServerConfig) {
 		return
 	}
 	ServerStorage.storage = memS.Сreate(ctx, conf)
-	return
 }
 
 type stor struct {

@@ -43,6 +43,8 @@ func CollectMetrics(ctx context.Context) {
 	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "MSpanInuse", MType: metrics.GaugeType, Value: &mSpanInuse})
 	mSpanSys := float64(Runtime.MSpanSys)
 	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "MSpanSys", MType: metrics.GaugeType, Value: &mSpanSys})
+	mCacheSys := float64(Runtime.MCacheSys)
+	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "MCacheSys", MType: metrics.GaugeType, Value: &mCacheSys})
 	mallocs := float64(Runtime.Mallocs)
 	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "Mallocs", MType: metrics.GaugeType, Value: &mallocs})
 	nextGC := float64(Runtime.NextGC)
@@ -71,8 +73,7 @@ func CollectMetrics(ctx context.Context) {
 	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "FreeMemory", MType: metrics.GaugeType, Value: &freeMemory})
 	cPUutilization1 := rand.Float64()
 	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "CPUutilization1", MType: metrics.GaugeType, Value: &cPUutilization1})
-	var count int64
-	count = 1
+	var count int64 = 1
 	storage.ServerStorage.SetMetric(ctx, metrics.Metric{ID: "PollCount", MType: metrics.CounterType, Delta: &count})
 
 }
