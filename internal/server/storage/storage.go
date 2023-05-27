@@ -25,9 +25,3 @@ func Init(ctx context.Context, conf *config.ServerConfig) Storage {
 
 	return memS.Сreate(ctx, conf)
 }
-
-type Stor struct {
-	Storage
-}
-
-var ServerStorage Stor

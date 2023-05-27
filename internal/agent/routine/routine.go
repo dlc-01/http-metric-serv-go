@@ -31,7 +31,7 @@ func Run(cfg *config.AgentConfig, s storage.Storage) {
 		select {
 		case <-reportTicker.C:
 			logging.Info("report")
-			if err := agent.sendMetrics(cfg.ServerAddress); err != nil {
+			if err := agent.sendMetrics(cfg); err != nil {
 				logging.Errorf("cannot send metrics: %s", err)
 			}
 		case <-poolTicker.C:

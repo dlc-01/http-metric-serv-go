@@ -4,6 +4,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/checkingHash"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
@@ -20,14 +21,15 @@ func Run(cfg *config.ServerConfig, s storage.Storage) {
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
+	router.Use(checkingHash.ChekHash(cfg.HashKey))
 	router.POST("/value/", handlers.ServerStor.ValueJSONHandler)
 	router.GET("/value/:types/:name", handlers.ServerStor.ValueHandler)
 	router.GET("/", handlers.ServerStor.ShowMetrics)
 	router.GET("/ping", handlers.ServerStor.PingDB)
 	updateRouterGroup := router.Group("/")
-	if cfg.DatabaseAddress == "" {
-		updateRouterGroup.Use(storagesync.GetSyncMiddleware())
-	}
+
+	updateRouterGroup.Use(storagesync.GetSyncMiddleware(cfg.DatabaseAddress))
+
 	{
 		updateRouterGroup.POST("/update", handlers.ServerStor.UpdateJSONHandler)
 		updateRouterGroup.POST("/update/:types/:name/:value", handlers.ServerStor.UpdateHandler)

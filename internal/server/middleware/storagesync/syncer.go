@@ -14,9 +14,9 @@ var workWithDB bool
 
 var syncStor storage.Storage
 
-func GetSyncMiddleware() gin.HandlerFunc {
+func GetSyncMiddleware(databse string) gin.HandlerFunc {
 	return func(gin *gin.Context) {
-		if conf.DatabaseAddress == "" {
+		if databse == "" {
 			gin.Next()
 			if shouldDumpMetricsOnMetrics {
 				if err := dumpFile(); err != nil {

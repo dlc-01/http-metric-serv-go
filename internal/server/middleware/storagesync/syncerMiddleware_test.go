@@ -36,7 +36,7 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 	RunSync(&cfg, s)
 	handlers.ServerStor.Storage = s
 	router := gin.Default()
-	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware())
+	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware(""))
 	router.POST("/update/", handlers.ServerStor.UpdateJSONHandler)
 	router.POST("/value/", handlers.ServerStor.ValueJSONHandler)
 

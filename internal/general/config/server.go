@@ -14,6 +14,7 @@ type ServerConfig struct {
 	FileStoragePath string
 	Restore         bool
 	DatabaseAddress string
+	HashKey         string
 }
 
 func LoadServerConfig() (*ServerConfig, error) {
@@ -24,6 +25,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	flag.StringVar(&cfg.FileStoragePath, "f", "/tmp/runtimeMetrics-db.json", "file data path")
 	flag.BoolVar(&cfg.Restore, "r", true, "restore data")
 	flag.StringVar(&cfg.DatabaseAddress, "d", "", "database address")
+	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
 	flag.Parse()
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		cfg.ServerAddress = envServerAddress
@@ -32,7 +34,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 		if strings.HasSuffix(envStoreInterval, "s") {
 
 			envStoreInterval, _ = strings.CutSuffix(envStoreInterval, "s")
-			//need implements some methods while try catch error
+			//TODO need implements some methods while try catch error
 			//return nil , fmt.Errorf("cannot cut s from STORE_INTERVAL: %w", err)
 		}
 		if storeInt, err := strconv.Atoi(envStoreInterval); err == nil {
@@ -47,16 +49,17 @@ func LoadServerConfig() (*ServerConfig, error) {
 
 	}
 	if envRestore := os.Getenv("RESTORE"); envRestore != "" {
-		if restoreBoll, err := strconv.ParseBool(envRestore); err == nil {
-			cfg.Restore = restoreBoll
-
+		if restoreBool, err := strconv.ParseBool(envRestore); err == nil {
+			cfg.Restore = restoreBool
 		} else {
 			return nil, fmt.Errorf("cannot convert RESTORE to boolean: %w", err)
 		}
 	}
 	if envDatabasePath := os.Getenv("DATABASE_DSN"); envDatabasePath != "" {
 		cfg.DatabaseAddress = envDatabasePath
-
+	}
+	if envHashKey := os.Getenv("KEY"); envHashKey != "" {
+		cfg.HashKey = envHashKey
 	}
 	return cfg, nil
 }
