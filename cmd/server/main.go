@@ -19,10 +19,12 @@ func main() {
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
 	}
+	//cfg.DatabaseAddress = "postgresql://localhost:5432"
+	storage.Init(context.Background(), cfg)
 
-	storage.Init()
-
-	storagesync.RunSync(context.Background(), cfg)
+	if err := storagesync.RunSync(cfg); err != nil {
+		logging.Warnf("cannot run syncer %s", err)
+	}
 
 	app.Run(cfg.ServerAddress)
 

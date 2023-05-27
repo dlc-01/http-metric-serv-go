@@ -1,7 +1,9 @@
 package json
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
@@ -15,10 +17,12 @@ import (
 
 func TestValueJSONHandler(t *testing.T) {
 	logging.InitLogger()
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 	router.POST("/value/", ValueJSONHandler)
 	router.POST("/update/", UpdateJSONHandler)
-	storage.Init()
+	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testGaugePost := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
 	testCounterPost := `{"id":"TestCounter", "type":"counter", "delta":24}`

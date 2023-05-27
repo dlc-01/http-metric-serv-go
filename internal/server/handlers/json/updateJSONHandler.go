@@ -8,7 +8,6 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"time"
 )
 
 func UpdateJSONHandler(gin *gin.Context) {
@@ -21,20 +20,20 @@ func UpdateJSONHandler(gin *gin.Context) {
 		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
 		return
 	}
+
 	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
 		logging.Errorf("cannot unmarshal json: %s", err)
 		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		return
 	}
 
-	check := storage.SetMetric(metric.ID, metric.MType, metric.Value, metric.Delta)
-	if !check {
-		logging.Info("cannot find metric type")
+	err = storage.ServerStorage.SetMetric(gin, metric)
+	if err != nil {
+		logging.Errorf("cannot save metric: %s", err)
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return
 	}
 
-	time.Sleep(time.Second)
 	gin.SecureJSON(http.StatusOK, metric)
 
 }

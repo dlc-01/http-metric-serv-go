@@ -2,6 +2,7 @@ package storagesync
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,13 +36,15 @@ func restoreFile() error {
 
 	data := scanner.Bytes()
 
-	new := storage.GetStorage()
+	new, err := storage.ServerStorage.GetAllMetrics(context.TODO())
+	if err != nil {
+		return fmt.Errorf("cannot get storage: %w", err)
+	}
 	err = json.Unmarshal(data, &new)
 	if err != nil {
 		return fmt.Errorf("cannot decode line: %s", err)
 	}
-	storage.SetStorage(new)
-
+	storage.ServerStorage.SetMetricsBatch(context.TODO(), new)
 	return nil
 }
 
@@ -52,8 +55,10 @@ func dumpFile() error {
 	}
 	defer file.Close()
 
-	old := storage.GetStorage()
-
+	old, err := storage.ServerStorage.GetAllMetrics(context.TODO())
+	if err != nil {
+		return fmt.Errorf("cannot get storage: %w", err)
+	}
 	data, err := json.Marshal(&old)
 	if err != nil {
 		return fmt.Errorf("cannot marshal metrics: %w", err)

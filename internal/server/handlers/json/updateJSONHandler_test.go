@@ -1,7 +1,9 @@
 package json
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
@@ -16,8 +18,10 @@ import (
 func TestUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	router := gin.Default()
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router.POST("/update/", UpdateJSONHandler)
-	storage.Init()
+	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testGauge := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
 	testCounter := `{"id":"TestCounter", "type":"counter", "delta":24}`

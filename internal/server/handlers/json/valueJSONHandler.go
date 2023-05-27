@@ -26,19 +26,27 @@ func ValueJSONHandler(gin *gin.Context) {
 		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		return
 	}
-	var exist bool
-	var typeCheck bool
 
-	metric, exist, typeCheck = storage.GetMetric(metric.ID, metric.MType)
+	switch metric.MType {
+	case metrics.CounterType:
+		metric, err = storage.ServerStorage.GetMetric(gin, metric)
+		if err != nil {
+			logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
+			gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))
+			return
+		}
 
-	if !typeCheck {
+	case metrics.GaugeType:
+		metric, err = storage.ServerStorage.GetMetric(gin, metric)
+		if err != nil {
+			logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
+			gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))
+			return
+		}
+
+	default:
 		logging.Info("cannot find metric type")
 		gin.String(http.StatusNotFound, "Unsupported metric type")
-		return
-	}
-	if !exist {
-		logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
-		gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))
 		return
 	}
 

@@ -2,7 +2,6 @@ package storagesync
 
 import (
 	"context"
-	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
@@ -31,9 +30,9 @@ func TestDumpRestoreFile(t *testing.T) {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 	os.Remove(cfg.FileStoragePath)
-	storage.Init()
+	storage.Init(context.Background(), &config.ServerConfig{})
 
-	RunSync(context.Background(), &cfg)
+	RunSync(&cfg)
 
 	tests := []struct {
 		name          string
@@ -54,17 +53,22 @@ func TestDumpRestoreFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			storage.SetGauge(tt.metricGauge.ID, *tt.metricGauge.Value)
-			storage.SetCounter(tt.metricCounter.ID, *tt.metricCounter.Delta)
+			storage.ServerStorage.SetMetric(context.Background(), tt.metricGauge)
+			storage.ServerStorage.SetMetric(context.Background(), tt.metricCounter)
 
 			dumpFile()
-
-			storage.Init()
+			storage.Init(context.Background(), &config.ServerConfig{})
 
 			restoreFile()
 
-			gauge, _ := storage.GetGauge(tt.metricGauge.ID)
-			counter, _ := storage.GetCounter(tt.metricCounter.ID)
+			gauge, err := storage.ServerStorage.GetMetric(context.Background(), tt.metricGauge)
+			if err != nil {
+				logging.Errorf("cannot get gauge metric: %s", err)
+			}
+			counter, err := storage.ServerStorage.GetMetric(context.Background(), tt.metricCounter)
+			if err != nil {
+				logging.Errorf("cannot get counter metric: %s", err)
+			}
 
 			assert.Equal(t, gauge, tt.metricGauge)
 			assert.Equal(t, counter, tt.metricCounter)
@@ -87,9 +91,9 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 	}
 	os.Remove(cfg.FileStoragePath)
 
-	storage.Init()
+	storage.Init(context.Background(), &config.ServerConfig{})
 
-	RunSync(context.Background(), &cfg)
+	RunSync(&cfg)
 
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware())
@@ -112,7 +116,7 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		jsonsCounter, err := tt.metricCounter.ToJSON()
+		jsonsCounter, err := tt.metricCounter.ToJSONWithGzip()
 		if err != nil {
 			logging.Fatalf("cannot generate request body: %wCounter", err)
 		}
@@ -127,7 +131,7 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 
 		wCounter := httptest.NewRecorder()
 		router.ServeHTTP(wCounter, reqCounter)
-		jsonsGauge, err := tt.metricGauge.ToJSON()
+		jsonsGauge, err := tt.metricGauge.ToJSONWithGzip()
 		if err != nil {
 			logging.Fatalf("cannot generate request body: %wCounter", err)
 		}
@@ -146,14 +150,18 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 		time.Sleep(1 * time.Second)
 
 		t.Run(tt.name, func(t *testing.T) {
-			new := storage.GetStorage()
-			fmt.Println(new)
-			storage.Init()
+
+			storage.Init(context.Background(), &config.ServerConfig{})
 			restoreFile()
-			new = storage.GetStorage()
-			fmt.Println(new)
-			gauge, _ := storage.GetGauge(tt.metricGauge.ID)
-			counter, _ := storage.GetCounter(tt.metricCounter.ID)
+
+			gauge, err := storage.ServerStorage.GetMetric(context.Background(), tt.metricGauge)
+			if err != nil {
+				logging.Errorf("cannot get gauge metric: %s", err)
+			}
+			counter, err := storage.ServerStorage.GetMetric(context.Background(), tt.metricCounter)
+			if err != nil {
+				logging.Errorf("cannot get counter metric: %s", err)
+			}
 
 			assert.Equal(t, gauge, tt.metricGauge)
 			assert.Equal(t, counter, tt.metricCounter)

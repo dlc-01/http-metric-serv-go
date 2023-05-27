@@ -5,18 +5,17 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
+
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
 func UpdateHandler(gin *gin.Context) {
-
-	types := gin.Param("types")
-	key := gin.Param("name")
+	metric := metrics.Metric{ID: gin.Param("name"), MType: gin.Param("types")}
 	values := gin.Param("value")
 
-	switch types {
+	switch metric.MType {
 	case metrics.CounterType:
 		value, err := strconv.ParseInt(values, 10, 64)
 		if err != nil {
@@ -24,11 +23,19 @@ func UpdateHandler(gin *gin.Context) {
 			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
+		metric.Delta = &value
 
-		storage.SetCounter(key, value)
-		metric, _ := storage.GetCounter(key)
+		err = storage.ServerStorage.SetMetric(gin, metric)
+		if err != nil {
+			logging.Errorf("cannot save metric: %s", err)
+		}
 
-		gin.String(http.StatusOK, handlers.CreateResponse(key, *metric.Delta))
+		metric, err = storage.ServerStorage.GetMetric(gin, metric)
+		if err != nil {
+			logging.Errorf("cannot get metric: %s", err)
+		}
+
+		gin.String(http.StatusOK, handlers.CreateResponse(metric.ID, *metric.Delta))
 
 	case metrics.GaugeType:
 		value, err := strconv.ParseFloat(values, 64)
@@ -37,9 +44,14 @@ func UpdateHandler(gin *gin.Context) {
 			gin.String(http.StatusBadRequest, "Unsupported values")
 			return
 		}
+		metric.Value = &value
 
-		storage.SetGauge(key, value)
-		gin.String(http.StatusOK, handlers.CreateResponse(key, value))
+		err = storage.ServerStorage.SetMetric(gin, metric)
+		if err != nil {
+			logging.Errorf("cannot save metric: %s", err)
+		}
+
+		gin.String(http.StatusOK, handlers.CreateResponse(metric.ID, metric.Value))
 
 	default:
 		logging.Info("cannot find metric type")

@@ -1,6 +1,7 @@
 package routine
 
 import (
+	"context"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
@@ -8,7 +9,11 @@ import (
 )
 
 func sendMetrics(addr string) error {
-	jsons, err := metrics.ToJSONMetrics(storage.GetMetrics())
+	metric, err := storage.ServerStorage.GetAllMetrics(context.TODO())
+	if err != nil {
+		return fmt.Errorf("cannot get metrics :%w", err)
+	}
+	jsons, err := metrics.ToJSONWithGzipMetrics(metric)
 	if err != nil {
 		return fmt.Errorf("cannot generate request body: %w", err)
 	}

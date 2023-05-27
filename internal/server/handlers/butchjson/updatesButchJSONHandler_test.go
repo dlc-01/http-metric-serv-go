@@ -1,6 +1,8 @@
 package butchjson
 
 import (
+	"context"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
@@ -14,6 +16,8 @@ import (
 
 func TestUpdatesButchJSONHandler(t *testing.T) {
 	logging.InitLogger()
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.BestCompression))
 	router.POST("/updates/", UpdatesButchJSONHandler)
@@ -125,8 +129,9 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			storage.Init()
-			jsons, err := metrics.ToJSONMetrics(tt.responseBody)
+
+			storage.Init(context.Background(), &config.ServerConfig{})
+			jsons, err := metrics.ToJSONWithGzipMetrics(tt.responseBody)
 			if err != nil {
 				logging.Fatalf("cannot generate request body: %w", err)
 			}
@@ -145,7 +150,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 			assert.Equal(t, tt.expectedCode, w.Code)
 
 			if tt.expectedCode == 200 {
-				data := storage.GetMetrics()
+				data, _ := storage.ServerStorage.GetAllMetrics(context.Background())
 				assert.Equal(t, tt.expectedBody, data)
 			}
 		})

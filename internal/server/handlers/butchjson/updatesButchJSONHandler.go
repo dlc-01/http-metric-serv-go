@@ -6,6 +6,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
+
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -26,7 +27,7 @@ func UpdatesButchJSONHandler(gin *gin.Context) {
 		return
 	}
 
-	if err = storage.SetMetrics(data); err != nil {
+	if err = storage.ServerStorage.SetMetricsBatch(gin, data); err != nil {
 		logging.Errorf("cannot save metric type: %s", err)
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return

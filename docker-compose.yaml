@@ -11,14 +11,11 @@ services:
       - data:/var/lib/postgresql/data
   server:
     image: httpserv-imge
-
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - POSTGRES_USER=http_serv
-      - POSTGRES_PASS=http_pass
-      - POSTGRES_DB=http_dc
+    env_file:
+      - .env
     depends_on:
       - database
     networks:

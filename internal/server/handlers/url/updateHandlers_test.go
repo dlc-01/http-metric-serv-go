@@ -1,7 +1,10 @@
 package url
 
 import (
+	"context"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -12,9 +15,10 @@ import (
 
 func TestUpdateHandlerGauge(t *testing.T) {
 	logging.InitLogger()
+	storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
+
 	router.POST("/update/:types/:name/:value", UpdateHandler)
-	storage.Init()
 
 	testsGauge := []struct {
 		name               string
@@ -45,7 +49,7 @@ func TestUpdateHandlerGauge(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
-			val, _ := storage.GetGauge(tt.nameValue)
+			val, _ := storage.ServerStorage.GetMetric(context.TODO(), metrics.Metric{ID: tt.nameValue, MType: metrics.GaugeType})
 			assert.Equal(t, tt.expectedValueFloat, *val.Value)
 
 		}
@@ -55,8 +59,8 @@ func TestUpdateHandlerGauge(t *testing.T) {
 
 func TestUpdateHandlerCounter(t *testing.T) {
 	router := gin.Default()
+	storage.Init(context.Background(), &config.ServerConfig{})
 	router.POST("/update/:types/:name/:value", UpdateHandler)
-	storage.Init()
 
 	testsCounter := []struct {
 		name             string
@@ -88,7 +92,7 @@ func TestUpdateHandlerCounter(t *testing.T) {
 
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
-			val, _ := storage.GetCounter(tt.nameValue)
+			val, _ := storage.ServerStorage.GetMetric(context.TODO(), metrics.Metric{ID: tt.nameValue, MType: metrics.CounterType})
 			assert.Equal(t, tt.expectedValueInt, *val.Delta)
 		}
 	}

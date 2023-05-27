@@ -2,6 +2,8 @@ package gzip
 
 import (
 	"compress/gzip"
+	"context"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
@@ -15,10 +17,12 @@ import (
 
 func TestGzipWithUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 	router.Use(Gzip(gzip.BestSpeed))
 	router.POST("/update/", json.UpdateJSONHandler)
-	storage.Init()
+	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testValue := 2022.02
 	testDelta := int64(24)
@@ -65,7 +69,7 @@ func TestGzipWithUpdateJSONHandler(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		jsons, err := tt.expectedBody.ToJSON()
+		jsons, err := tt.expectedBody.ToJSONWithGzip()
 		if err != nil {
 			logging.Fatalf("cannot generate request body: %w", err)
 		}
@@ -86,10 +90,10 @@ func TestGzipWithUpdateJSONHandler(t *testing.T) {
 		if tt.expectedCode == 200 {
 			switch tt.expectedBody.MType {
 			case metrics.GaugeType:
-				value, _ := storage.GetGauge(tt.expectedBody.ID)
+				value, _ := storage.ServerStorage.GetMetric(context.TODO(), tt.expectedBody)
 				assert.Equal(t, testValue, *value.Value)
 			case metrics.CounterType:
-				delta, _ := storage.GetCounter(tt.expectedBody.ID)
+				delta, _ := storage.ServerStorage.GetMetric(context.TODO(), tt.expectedBody)
 				assert.Equal(t, testDelta, *delta.Delta)
 			}
 		}
