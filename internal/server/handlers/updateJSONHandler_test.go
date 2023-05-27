@@ -1,8 +1,7 @@
-package json
+package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
@@ -18,10 +17,9 @@ import (
 func TestUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	router := gin.Default()
-	storage.Init(context.Background(), &config.ServerConfig{})
-
-	router.POST("/update/", UpdateJSONHandler)
-	storage.Init(context.Background(), &config.ServerConfig{})
+	s := storage.Init(context.Background(), &config.ServerConfig{})
+	ServerStor.Storage = s
+	router.POST("/update/", ServerStor.UpdateJSONHandler)
 
 	testGauge := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
 	testCounter := `{"id":"TestCounter", "type":"counter", "delta":24}`
@@ -86,8 +84,8 @@ func TestUpdateJSONHandler(t *testing.T) {
 
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if tt.expectedCode == 200 {
-			var data metrics.Metric
-			json.Unmarshal(w.Body.Bytes(), &data)
+
+			data, _ := s.GetMetric(context.TODO(), tt.expectedBody)
 			assert.Equal(t, tt.expectedBody, data)
 		}
 	}

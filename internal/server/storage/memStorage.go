@@ -12,11 +12,11 @@ type memStorage struct {
 	Counters map[string]int64
 }
 
-var memS storage = &memStorage{}
+var memS Storage = &memStorage{}
 
 var defaultStorage memStorage
 
-func (m *memStorage) Сreate(ctx context.Context, cfg *config.ServerConfig) storage {
+func (m *memStorage) Сreate(ctx context.Context, cfg *config.ServerConfig) Storage {
 	defaultStorage.Gauges = make(map[string]float64)
 	defaultStorage.Counters = make(map[string]int64)
 	return memS
@@ -31,7 +31,7 @@ func (m *memStorage) SetMetric(ctx context.Context, metric metrics.Metric) error
 		setGauge(metric.ID, *metric.Value)
 		return nil
 	default:
-		return fmt.Errorf("usupported metric type")
+		return fmt.Errorf("unsupported metric type")
 	}
 }
 

@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"net/http"
 )
 
-func sendMetrics(addr string) error {
-	metric, err := storage.ServerStorage.GetAllMetrics(context.TODO())
+func (s stor) sendMetrics(addr string) error {
+	metric, err := s.GetAllMetrics(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get metrics :%w", err)
 	}

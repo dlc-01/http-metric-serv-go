@@ -6,7 +6,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -17,11 +17,11 @@ import (
 
 func TestGzipWithUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
-	storage.Init(context.Background(), &config.ServerConfig{})
-
+	s := storage.Init(context.Background(), &config.ServerConfig{})
+	handlers.ServerStor.Storage = s
 	router := gin.Default()
 	router.Use(Gzip(gzip.BestSpeed))
-	router.POST("/update/", json.UpdateJSONHandler)
+	router.POST("/update/", handlers.ServerStor.UpdateJSONHandler)
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testValue := 2022.02
@@ -90,10 +90,10 @@ func TestGzipWithUpdateJSONHandler(t *testing.T) {
 		if tt.expectedCode == 200 {
 			switch tt.expectedBody.MType {
 			case metrics.GaugeType:
-				value, _ := storage.ServerStorage.GetMetric(context.TODO(), tt.expectedBody)
+				value, _ := s.GetMetric(context.TODO(), tt.expectedBody)
 				assert.Equal(t, testValue, *value.Value)
 			case metrics.CounterType:
-				delta, _ := storage.ServerStorage.GetMetric(context.TODO(), tt.expectedBody)
+				delta, _ := s.GetMetric(context.TODO(), tt.expectedBody)
 				assert.Equal(t, testDelta, *delta.Delta)
 			}
 		}

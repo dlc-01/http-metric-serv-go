@@ -1,20 +1,18 @@
-package html
+package handlers
 
 import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-
 	"github.com/gin-gonic/gin"
 	"html/template"
 )
 
-func ShowMetrics(gin *gin.Context) {
+func (s stor) ShowMetrics(gin *gin.Context) {
 	gin.Writer.Header().Set("content-type", "Content-Type: text/html; charset=utf-8")
 
 	page := ""
 
-	metric, err := storage.ServerStorage.GetAll(gin)
+	metric, err := s.GetAll(gin)
 	if err != nil {
 		logging.Errorf("cannot get all metric : %s", err)
 	}

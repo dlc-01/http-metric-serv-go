@@ -6,8 +6,8 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 )
 
-type storage interface {
-	Сreate(ctx context.Context, cfg *config.ServerConfig) storage
+type Storage interface {
+	Сreate(ctx context.Context, cfg *config.ServerConfig) Storage
 	SetMetric(context.Context, metrics.Metric) error
 	SetMetricsBatch(context.Context, []metrics.Metric) error
 	GetMetric(context.Context, metrics.Metric) (metrics.Metric, error)
@@ -17,16 +17,17 @@ type storage interface {
 	Close(context.Context)
 }
 
-func Init(ctx context.Context, conf *config.ServerConfig) {
+func Init(ctx context.Context, conf *config.ServerConfig) Storage {
 	if conf.DatabaseAddress != "" {
-		ServerStorage.storage = db.Сreate(ctx, conf)
-		return
+
+		return db.Сreate(ctx, conf)
 	}
-	ServerStorage.storage = memS.Сreate(ctx, conf)
+
+	return memS.Сreate(ctx, conf)
 }
 
-type stor struct {
-	storage
+type Stor struct {
+	Storage
 }
 
-var ServerStorage stor
+var ServerStorage Stor

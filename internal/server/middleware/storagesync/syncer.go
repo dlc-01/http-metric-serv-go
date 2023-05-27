@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -12,20 +13,25 @@ var conf *config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
 var workWithDB bool
 
+var syncStor storage.Storage
+
 func GetSyncMiddleware() gin.HandlerFunc {
 	return func(gin *gin.Context) {
-
-		gin.Next()
-		if shouldDumpMetricsOnMetrics {
-			if err := dumpFile(); err != nil {
-				logging.Fatalf("cannot dump file metrics to file: %s", err)
+		if conf.DatabaseAddress == "" {
+			gin.Next()
+			if shouldDumpMetricsOnMetrics {
+				if err := dumpFile(); err != nil {
+					logging.Fatalf("cannot dump file metrics to file: %s", err)
+				}
 			}
 		}
+
 		gin.Next()
 	}
 }
 
-func RunSync(cfg *config.ServerConfig) error {
+func RunSync(cfg *config.ServerConfig, s storage.Storage) error {
+	syncStor = s
 	conf = cfg
 
 	if err := restoreFile(); err != nil {
