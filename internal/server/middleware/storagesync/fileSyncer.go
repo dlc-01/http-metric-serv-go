@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"os"
 	"time"
@@ -23,6 +24,7 @@ func runDumperFile() {
 }
 
 func restoreFile() error {
+
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
@@ -35,10 +37,7 @@ func restoreFile() error {
 	}
 
 	data := scanner.Bytes()
-	new, err := syncStor.GetAllMetrics(context.TODO())
-	if err != nil {
-		return fmt.Errorf("cannot get storage: %w", err)
-	}
+	var new []metrics.Metric
 	err = json.Unmarshal(data, &new)
 	if err != nil {
 		return fmt.Errorf("cannot decode line: %s", err)
@@ -69,9 +68,6 @@ func dumpFile() error {
 	}
 	if _, err := file.Write(data); err != nil {
 		return fmt.Errorf("cannot encode runtimeMetrics: %w", err)
-	}
-	if _, err := file.Write([]byte("\n")); err != nil {
-		return fmt.Errorf("cannot write runtimeMetrics to the file: %w", err)
 	}
 
 	return nil

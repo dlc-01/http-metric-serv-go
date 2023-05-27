@@ -5,6 +5,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -25,7 +26,7 @@ func TestDumpRestoreFile(t *testing.T) {
 	}
 	os.Remove(cfg.FileStoragePath)
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-
+	handlers.ServerStor.Storage = s
 	RunSync(&cfg, s)
 
 	tests := []struct {
