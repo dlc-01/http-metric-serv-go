@@ -92,10 +92,8 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 			dumpFile()
 			s = nil
 			s := storage.Init(context.TODO(), conf)
-			err := RunSync(conf, s)
-			if err != nil {
-				logging.Fatalf("cannot run sync %s", err)
-			}
+			RunSync(conf, s)
+
 			gauge, err := s.GetMetric(context.Background(), tt.metricGauge)
 			if err != nil {
 				logging.Errorf("cannot get gauge metric: %s", err)

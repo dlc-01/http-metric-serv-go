@@ -24,7 +24,6 @@ func runDumperFile() {
 }
 
 func restoreFile() error {
-
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_RDONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)

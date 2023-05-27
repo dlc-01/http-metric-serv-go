@@ -54,7 +54,10 @@ func TestDumpRestoreFile(t *testing.T) {
 			dumpFile()
 			new := storage.Init(context.Background(), &config.ServerConfig{})
 
-			restoreFile()
+			err := restoreFile()
+			if err != nil {
+				logging.Fatalf("cannot restore %s", err)
+			}
 
 			gauge, err := new.GetMetric(context.Background(), tt.metricGauge)
 			if err != nil {

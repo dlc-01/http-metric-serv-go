@@ -1,7 +1,6 @@
 package storagesync
 
 import (
-	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
@@ -30,20 +29,19 @@ func GetSyncMiddleware() gin.HandlerFunc {
 	}
 }
 
-func RunSync(cfg *config.ServerConfig, s storage.Storage) error {
+func RunSync(cfg *config.ServerConfig, s storage.Storage) {
 	syncStor = s
 	conf = cfg
-
-	if err := restoreFile(); err != nil {
-		return fmt.Errorf("cannot restore from file : %w", err)
+	if conf.Restore {
+		if err := restoreFile(); err != nil {
+			logging.Errorf("cannot restore from file : %s", err)
+		}
 	}
-
 	if conf.StoreInterval > 0 {
 		go runDumperFile()
 	} else {
 		shouldDumpMetricsOnMetrics = true
 	}
-	return nil
 
 }
 
