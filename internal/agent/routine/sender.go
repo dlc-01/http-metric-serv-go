@@ -25,14 +25,14 @@ func sendMetrics(cfg *config.AgentConfig) error {
 	}
 
 	if cfg.HashKey != "" {
-		headers["HashSHA256"] = hashing.HashingDate(cfg.HashKey, jsons)
+		headers["Hash"] = hashing.HashingDate(cfg.HashKey, jsons)
 	}
 
 	gzip, err := metrics.Gzipper(jsons)
 	if err != nil {
 		return fmt.Errorf("cannot gzip body: %w", err)
 	}
-	
+
 	resp, err := client.R().SetHeaders(headers).
 		SetBody(gzip).
 		Post(fmt.Sprintf("http://%s/updates/", cfg.ServerAddress))
