@@ -6,7 +6,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/all"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/db"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonButch"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonbutch"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
@@ -33,7 +33,7 @@ func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	{
 		updateRouterGroup.POST("/update", json.UpdateJSONHandler)
 		updateRouterGroup.POST("/update/:types/:name/:value", url.UpdateHandler)
-		updateRouterGroup.POST("/updates", jsonButch.UpdatesButchJSONHandler)
+		updateRouterGroup.POST("/updates", jsonbutch.UpdatesButchJSONHandler)
 
 	}
 	return router

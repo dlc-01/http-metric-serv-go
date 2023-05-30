@@ -1,4 +1,4 @@
-package jsonButch
+package jsonbutch
 
 import (
 	"context"
