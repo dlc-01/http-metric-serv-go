@@ -28,6 +28,10 @@ func GetSyncMiddleware() gin.HandlerFunc {
 
 func RunSync(cfg *config.ServerConfig) {
 
+	if cfg.DatabaseAddress != "" {
+		return
+	}
+	
 	conf = cfg
 	if conf.Restore {
 		if err := restoreFile(); err != nil {
