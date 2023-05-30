@@ -2,6 +2,7 @@ package routine
 
 import (
 	"context"
+	"github.com/dlc-01/http-metric-serv-go/internal/agent/collector"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/go-resty/resty/v2"
@@ -29,7 +30,7 @@ func Run(cfg *config.AgentConfig) {
 			}
 		case <-poolTicker.C:
 			logging.Info("collect")
-			CollectMetrics(context.TODO())
+			collector.CollectMetrics(context.TODO())
 		case <-done:
 			running = false
 		}
