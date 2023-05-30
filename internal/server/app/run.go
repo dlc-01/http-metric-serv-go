@@ -21,10 +21,10 @@ func Run(cfg *config.ServerConfig) {
 
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
+	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
 		router.Use(checkinghash.CheckHash(cfg.HashKey))
 	}
-	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	router.POST("/value/", json.ValueJSONHandler)
 	router.GET("/value/:types/:name", url.ValueHandler)
 	router.GET("/", all.ShowMetrics)

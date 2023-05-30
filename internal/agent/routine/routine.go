@@ -25,7 +25,7 @@ func Run(cfg *config.AgentConfig) {
 		select {
 		case <-reportTicker.C:
 			logging.Info("report")
-			if err := sendMetrics(cfg.ServerAddress); err != nil {
+			if err := sendMetrics(cfg); err != nil {
 				logging.Errorf("cannot send metrics: %s", err)
 			}
 		case <-poolTicker.C:

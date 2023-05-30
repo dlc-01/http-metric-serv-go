@@ -3,24 +3,39 @@ package routine
 import (
 	"context"
 	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"net/http"
 )
 
-func sendMetrics(addr string) error {
+func sendMetrics(cfg *config.AgentConfig) error {
+	headers := map[string]string{
+		"Content-Type":     "application/json",
+		"Content-Encoding": "gzip",
+	}
 	metric, err := storage.GetAllMetrics(context.Background())
 	if err != nil {
 		return fmt.Errorf("cannot get metrics :%w", err)
 	}
-	jsons, err := metrics.ToJSONWithGzipMetrics(metric)
+	jsons, err := metrics.ToJSONs(metric)
 	if err != nil {
 		return fmt.Errorf("cannot generate request body: %w", err)
 	}
-	resp, err := client.R().SetHeader("Content-Encoding", "gzip").
-		SetHeader("Content-Type", "application/json").
-		SetBody(jsons).
-		Post(fmt.Sprintf("http://%s/updates/", addr))
+
+	if cfg.HashKey != "" {
+		headers["HashSHA256"] = hashing.HashingDate(cfg.HashKey, jsons)
+	}
+
+	gzip, err := metrics.Gzipper(jsons)
+	if err != nil {
+		return fmt.Errorf("cannot gzip body: %w", err)
+	}
+	
+	resp, err := client.R().SetHeaders(headers).
+		SetBody(gzip).
+		Post(fmt.Sprintf("http://%s/updates/", cfg.ServerAddress))
 	if err != nil {
 		return fmt.Errorf("cannot generate request body: %w", err)
 	}
