@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/routine"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
@@ -21,7 +22,7 @@ func main() {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 
-	storage.Init()
+	storage.Init(context.Background(), &config.ServerConfig{})
 
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/app"
@@ -19,14 +20,16 @@ func main() {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 
-	storage.Init()
+	storage.Init(context.Background(), cfg)
 
 	storagesync.RunSync(cfg)
 
-	app.Run(cfg.ServerAddress)
+	app.Run(cfg)
 
-	if err := storagesync.ShutdownSync(); err != nil {
-		logging.Fatalf("cannot shutdown storage syncer: %s", err)
+	if cfg.DatabaseAddress == "" {
+		if err := storagesync.ShutdownSync(); err != nil {
+			logging.Fatalf("cannot shutdown storage syncer: %s", err)
+		}
 	}
 
 }

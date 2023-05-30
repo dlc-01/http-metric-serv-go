@@ -1,6 +1,9 @@
 package storage
 
 import (
+	"context"
+	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 )
 
@@ -9,89 +12,68 @@ type memStorage struct {
 	Counters map[string]int64
 }
 
+var memS Storage = &memStorage{}
+
 var defaultStorage memStorage
 
-func GetStorage() memStorage {
-	return defaultStorage
-}
-
-func SetStorage(new memStorage) {
-	defaultStorage = new
-}
-
-func Init() {
+func (m *memStorage) Сreate(ctx context.Context, cfg *config.ServerConfig) Storage {
 	defaultStorage.Gauges = make(map[string]float64)
 	defaultStorage.Counters = make(map[string]int64)
+	return memS
 }
 
-func SetMetric(k string, t string, f *float64, i *int64) bool {
-	switch t {
+func (m *memStorage) SetMetric(ctx context.Context, metric metrics.Metric) error {
+	switch metric.MType {
 	case metrics.CounterType:
-		SetCounter(k, *i)
-		return true
+		setCounter(metric.ID, *metric.Delta)
+		return nil
 	case metrics.GaugeType:
-		SetGauge(k, *f)
-		return true
+		setGauge(metric.ID, *metric.Value)
+		return nil
 	default:
-		return false
+		return fmt.Errorf("unsupported metric type")
 	}
 }
 
-func GetMetric(k string, t string) (metrics.Metric, bool, bool) {
-	switch t {
+func (m *memStorage) SetMetricsBatch(ctx context.Context, metric []metrics.Metric) error {
+	for _, metr := range metric {
+		if err := m.SetMetric(ctx, metr); err != nil {
+			return fmt.Errorf("cannot set butch metrics %w", err)
+		}
+	}
+	return nil
+}
+
+func (m *memStorage) GetMetric(ctx context.Context, metric metrics.Metric) (metrics.Metric, error) {
+	switch metric.MType {
 	case metrics.CounterType:
-		v, e := GetCounter(k)
-		return v, e, true
+		return m.getCounter(metric)
 	case metrics.GaugeType:
-		v, e := GetGauge(k)
-		return v, e, true
+		return m.getGauge(metric)
 	default:
-		return metrics.Metric{}, false, false
+		return metric, fmt.Errorf("cannot find type metic")
 	}
 }
 
-func SetGauge(k string, v float64) {
-	defaultStorage.Gauges[k] = v
-}
-
-func GetGauge(k string) (metrics.Metric, bool) {
-	v, exist := defaultStorage.Gauges[k]
-	return metrics.Metric{
-		ID:    k,
-		MType: metrics.GaugeType,
-		Value: &v,
-	}, exist
-}
-
-func SetCounter(k string, v int64) {
-	if _, ok := defaultStorage.Counters[k]; !ok {
-		defaultStorage.Counters[k] = 0
+func (m *memStorage) getCounter(metric metrics.Metric) (metrics.Metric, error) {
+	v, exist := defaultStorage.Counters[metric.ID]
+	if !exist {
+		return metric, fmt.Errorf("cannot find countert")
 	}
-	defaultStorage.Counters[k] += v
-
+	metric.Delta = &v
+	return metric, nil
 }
 
-func GetCounter(k string) (metrics.Metric, bool) {
-	v, exist := defaultStorage.Counters[k]
-	return metrics.Metric{
-		ID:    k,
-		MType: metrics.CounterType,
-		Delta: &v,
-	}, exist
-}
-
-func GetAll() []string {
-	names := make([]string, 0)
-	for cm := range defaultStorage.Counters {
-		names = append(names, cm)
+func (m *memStorage) getGauge(metric metrics.Metric) (metrics.Metric, error) {
+	v, exist := defaultStorage.Gauges[metric.ID]
+	if !exist {
+		return metric, fmt.Errorf("cannot find countert")
 	}
-	for gm := range defaultStorage.Gauges {
-		names = append(names, gm)
-	}
-	return names
+	metric.Value = &v
+	return metric, nil
 }
 
-func GetMetrics() []metrics.Metric {
+func (m *memStorage) GetAllMetrics(ctx context.Context) ([]metrics.Metric, error) {
 	res := []metrics.Metric{}
 	for name := range defaultStorage.Counters {
 		v := defaultStorage.Counters[name]
@@ -109,5 +91,36 @@ func GetMetrics() []metrics.Metric {
 			Value: &v,
 		})
 	}
-	return res
+	return res, nil
+}
+
+func (m *memStorage) PingStorage(ctx context.Context) error {
+	return fmt.Errorf("databse not connected")
+}
+
+func (m *memStorage) GetAll(ctx context.Context) ([]string, error) {
+	names := make([]string, 0)
+	for cm := range defaultStorage.Counters {
+		names = append(names, cm)
+	}
+	for gm := range defaultStorage.Gauges {
+		names = append(names, gm)
+	}
+	return names, nil
+}
+
+func (m *memStorage) Close(ctx context.Context) {
+
+}
+
+func setGauge(k string, v float64) {
+	defaultStorage.Gauges[k] = v
+}
+
+func setCounter(k string, v int64) {
+	if _, ok := defaultStorage.Counters[k]; !ok {
+		defaultStorage.Counters[k] = 0
+	}
+	defaultStorage.Counters[k] += v
+
 }
