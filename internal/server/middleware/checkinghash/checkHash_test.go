@@ -6,7 +6,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonbutch"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
@@ -19,12 +19,12 @@ import (
 func TestMiddleware(t *testing.T) {
 	key := "secret_key"
 	logging.InitLogger()
-	s := storage.Init(context.Background(), &config.ServerConfig{})
-	handlers.ServerStorage.Storage = s
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.BestCompression))
 	router.Use(CheckHash(key))
-	router.POST("/updates/", handlers.ServerStorage.UpdatesButchJSONHandler)
+	router.POST("/updates/", jsonbutch.UpdatesButchJSONHandler)
 
 	testValue := 2022.02
 	testValueOther := 2022.01
@@ -124,7 +124,7 @@ func TestMiddleware(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s = storage.Init(context.Background(), &config.ServerConfig{})
+			storage.Init(context.Background(), &config.ServerConfig{})
 
 			jsons, err := metrics.ToJSONs(tt.responseBody)
 			if err != nil {
@@ -150,7 +150,7 @@ func TestMiddleware(t *testing.T) {
 			assert.Equal(t, tt.expectedCode, w.Code)
 
 			if tt.expectedCode == 200 {
-				data, _ := s.GetAllMetrics(context.Background())
+				data, _ := storage.GetAllMetrics(context.Background())
 				assert.Equal(t, tt.expectedBody, data)
 			}
 		})

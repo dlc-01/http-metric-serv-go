@@ -21,6 +21,7 @@ func main() {
 	}
 
 	storage.Init(context.Background(), cfg)
+	
 	if cfg.DatabaseAddress == "" {
 		storagesync.RunSync(cfg)
 	}
