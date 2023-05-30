@@ -18,8 +18,8 @@ func TestUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	router := gin.Default()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStor.Storage = s
-	router.POST("/update/", ServerStor.UpdateJSONHandler)
+	ServerStorage.Storage = s
+	router.POST("/update/", ServerStorage.UpdateJSONHandler)
 
 	testGauge := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
 	testCounter := `{"id":"TestCounter", "type":"counter", "delta":24}`

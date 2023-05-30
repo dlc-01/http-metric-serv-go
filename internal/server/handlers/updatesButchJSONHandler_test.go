@@ -17,10 +17,10 @@ import (
 func TestUpdatesButchJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStor.Storage = s
+	ServerStorage.Storage = s
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.BestCompression))
-	router.POST("/updates/", ServerStor.UpdatesButchJSONHandler)
+	router.POST("/updates/", ServerStorage.UpdatesButchJSONHandler)
 
 	testValue := 2022.02
 	testValueOther := 2022.01

@@ -13,7 +13,7 @@ import (
 
 func Run(cfg *config.ServerConfig, s storage.Storage) {
 
-	handlers.ServerStor.Storage = s
+	handlers.ServerStorage.Storage = s
 	router := setupRouter(cfg)
 	router.Run(cfg.ServerAddress)
 }
@@ -22,21 +22,21 @@ func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
-		router.Use(checkinghash.ChekHash(cfg.HashKey))
+		router.Use(checkinghash.CheckHash(cfg.HashKey))
 	}
-	router.POST("/value/", handlers.ServerStor.ValueJSONHandler)
-	router.GET("/value/:types/:name", handlers.ServerStor.ValueHandler)
-	router.GET("/", handlers.ServerStor.ShowMetrics)
-	router.GET("/ping", handlers.ServerStor.PingDB)
+	router.POST("/value/", handlers.ServerStorage.ValueJSONHandler)
+	router.GET("/value/:types/:name", handlers.ServerStorage.ValueHandler)
+	router.GET("/", handlers.ServerStorage.ShowMetrics)
+	router.GET("/ping", handlers.ServerStorage.PingDB)
 	updateRouterGroup := router.Group("/")
 	if cfg.DatabaseAddress != "" {
 		updateRouterGroup.Use(storagesync.GetSyncMiddleware(cfg.DatabaseAddress))
 	}
 
 	{
-		updateRouterGroup.POST("/update", handlers.ServerStor.UpdateJSONHandler)
-		updateRouterGroup.POST("/update/:types/:name/:value", handlers.ServerStor.UpdateHandler)
-		updateRouterGroup.POST("/updates", handlers.ServerStor.UpdatesButchJSONHandler)
+		updateRouterGroup.POST("/update", handlers.ServerStorage.UpdateJSONHandler)
+		updateRouterGroup.POST("/update/:types/:name/:value", handlers.ServerStorage.UpdateHandler)
+		updateRouterGroup.POST("/updates", handlers.ServerStorage.UpdatesButchJSONHandler)
 
 	}
 	return router

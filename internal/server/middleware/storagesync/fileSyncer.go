@@ -41,16 +41,17 @@ func restoreFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot decode line: %s", err)
 	}
+
 	err = syncStor.SetMetricsBatch(context.TODO(), new)
 	if err != nil {
 		return fmt.Errorf("cannot get storage: %w", err)
 	}
-	handlers.ServerStor.Storage = syncStor
+	handlers.ServerStorage.Storage = syncStor
 	return nil
 }
 
 func dumpFile() error {
-	syncStor = handlers.ServerStor.Storage
+	syncStor = handlers.ServerStorage.Storage
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)

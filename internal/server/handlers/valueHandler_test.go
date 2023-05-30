@@ -16,9 +16,9 @@ func TestValueHandlerGauge(t *testing.T) {
 	logging.InitLogger()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
-	ServerStor.Storage = s
-	router.POST("/update/:types/:name/:value", ServerStor.UpdateHandler)
-	router.GET("/value/:types/:name", ServerStor.ValueHandler)
+	ServerStorage.Storage = s
+	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
+	router.GET("/value/:types/:name", ServerStorage.ValueHandler)
 
 	testsGauge := []struct {
 		name               string
@@ -62,9 +62,9 @@ func TestValueHandlerGauge(t *testing.T) {
 func TestValueHandlerCounter(t *testing.T) {
 	s := storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
-	ServerStor.Storage = s
-	router.POST("/update/:types/:name/:value", ServerStor.UpdateHandler)
-	router.GET("/value/:types/:name", ServerStor.ValueHandler)
+	ServerStorage.Storage = s
+	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
+	router.GET("/value/:types/:name", ServerStorage.ValueHandler)
 
 	testsCounter := []struct {
 		name             string

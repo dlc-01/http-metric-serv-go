@@ -14,4 +14,4 @@ type stor struct {
 	storage.Storage
 }
 
-var ServerStor stor
+var ServerStorage stor

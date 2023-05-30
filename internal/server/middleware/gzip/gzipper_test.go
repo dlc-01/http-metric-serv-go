@@ -18,10 +18,10 @@ import (
 func TestGzipWithUpdateJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	handlers.ServerStor.Storage = s
+	handlers.ServerStorage.Storage = s
 	router := gin.Default()
 	router.Use(Gzip(gzip.BestSpeed))
-	router.POST("/update/", handlers.ServerStor.UpdateJSONHandler)
+	router.POST("/update/", handlers.ServerStorage.UpdateJSONHandler)
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testValue := 2022.02

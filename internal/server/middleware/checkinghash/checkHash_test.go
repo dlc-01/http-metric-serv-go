@@ -16,15 +16,15 @@ import (
 	"testing"
 )
 
-func TestUpdatesButchJSONHandler(t *testing.T) {
+func TestMiddleware(t *testing.T) {
 	key := "secret_key"
 	logging.InitLogger()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	handlers.ServerStor.Storage = s
+	handlers.ServerStorage.Storage = s
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.BestCompression))
-	router.Use(ChekHash(key))
-	router.POST("/updates/", handlers.ServerStor.UpdatesButchJSONHandler)
+	router.Use(CheckHash(key))
+	router.POST("/updates/", handlers.ServerStorage.UpdatesButchJSONHandler)
 
 	testValue := 2022.02
 	testValueOther := 2022.01
@@ -40,7 +40,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 		expectedBody []metrics.Metric
 	}{
 		{
-			name:         `true KEY`,
+			name:         `true key`,
 			expectedCode: http.StatusOK,
 			url:          `/updates/`,
 			encodeKey:    key,

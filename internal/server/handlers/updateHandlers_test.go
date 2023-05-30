@@ -16,10 +16,10 @@ import (
 func TestUpdateHandlerGauge(t *testing.T) {
 	logging.InitLogger()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStor.Storage = s
+	ServerStorage.Storage = s
 	router := gin.Default()
 
-	router.POST("/update/:types/:name/:value", ServerStor.UpdateHandler)
+	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
 
 	testsGauge := []struct {
 		name               string
@@ -60,10 +60,10 @@ func TestUpdateHandlerGauge(t *testing.T) {
 
 func TestUpdateHandlerCounter(t *testing.T) {
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStor.Storage = s
+	ServerStorage.Storage = s
 	router := gin.Default()
 
-	router.POST("/update/:types/:name/:value", ServerStor.UpdateHandler)
+	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
 
 	testsCounter := []struct {
 		name             string

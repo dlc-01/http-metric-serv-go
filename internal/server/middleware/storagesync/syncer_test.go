@@ -16,7 +16,7 @@ import (
 func TestDumpRestoreFile(t *testing.T) {
 	testValue1 := 2022.02
 	testDelta1 := int64(24)
-	testValue2 := 2003.03
+	testValue2 := 2003.02
 	testDelta2 := int64(23)
 
 	cfg := config.ServerConfig{FileStoragePath: "/tmp/test_save.json", StoreInterval: 0}
@@ -26,7 +26,7 @@ func TestDumpRestoreFile(t *testing.T) {
 	}
 	os.Remove(cfg.FileStoragePath)
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	handlers.ServerStor.Storage = s
+	handlers.ServerStorage.Storage = s
 	RunSync(&cfg, s)
 
 	tests := []struct {

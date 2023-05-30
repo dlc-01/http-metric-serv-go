@@ -26,7 +26,7 @@ func main() {
 
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
-
+	
 	go routine.Run(cfg, s)
 
 	logging.Info("agent has been started")

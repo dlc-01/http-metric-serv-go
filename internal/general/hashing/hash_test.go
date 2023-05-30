@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestChekingHash(t *testing.T) {
+func TestCheckingHash(t *testing.T) {
 	testValue := 2022.02
 	testDelta := int64(24)
 	logging.InitLogger()

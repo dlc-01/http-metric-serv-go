@@ -17,10 +17,10 @@ import (
 func TestValueJSONHandler(t *testing.T) {
 	logging.InitLogger()
 	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStor.Storage = s
+	ServerStorage.Storage = s
 	router := gin.Default()
-	router.POST("/value/", ServerStor.ValueJSONHandler)
-	router.POST("/update/", ServerStor.UpdateJSONHandler)
+	router.POST("/value/", ServerStorage.ValueJSONHandler)
+	router.POST("/update/", ServerStorage.UpdateJSONHandler)
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testGaugePost := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
