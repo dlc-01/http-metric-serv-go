@@ -131,12 +131,16 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			storage.Init(context.Background(), &config.ServerConfig{})
-			jsons, err := metrics.ToJSONWithGzipMetrics(tt.responseBody)
+			jsons, err := metrics.ToJSONs(tt.responseBody)
 			if err != nil {
 				logging.Fatalf("cannot generate request body: %w", err)
 			}
+			gzip, err := metrics.Gzipper(jsons)
+			if err != nil {
+				logging.Fatalf("cannot gzip body: %w", err)
+			}
 
-			req, err := http.NewRequest(http.MethodPost, tt.url, jsons)
+			req, err := http.NewRequest(http.MethodPost, tt.url, gzip)
 			if err != nil {
 				t.Fatal(err)
 			}

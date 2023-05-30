@@ -42,6 +42,7 @@ func ToJSONs(m []Metric) ([]byte, error) {
 	}
 	return json, nil
 }
+
 func Gzipper(json []byte) (*bytes.Buffer, error) {
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
