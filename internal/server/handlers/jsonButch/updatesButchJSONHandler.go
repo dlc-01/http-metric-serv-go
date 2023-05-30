@@ -1,38 +1,36 @@
-package handlers
+package jsonButch
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func (s stor) UpdateJSONHandler(gin *gin.Context) {
-	var metric metrics.Metric
+func UpdatesButchJSONHandler(gin *gin.Context) {
+	var data []metrics.Metric
 	var buf bytes.Buffer
 
 	_, err := buf.ReadFrom(gin.Request.Body)
 	if err != nil {
-		logging.Errorf("cannot read postRequest body: %s", err)
-		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
+		logging.Errorf("cannot read request body: %s", err)
+		gin.String(http.StatusBadRequest, "Unsupported request body")
 		return
 	}
-
-	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
+	if err = json.Unmarshal(buf.Bytes(), &data); err != nil {
 		logging.Errorf("cannot unmarshal json: %s", err)
 		gin.String(http.StatusBadRequest, "Unsupported type JSON")
 		return
 	}
 
-	err = s.SetMetric(gin, metric)
-	if err != nil {
-		logging.Errorf("cannot save metric: %s", err)
+	if err = storage.SetMetricsBatch(gin, data); err != nil {
+		logging.Errorf("cannot save metric type: %s", err)
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")
 		return
 	}
 
-	gin.SecureJSON(http.StatusOK, metric)
-
+	gin.String(http.StatusOK, "Saved metrics")
 }

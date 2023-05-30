@@ -5,7 +5,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
@@ -31,14 +31,14 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 	}
 	os.Remove(cfg.FileStoragePath)
 
-	s := storage.Init(context.Background(), &config.ServerConfig{})
+	storage.Init(context.Background(), &config.ServerConfig{})
 
-	RunSync(&cfg, s)
-	handlers.ServerStor.Storage = s
+	RunSync(&cfg)
+
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware())
-	router.POST("/update/", handlers.ServerStor.UpdateJSONHandler)
-	router.POST("/value/", handlers.ServerStor.ValueJSONHandler)
+	router.POST("/update/", json.UpdateJSONHandler)
+	router.POST("/value/", json.ValueJSONHandler)
 
 	tests := []struct {
 		name          string
@@ -90,15 +90,15 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 		time.Sleep(time.Second)
 		t.Run(tt.name, func(t *testing.T) {
 			dumpFile()
-			s = nil
-			s := storage.Init(context.TODO(), conf)
-			RunSync(conf, s)
 
-			gauge, err := s.GetMetric(context.Background(), tt.metricGauge)
+			storage.Init(context.TODO(), conf)
+			RunSync(conf)
+
+			gauge, err := storage.GetMetric(context.Background(), tt.metricGauge)
 			if err != nil {
 				logging.Errorf("cannot get gauge metric: %s", err)
 			}
-			counter, err := s.GetMetric(context.Background(), tt.metricCounter)
+			counter, err := storage.GetMetric(context.Background(), tt.metricCounter)
 			if err != nil {
 				logging.Errorf("cannot get counter metric: %s", err)
 			}

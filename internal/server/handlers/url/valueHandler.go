@@ -1,34 +1,22 @@
-package handlers
+package url
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func (s stor) ValueJSONHandler(gin *gin.Context) {
-	var metric metrics.Metric
-	var buf bytes.Buffer
+func ValueHandler(gin *gin.Context) {
+	metric := metrics.Metric{ID: gin.Param("name"), MType: gin.Param("types")}
 
-	_, err := buf.ReadFrom(gin.Request.Body)
-	if err != nil {
-		logging.Errorf("cannot read postRequest body", err)
-		gin.String(http.StatusBadRequest, "Unsupported postRequest body")
-		return
-	}
-	if err = json.Unmarshal(buf.Bytes(), &metric); err != nil {
-		logging.Errorf("cannot unmarshal JSON", err)
-		gin.String(http.StatusBadRequest, "Unsupported type JSON")
-		return
-	}
+	var err error
 
 	switch metric.MType {
 	case metrics.CounterType:
-		metric, err = s.GetMetric(gin, metric)
+		metric, err = storage.GetMetric(gin, metric)
 		if err != nil {
 			logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
 			gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))
@@ -36,7 +24,7 @@ func (s stor) ValueJSONHandler(gin *gin.Context) {
 		}
 
 	case metrics.GaugeType:
-		metric, err = s.GetMetric(gin, metric)
+		metric, err = storage.GetMetric(gin, metric)
 		if err != nil {
 			logging.Info(fmt.Sprintf("cannot found metric %q", metric.ID))
 			gin.String(http.StatusNotFound, fmt.Sprintf("Metric %q not found", metric.ID))
@@ -46,8 +34,12 @@ func (s stor) ValueJSONHandler(gin *gin.Context) {
 	default:
 		logging.Info("cannot find metric type")
 		gin.String(http.StatusNotFound, "Unsupported metric type")
-		return
 	}
+	switch metric.MType {
+	case metrics.CounterType:
+		gin.String(http.StatusOK, fmt.Sprintf("%v", *metric.Delta))
 
-	gin.SecureJSON(http.StatusOK, metric)
+	case metrics.GaugeType:
+		gin.String(http.StatusOK, fmt.Sprintf("%v", *metric.Value))
+	}
 }

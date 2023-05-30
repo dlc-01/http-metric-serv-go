@@ -3,16 +3,18 @@ package app
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/all"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/db"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonButch"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 )
 
-func Run(cfg *config.ServerConfig, s storage.Storage) {
+func Run(cfg *config.ServerConfig) {
 
-	handlers.ServerStor.Storage = s
 	router := setupRouter(cfg)
 	router.Run(cfg.ServerAddress)
 }
@@ -20,18 +22,18 @@ func Run(cfg *config.ServerConfig, s storage.Storage) {
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
-	router.POST("/value/", handlers.ServerStor.ValueJSONHandler)
-	router.GET("/value/:types/:name", handlers.ServerStor.ValueHandler)
-	router.GET("/", handlers.ServerStor.ShowMetrics)
-	router.GET("/ping", handlers.ServerStor.PingDB)
+	router.POST("/value/", json.ValueJSONHandler)
+	router.GET("/value/:types/:name", url.ValueHandler)
+	router.GET("/", all.ShowMetrics)
+	router.GET("/ping", db.PingDB)
 	updateRouterGroup := router.Group("/")
 	if cfg.DatabaseAddress == "" {
 		updateRouterGroup.Use(storagesync.GetSyncMiddleware())
 	}
 	{
-		updateRouterGroup.POST("/update", handlers.ServerStor.UpdateJSONHandler)
-		updateRouterGroup.POST("/update/:types/:name/:value", handlers.ServerStor.UpdateHandler)
-		updateRouterGroup.POST("/updates", handlers.ServerStor.UpdatesButchJSONHandler)
+		updateRouterGroup.POST("/update", json.UpdateJSONHandler)
+		updateRouterGroup.POST("/update/:types/:name/:value", url.UpdateHandler)
+		updateRouterGroup.POST("/updates", jsonButch.UpdatesButchJSONHandler)
 
 	}
 	return router

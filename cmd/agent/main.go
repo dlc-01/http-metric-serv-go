@@ -22,12 +22,12 @@ func main() {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 
-	s := storage.Init(context.Background(), &config.ServerConfig{})
+	storage.Init(context.Background(), &config.ServerConfig{})
 
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
 
-	go routine.Run(cfg, s)
+	go routine.Run(cfg)
 
 	logging.Info("agent has been started")
 

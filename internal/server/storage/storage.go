@@ -17,17 +17,43 @@ type Storage interface {
 	Close(context.Context)
 }
 
-func Init(ctx context.Context, conf *config.ServerConfig) Storage {
+func Init(ctx context.Context, conf *config.ServerConfig) {
 	if conf.DatabaseAddress != "" {
 
-		return db.Сreate(ctx, conf)
+		serverStorage = db.Сreate(ctx, conf)
+		return
 	}
 
-	return memS.Сreate(ctx, conf)
+	serverStorage = memS.Сreate(ctx, conf)
 }
 
-type Stor struct {
-	Storage
+var serverStorage Storage
+
+func SetMetric(ctx context.Context, metric metrics.Metric) error {
+	return serverStorage.SetMetric(ctx, metric)
 }
 
-var ServerStorage Stor
+func SetMetricsBatch(ctx context.Context, metric []metrics.Metric) error {
+	return serverStorage.SetMetricsBatch(ctx, metric)
+}
+
+func GetMetric(ctx context.Context, metric metrics.Metric) (metrics.Metric, error) {
+	return serverStorage.GetMetric(ctx, metric)
+}
+
+func GetAllMetrics(ctx context.Context) ([]metrics.Metric, error) {
+	return serverStorage.GetAllMetrics(ctx)
+}
+
+func PingStorage(ctx context.Context) error {
+	return serverStorage.PingStorage(ctx)
+}
+
+func GetAll(ctx context.Context) ([]string, error) {
+	return serverStorage.GetAll(ctx)
+}
+
+// я не понимаю когда использовать это (((((
+func Close(ctx context.Context) {
+	serverStorage.Close(ctx)
+}

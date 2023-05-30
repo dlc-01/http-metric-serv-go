@@ -5,7 +5,6 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/stretchr/testify/assert"
 	"log"
@@ -25,9 +24,9 @@ func TestDumpRestoreFile(t *testing.T) {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 	os.Remove(cfg.FileStoragePath)
-	s := storage.Init(context.Background(), &config.ServerConfig{})
-	handlers.ServerStor.Storage = s
-	RunSync(&cfg, s)
+	storage.Init(context.Background(), &config.ServerConfig{})
+
+	RunSync(&cfg)
 
 	tests := []struct {
 		name          string
@@ -48,22 +47,22 @@ func TestDumpRestoreFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s.SetMetric(context.Background(), tt.metricGauge)
-			s.SetMetric(context.Background(), tt.metricCounter)
+			storage.SetMetric(context.Background(), tt.metricGauge)
+			storage.SetMetric(context.Background(), tt.metricCounter)
 
 			dumpFile()
-			new := storage.Init(context.Background(), &config.ServerConfig{})
+			storage.Init(context.Background(), &config.ServerConfig{})
 
 			err := restoreFile()
 			if err != nil {
 				logging.Fatalf("cannot restore %s", err)
 			}
 
-			gauge, err := new.GetMetric(context.Background(), tt.metricGauge)
+			gauge, err := storage.GetMetric(context.Background(), tt.metricGauge)
 			if err != nil {
 				logging.Errorf("cannot get gauge metric: %s", err)
 			}
-			counter, err := new.GetMetric(context.Background(), tt.metricCounter)
+			counter, err := storage.GetMetric(context.Background(), tt.metricCounter)
 			if err != nil {
 				logging.Errorf("cannot get counter metric: %s", err)
 			}

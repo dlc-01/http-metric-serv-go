@@ -1,4 +1,4 @@
-package handlers
+package jsonButch
 
 import (
 	"context"
@@ -16,11 +16,11 @@ import (
 
 func TestUpdatesButchJSONHandler(t *testing.T) {
 	logging.InitLogger()
-	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStor.Storage = s
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.BestCompression))
-	router.POST("/updates/", ServerStor.UpdatesButchJSONHandler)
+	router.POST("/updates/", UpdatesButchJSONHandler)
 
 	testValue := 2022.02
 	testValueOther := 2022.01
@@ -130,7 +130,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			s = storage.Init(context.Background(), &config.ServerConfig{})
+			storage.Init(context.Background(), &config.ServerConfig{})
 			jsons, err := metrics.ToJSONWithGzipMetrics(tt.responseBody)
 			if err != nil {
 				logging.Fatalf("cannot generate request body: %w", err)
@@ -150,7 +150,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 			assert.Equal(t, tt.expectedCode, w.Code)
 
 			if tt.expectedCode == 200 {
-				data, _ := s.GetAllMetrics(context.Background())
+				data, _ := storage.GetAllMetrics(context.Background())
 				assert.Equal(t, tt.expectedBody, data)
 			}
 		})
