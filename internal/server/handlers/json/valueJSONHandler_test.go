@@ -1,4 +1,4 @@
-package handlers
+package json
 
 import (
 	"context"
@@ -16,11 +16,11 @@ import (
 
 func TestValueJSONHandler(t *testing.T) {
 	logging.InitLogger()
-	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStorage.Storage = s
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
-	router.POST("/value/", ServerStorage.ValueJSONHandler)
-	router.POST("/update/", ServerStorage.UpdateJSONHandler)
+	router.POST("/value/", ValueJSONHandler)
+	router.POST("/update/", UpdateJSONHandler)
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	testGaugePost := `{"id":"TestGauge", "type":"gauge", "value":2022.02}`
@@ -93,7 +93,7 @@ func TestValueJSONHandler(t *testing.T) {
 
 			assert.Equal(t, tt.expectedCode, wGet.Code)
 			if tt.expectedCode == 200 {
-				data, _ := s.GetMetric(context.TODO(), tt.expectedBody)
+				data, _ := storage.GetMetric(context.TODO(), tt.expectedBody)
 				assert.Equal(t, tt.expectedBody, data)
 			}
 		})

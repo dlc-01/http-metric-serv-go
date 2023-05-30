@@ -1,4 +1,4 @@
-package handlers
+package url
 
 import (
 	"context"
@@ -14,11 +14,10 @@ import (
 
 func TestValueHandlerGauge(t *testing.T) {
 	logging.InitLogger()
-	s := storage.Init(context.Background(), &config.ServerConfig{})
+	storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
-	ServerStorage.Storage = s
-	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
-	router.GET("/value/:types/:name", ServerStorage.ValueHandler)
+	router.POST("/update/:types/:name/:value", UpdateHandler)
+	router.GET("/value/:types/:name", ValueHandler)
 
 	testsGauge := []struct {
 		name               string
@@ -60,11 +59,11 @@ func TestValueHandlerGauge(t *testing.T) {
 
 }
 func TestValueHandlerCounter(t *testing.T) {
-	s := storage.Init(context.Background(), &config.ServerConfig{})
+	storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
-	ServerStorage.Storage = s
-	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
-	router.GET("/value/:types/:name", ServerStorage.ValueHandler)
+
+	router.POST("/update/:types/:name/:value", UpdateHandler)
+	router.GET("/value/:types/:name", ValueHandler)
 
 	testsCounter := []struct {
 		name             string

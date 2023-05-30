@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"os"
 	"time"
 )
@@ -41,24 +41,23 @@ func restoreFile() error {
 	if err != nil {
 		return fmt.Errorf("cannot decode line: %s", err)
 	}
-
-	err = syncStor.SetMetricsBatch(context.TODO(), new)
+	err = storage.SetMetricsBatch(context.TODO(), new)
 	if err != nil {
 		return fmt.Errorf("cannot get storage: %w", err)
 	}
-	handlers.ServerStorage.Storage = syncStor
+
 	return nil
 }
 
 func dumpFile() error {
-	syncStor = handlers.ServerStorage.Storage
+
 	file, err := os.OpenFile(conf.FileStoragePath, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		return fmt.Errorf("cannot open file: %w", err)
 	}
 	defer file.Close()
 
-	old, err := syncStor.GetAllMetrics(context.TODO())
+	old, err := storage.GetAllMetrics(context.TODO())
 	if err != nil {
 		return fmt.Errorf("cannot get storage: %w", err)
 	}

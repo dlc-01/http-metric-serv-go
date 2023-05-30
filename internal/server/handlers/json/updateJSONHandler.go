@@ -1,15 +1,16 @@
-package handlers
+package json
 
 import (
 	"bytes"
 	"encoding/json"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
-func (s stor) UpdateJSONHandler(gin *gin.Context) {
+func UpdateJSONHandler(gin *gin.Context) {
 	var metric metrics.Metric
 	var buf bytes.Buffer
 
@@ -26,7 +27,7 @@ func (s stor) UpdateJSONHandler(gin *gin.Context) {
 		return
 	}
 
-	err = s.SetMetric(gin, metric)
+	err = storage.SetMetric(gin, metric)
 	if err != nil {
 		logging.Errorf("cannot save metric: %s", err)
 		gin.String(http.StatusNotImplemented, "Unsupported metric type")

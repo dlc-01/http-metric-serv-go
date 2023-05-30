@@ -3,7 +3,6 @@ package storagesync
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -12,11 +11,9 @@ var conf *config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
 var workWithDB bool
 
-var syncStor storage.Storage
-
-func GetSyncMiddleware(databse string) gin.HandlerFunc {
+func GetSyncMiddleware() gin.HandlerFunc {
 	return func(gin *gin.Context) {
-		if databse == "" {
+		if conf.DatabaseAddress == "" {
 			gin.Next()
 			if shouldDumpMetricsOnMetrics {
 				if err := dumpFile(); err != nil {
@@ -29,11 +26,17 @@ func GetSyncMiddleware(databse string) gin.HandlerFunc {
 	}
 }
 
-func RunSync(cfg *config.ServerConfig, s storage.Storage) {
-	syncStor = s
+func RunSync(cfg *config.ServerConfig) {
+
 	conf = cfg
 	if conf.Restore {
 		if err := restoreFile(); err != nil {
+			/*
+				тут есть маленькая проблема, если он будет возвращать ошибку то тест на итер, где введен синкер не будет пройден,
+				так как он вернет ошибку иза того что как он стартует он не может ресторнуть файл
+				и не будет будет дампить метрики и следовательно не будет их ресторить. в будущем
+			*/
+
 			logging.Errorf("cannot restore from file : %s", err)
 		}
 	}

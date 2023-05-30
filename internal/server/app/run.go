@@ -3,17 +3,18 @@ package app
 import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/checkinghash"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/all"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/db"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonbutch"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
 )
 
-func Run(cfg *config.ServerConfig, s storage.Storage) {
+func Run(cfg *config.ServerConfig) {
 
-	handlers.ServerStorage.Storage = s
 	router := setupRouter(cfg)
 	router.Run(cfg.ServerAddress)
 }
@@ -21,22 +22,18 @@ func Run(cfg *config.ServerConfig, s storage.Storage) {
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
-	if cfg.HashKey != "" {
-		router.Use(checkinghash.CheckHash(cfg.HashKey))
-	}
-	router.POST("/value/", handlers.ServerStorage.ValueJSONHandler)
-	router.GET("/value/:types/:name", handlers.ServerStorage.ValueHandler)
-	router.GET("/", handlers.ServerStorage.ShowMetrics)
-	router.GET("/ping", handlers.ServerStorage.PingDB)
+	router.POST("/value/", json.ValueJSONHandler)
+	router.GET("/value/:types/:name", url.ValueHandler)
+	router.GET("/", all.ShowMetrics)
+	router.GET("/ping", db.PingDB)
 	updateRouterGroup := router.Group("/")
-	if cfg.DatabaseAddress != "" {
-		updateRouterGroup.Use(storagesync.GetSyncMiddleware(cfg.DatabaseAddress))
+	if cfg.DatabaseAddress == "" {
+		updateRouterGroup.Use(storagesync.GetSyncMiddleware())
 	}
-
 	{
-		updateRouterGroup.POST("/update", handlers.ServerStorage.UpdateJSONHandler)
-		updateRouterGroup.POST("/update/:types/:name/:value", handlers.ServerStorage.UpdateHandler)
-		updateRouterGroup.POST("/updates", handlers.ServerStorage.UpdatesButchJSONHandler)
+		updateRouterGroup.POST("/update", json.UpdateJSONHandler)
+		updateRouterGroup.POST("/update/:types/:name/:value", url.UpdateHandler)
+		updateRouterGroup.POST("/updates", jsonbutch.UpdatesButchJSONHandler)
 
 	}
 	return router

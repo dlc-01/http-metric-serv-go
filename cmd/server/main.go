@@ -20,12 +20,12 @@ func main() {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 
-	s := storage.Init(context.Background(), cfg)
+	storage.Init(context.Background(), cfg)
 	if cfg.DatabaseAddress == "" {
-		storagesync.RunSync(cfg, s)
+		storagesync.RunSync(cfg)
 	}
 
-	app.Run(cfg, s)
+	app.Run(cfg)
 
 	if cfg.DatabaseAddress == "" {
 		if err := storagesync.ShutdownSync(); err != nil {

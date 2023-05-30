@@ -1,4 +1,4 @@
-package handlers
+package url
 
 import (
 	"context"
@@ -15,11 +15,11 @@ import (
 
 func TestUpdateHandlerGauge(t *testing.T) {
 	logging.InitLogger()
-	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStorage.Storage = s
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 
-	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
+	router.POST("/update/:types/:name/:value", UpdateHandler)
 
 	testsGauge := []struct {
 		name               string
@@ -50,7 +50,7 @@ func TestUpdateHandlerGauge(t *testing.T) {
 		router.ServeHTTP(w, req)
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
-			val, _ := s.GetMetric(context.TODO(), metrics.Metric{ID: tt.nameValue, MType: metrics.GaugeType})
+			val, _ := storage.GetMetric(context.TODO(), metrics.Metric{ID: tt.nameValue, MType: metrics.GaugeType})
 			assert.Equal(t, tt.expectedValueFloat, *val.Value)
 
 		}
@@ -59,11 +59,11 @@ func TestUpdateHandlerGauge(t *testing.T) {
 }
 
 func TestUpdateHandlerCounter(t *testing.T) {
-	s := storage.Init(context.Background(), &config.ServerConfig{})
-	ServerStorage.Storage = s
+	storage.Init(context.Background(), &config.ServerConfig{})
+
 	router := gin.Default()
 
-	router.POST("/update/:types/:name/:value", ServerStorage.UpdateHandler)
+	router.POST("/update/:types/:name/:value", UpdateHandler)
 
 	testsCounter := []struct {
 		name             string
@@ -95,7 +95,7 @@ func TestUpdateHandlerCounter(t *testing.T) {
 
 		assert.Equal(t, tt.expectedCode, w.Code)
 		if w.Code == http.StatusOK {
-			val, _ := s.GetMetric(context.TODO(), metrics.Metric{ID: tt.nameValue, MType: metrics.CounterType})
+			val, _ := storage.GetMetric(context.TODO(), metrics.Metric{ID: tt.nameValue, MType: metrics.CounterType})
 			assert.Equal(t, tt.expectedValueInt, *val.Delta)
 		}
 	}
