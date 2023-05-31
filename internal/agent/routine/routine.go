@@ -30,7 +30,7 @@ func Run(cfg *config.AgentConfig) {
 			}
 		case <-poolTicker.C:
 			logging.Info("collect")
-			collector.CollectMetrics(context.TODO())
+			collector.CollectMetrics(context.Background())
 		case <-done:
 			running = false
 		}

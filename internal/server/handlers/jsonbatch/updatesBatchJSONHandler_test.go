@@ -1,4 +1,4 @@
-package jsonbutch
+package jsonbatch
 
 import (
 	"context"

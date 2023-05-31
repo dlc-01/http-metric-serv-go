@@ -6,7 +6,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonbutch"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonbatch"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
@@ -24,7 +24,7 @@ func TestMiddleware(t *testing.T) {
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.BestCompression))
 	router.Use(CheckHash(key))
-	router.POST("/updates/", jsonbutch.UpdatesButchJSONHandler)
+	router.POST("/updates/", jsonbatch.UpdatesButchJSONHandler)
 
 	testValue := 2022.02
 	testValueOther := 2022.01

@@ -21,13 +21,13 @@ func main() {
 	}
 
 	storage.Init(context.Background(), cfg)
-	
+
 	if cfg.DatabaseAddress == "" {
 		storagesync.RunSync(cfg)
 	}
 
 	app.Run(cfg)
-
+	storage.Close(context.Background())
 	if cfg.DatabaseAddress == "" {
 		if err := storagesync.ShutdownSync(); err != nil {
 			logging.Fatalf("cannot shutdown storage syncer: %s", err)

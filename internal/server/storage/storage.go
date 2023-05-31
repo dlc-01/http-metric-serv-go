@@ -53,7 +53,6 @@ func GetAll(ctx context.Context) ([]string, error) {
 	return serverStorage.GetAll(ctx)
 }
 
-// я не понимаю когда использовать это (((((
 func Close(ctx context.Context) {
 	serverStorage.Close(ctx)
 }
