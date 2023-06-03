@@ -15,6 +15,7 @@ type ServerConfig struct {
 	Restore         bool
 	DatabaseAddress string
 	HashKey         string
+	LimitM          int
 }
 
 func LoadServerConfig() (*ServerConfig, error) {
@@ -26,6 +27,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	flag.BoolVar(&cfg.Restore, "r", true, "restore data")
 	flag.StringVar(&cfg.DatabaseAddress, "d", "", "database address")
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
+	flag.IntVar(&cfg.LimitM, "l", 8, "limit to receive metric")
 	flag.Parse()
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		cfg.ServerAddress = envServerAddress
@@ -61,5 +63,14 @@ func LoadServerConfig() (*ServerConfig, error) {
 	if envHashKey := os.Getenv("KEY"); envHashKey != "" {
 		cfg.HashKey = envHashKey
 	}
+
+	if envLimitM := os.Getenv("RATE_LIMIT"); envLimitM != "" {
+		if intLimitM, err := strconv.ParseInt(envLimitM, 10, 32); err == nil {
+			cfg.LimitM = int(intLimitM)
+		} else {
+			return nil, fmt.Errorf("cannot parseRATE_LIMIT: %w", err)
+		}
+	}
+
 	return cfg, nil
 }

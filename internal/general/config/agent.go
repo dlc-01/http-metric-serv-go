@@ -12,6 +12,7 @@ type AgentConfig struct {
 	Report        int
 	Poll          int
 	HashKey       string
+	LimitM        int
 }
 
 func LoadAgentConfig() (*AgentConfig, error) {
@@ -20,6 +21,7 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	flag.IntVar(&cfg.Report, "r", 10, "Report interval")
 	flag.IntVar(&cfg.Poll, "p", 2, "Poll interval")
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
+	flag.IntVar(&cfg.LimitM, "l", 8, "limit to collect metric")
 	flag.Parse()
 
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
@@ -47,5 +49,15 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	if envHashKey := os.Getenv("KEY"); envHashKey != "" {
 		cfg.HashKey = envHashKey
 	}
+
+	if envLimitM := os.Getenv("RATE_LIMIT"); envLimitM != "" {
+		if intLimitM, err := strconv.ParseInt(envLimitM, 10, 32); err == nil {
+			cfg.LimitM = int(intLimitM)
+		} else {
+			return nil, fmt.Errorf("cannot parse RATE_LIMIT: %w", err)
+		}
+	}
+
 	return cfg, nil
+
 }

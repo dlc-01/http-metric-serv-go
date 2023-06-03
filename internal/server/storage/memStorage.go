@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"sync"
 )
 
 type memStorage struct {
@@ -14,25 +15,43 @@ type memStorage struct {
 
 var memS Storage = &memStorage{}
 
-var defaultStorage memStorage
+var mux sync.RWMutex
 
 func (m *memStorage) Сreate(ctx context.Context, cfg *config.ServerConfig) Storage {
-	defaultStorage.Gauges = make(map[string]float64)
-	defaultStorage.Counters = make(map[string]int64)
+	m.Gauges = make(map[string]float64)
+	m.Counters = make(map[string]int64)
 	return memS
 }
 
 func (m *memStorage) SetMetric(ctx context.Context, metric metrics.Metric) error {
 	switch metric.MType {
 	case metrics.CounterType:
-		setCounter(metric.ID, *metric.Delta)
+		m.setCounter(metric.ID, *metric.Delta)
 		return nil
 	case metrics.GaugeType:
-		setGauge(metric.ID, *metric.Value)
+		m.setGauge(metric.ID, *metric.Value)
 		return nil
 	default:
 		return fmt.Errorf("unsupported metric type")
 	}
+}
+
+func (m *memStorage) setGauge(k string, v float64) {
+	mux.Lock()
+	defer mux.Unlock()
+
+	m.Gauges[k] = v
+}
+
+func (m *memStorage) setCounter(k string, v int64) {
+	mux.Lock()
+	defer mux.Unlock()
+
+	if _, ok := m.Counters[k]; !ok {
+		m.Counters[k] = 0
+	}
+	m.Counters[k] += v
+
 }
 
 func (m *memStorage) SetMetricsBatch(ctx context.Context, metric []metrics.Metric) error {
@@ -56,7 +75,10 @@ func (m *memStorage) GetMetric(ctx context.Context, metric metrics.Metric) (metr
 }
 
 func (m *memStorage) getCounter(metric metrics.Metric) (metrics.Metric, error) {
-	v, exist := defaultStorage.Counters[metric.ID]
+	mux.RLock()
+	defer mux.RUnlock()
+
+	v, exist := m.Counters[metric.ID]
 	if !exist {
 		return metric, fmt.Errorf("cannot find countert")
 	}
@@ -65,7 +87,10 @@ func (m *memStorage) getCounter(metric metrics.Metric) (metrics.Metric, error) {
 }
 
 func (m *memStorage) getGauge(metric metrics.Metric) (metrics.Metric, error) {
-	v, exist := defaultStorage.Gauges[metric.ID]
+	mux.RLock()
+	defer mux.RUnlock()
+
+	v, exist := m.Gauges[metric.ID]
 	if !exist {
 		return metric, fmt.Errorf("cannot find countert")
 	}
@@ -74,23 +99,27 @@ func (m *memStorage) getGauge(metric metrics.Metric) (metrics.Metric, error) {
 }
 
 func (m *memStorage) GetAllMetrics(ctx context.Context) ([]metrics.Metric, error) {
+	mux.RLock()
+	defer mux.RUnlock()
+
 	res := []metrics.Metric{}
-	for name := range defaultStorage.Counters {
-		v := defaultStorage.Counters[name]
+	for name := range m.Counters {
+		v := m.Counters[name]
 		res = append(res, metrics.Metric{
 			ID:    name,
 			MType: metrics.CounterType,
 			Delta: &v,
 		})
 	}
-	for name := range defaultStorage.Gauges {
-		v := defaultStorage.Gauges[name]
+	for name := range m.Gauges {
+		v := m.Gauges[name]
 		res = append(res, metrics.Metric{
 			ID:    name,
 			MType: metrics.GaugeType,
 			Value: &v,
 		})
 	}
+
 	return res, nil
 }
 
@@ -99,11 +128,14 @@ func (m *memStorage) PingStorage(ctx context.Context) error {
 }
 
 func (m *memStorage) GetAll(ctx context.Context) ([]string, error) {
+	mux.RLock()
+	defer mux.RUnlock()
+
 	names := make([]string, 0)
-	for cm := range defaultStorage.Counters {
+	for cm := range m.Counters {
 		names = append(names, cm)
 	}
-	for gm := range defaultStorage.Gauges {
+	for gm := range m.Gauges {
 		names = append(names, gm)
 	}
 	return names, nil
@@ -113,14 +145,3 @@ func (m *memStorage) Close(ctx context.Context) {
 
 }
 
-func setGauge(k string, v float64) {
-	defaultStorage.Gauges[k] = v
-}
-
-func setCounter(k string, v int64) {
-	if _, ok := defaultStorage.Counters[k]; !ok {
-		defaultStorage.Counters[k] = 0
-	}
-	defaultStorage.Counters[k] += v
-
-}

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/collector"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/go-resty/resty/v2"
 	"time"
 )
@@ -16,21 +16,15 @@ var (
 )
 
 func Run(cfg *config.AgentConfig) {
-
-	reportTicker := time.NewTicker(time.Second * time.Duration(cfg.Report))
-	poolTicker := time.NewTicker(time.Second * time.Duration(cfg.Poll))
+	reportTicker := time.Duration(time.Second * time.Duration(cfg.Report))
+	poolTicker := time.Duration(time.Second * time.Duration(cfg.Poll))
+	chanStor := make(chan []metrics.Metric, cfg.LimitM)
 	running := true
-
+	go collector.CollectMetrics(context.Background(), chanStor, poolTicker)
 	for running {
 		select {
-		case <-reportTicker.C:
-			logging.Info("report")
-			if err := sendMetrics(cfg); err != nil {
-				logging.Errorf("cannot send metrics: %s", err)
-			}
-		case <-poolTicker.C:
-			logging.Info("collect")
-			collector.CollectMetrics(context.Background())
+		case <-chanStor:
+			go sendMetrics(cfg, chanStor, reportTicker)
 		case <-done:
 			running = false
 		}

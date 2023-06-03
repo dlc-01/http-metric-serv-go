@@ -10,6 +10,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/url"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/checkinghash"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/limit"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
 	"github.com/gin-gonic/gin"
 )
@@ -21,6 +22,9 @@ func Run(cfg *config.ServerConfig) {
 
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
+	if cfg.LimitM > 0 {
+		router.Use(limit.Limit(cfg.LimitM))
+	}
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
 		router.Use(checkinghash.CheckHash(cfg.HashKey))

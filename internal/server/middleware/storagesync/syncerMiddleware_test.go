@@ -24,7 +24,7 @@ func TestGetSyncMiddlewareFile(t *testing.T) {
 	testValue2 := 2003.03
 	testDelta2 := int64(23)
 
-	cfg := config.ServerConfig{FileStoragePath: "/tmp/test_save.json", StoreInterval: 1}
+	cfg := config.ServerConfig{FileStoragePath: "/tmp/test_save.json", StoreInterval: 1, Restore: true}
 
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
