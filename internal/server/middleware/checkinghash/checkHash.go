@@ -31,7 +31,7 @@ func CheckHash(key string) gin.HandlerFunc {
 				gin.AbortWithStatus(http.StatusBadRequest)
 			}
 		}
-		
+
 		gin.Next()
 	}
 }

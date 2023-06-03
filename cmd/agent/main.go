@@ -27,13 +27,11 @@ func main() {
 	term := make(chan os.Signal, 1)
 	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
 
-	go routine.Run(cfg)
+	routine.Run(cfg)
 
 	logging.Info("agent has been started")
 
 	<-term
-
-	routine.Shutdown()
 
 	logging.Info("agent has been stopped")
 }

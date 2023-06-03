@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-func sendMetrics(cfg *config.AgentConfig, result <-chan []metrics.Metric, sleep time.Duration) {
+func sendMetrics(cfg *config.AgentConfig, result []metrics.Metric, sleep time.Duration) {
 	for {
 		time.Sleep(sleep)
 		headers := map[string]string{
@@ -18,7 +18,7 @@ func sendMetrics(cfg *config.AgentConfig, result <-chan []metrics.Metric, sleep 
 			"Content-Encoding": "gzip",
 		}
 
-		jsons, err := metrics.ToJSONs(<-result)
+		jsons, err := metrics.ToJSONs(result)
 		if err != nil {
 			logging.Errorf("cannot generate request body: %w", err)
 		}
