@@ -28,7 +28,9 @@ func Run(cfg *config.AgentConfig) {
 		select {
 		case <-reportTicker.C:
 			logging.Info("report")
-			sendMetrics(cfg, chanStor)
+			if err := sendMetrics(cfg, chanStor); err != nil {
+				logging.Errorf("cannot send metrics: %s", err)
+			}
 		case <-done:
 			running = false
 		}
