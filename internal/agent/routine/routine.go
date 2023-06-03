@@ -16,6 +16,7 @@ var (
 )
 
 func Run(cfg *config.AgentConfig) {
+	//TODO тз на эти итеры было оч расплывчатое мб что то не правильно понял, тесты тоже не работают
 	reportTicker := time.Duration(time.Second * time.Duration(cfg.Report))
 	poolTicker := time.Duration(time.Second * time.Duration(cfg.Poll))
 	chanStor := make(chan []metrics.Metric, cfg.LimitM)

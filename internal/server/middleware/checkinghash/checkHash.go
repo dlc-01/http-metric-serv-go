@@ -10,6 +10,7 @@ import (
 )
 
 func CheckHash(key string) gin.HandlerFunc {
+	//TODO я вроде как все сделал по тз а тест не проходит вроде как требуется чтоб с ключаом было хещирование а на тесте без хэша
 	return func(gin *gin.Context) {
 		if key != "" {
 			body, err := io.ReadAll(gin.Request.Body)
@@ -30,7 +31,7 @@ func CheckHash(key string) gin.HandlerFunc {
 				gin.AbortWithStatus(http.StatusBadRequest)
 			}
 		}
-
+		
 		gin.Next()
 	}
 }
