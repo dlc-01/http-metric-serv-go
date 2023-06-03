@@ -17,10 +17,23 @@ var (
 
 func Run(cfg *config.AgentConfig) {
 	//TODO тз на эти итеры было оч расплывчатое мб что то не правильно понял, тесты тоже не работают
-	reportTicker := time.Duration(time.Second * time.Duration(cfg.Report))
+	reportTicker := time.NewTicker(time.Second * time.Duration(cfg.Report))
 	poolTicker := time.Duration(time.Second * time.Duration(cfg.Poll))
 	chanStor := make(chan []metrics.Metric, cfg.LimitM)
 	go collector.CollectMetrics(context.Background(), chanStor, poolTicker)
-	go sendMetrics(cfg, chanStor, reportTicker)
+	running := true
 
+	for running {
+		select {
+		case <-reportTicker.C:
+			sendMetrics(cfg, chanStor)
+
+		case <-done:
+			running = false
+		}
+	}
+}
+
+func Shutdown() {
+	done <- true
 }
