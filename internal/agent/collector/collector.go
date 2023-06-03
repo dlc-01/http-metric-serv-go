@@ -88,5 +88,6 @@ func CollectMetrics(ctx context.Context, result chan<- []metrics.Metric, duratio
 			logging.Errorf("cannot get metrics :%w", err)
 		}
 		result <- metric
+		logging.Info("collect")
 	}
 }

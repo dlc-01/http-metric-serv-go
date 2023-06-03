@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/collector"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/go-resty/resty/v2"
 	"time"
@@ -26,8 +27,8 @@ func Run(cfg *config.AgentConfig) {
 	for running {
 		select {
 		case <-reportTicker.C:
+			logging.Info("report")
 			sendMetrics(cfg, chanStor)
-
 		case <-done:
 			running = false
 		}
