@@ -4,40 +4,57 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
-
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"net/http"
+	"sync"
 )
 
-func sendMetrics(cfg *config.AgentConfig, result chan []metrics.Metric) error {
+func sendMetrics(cfg *config.AgentConfig, metricsC chan []metrics.Metric) {
+	wg := sync.WaitGroup{}
+	wg.Add(cfg.LimitM)
+	for i := 0; i < cfg.LimitM; i++ {
+		go sendMetricsRoutine(&wg, metricsC, cfg)
+	}
+	wg.Wait()
+}
+
+func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg *config.AgentConfig) {
 
 	headers := map[string]string{
 		"Content-Type":     "application/json",
 		"Content-Encoding": "gzip",
 	}
+	for items := range metricsC {
+		jsons, err := metrics.ToJSONs(items)
+		if err != nil {
+			logging.Errorf("cannot generate request body: %s", err)
+			return
+		}
 
-	jsons, err := metrics.ToJSONs(<-result)
-	if err != nil {
-		return fmt.Errorf("cannot generate request body: %w", err)
-	}
+		if cfg.HashKey != "" {
+			headers["HashSHA256"] = hashing.HashingDate(cfg.HashKey, jsons)
+		}
 
-	if cfg.HashKey != "" {
-		headers["HashSHA256"] = hashing.HashingDate(cfg.HashKey, jsons)
-	}
+		gzip, err := metrics.Gzipper(jsons)
+		if err != nil {
+			logging.Errorf("cannot gzip body: %s", err)
+			return
+		}
 
-	gzip, err := metrics.Gzipper(jsons)
-	if err != nil {
-		return fmt.Errorf("cannot gzip body: %w", err)
-	}
+		resp, err := client.R().SetHeaders(headers).
+			SetBody(gzip).
+			Post(fmt.Sprintf("http://%s/updates/", cfg.ServerAddress))
+		if err != nil {
+			logging.Errorf("cannot generate request body: %s", err)
+			return
+		}
+		if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusAccepted {
+			logging.Errorf("unexpected status reponse code: %v", resp.StatusCode())
+			return
+		}
 
-	resp, err := client.R().SetHeaders(headers).
-		SetBody(gzip).
-		Post(fmt.Sprintf("http://%s/updates/", cfg.ServerAddress))
-	if err != nil {
-		return fmt.Errorf("cannot generate request body: %w", err)
 	}
-	if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusAccepted {
-		return fmt.Errorf("unexpected status reponse code: %v", resp.StatusCode())
-	}
-	return nil
+	wg.Done()
+
 }

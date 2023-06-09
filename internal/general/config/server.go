@@ -19,7 +19,6 @@ type ServerConfig struct {
 }
 
 func LoadServerConfig() (*ServerConfig, error) {
-
 	cfg := &ServerConfig{}
 	flag.StringVar(&cfg.ServerAddress, "a", "localhost:8080", "server address")
 	flag.IntVar(&cfg.StoreInterval, "i", 300, "store time interval")
@@ -36,8 +35,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 		if strings.HasSuffix(envStoreInterval, "s") {
 
 			envStoreInterval, _ = strings.CutSuffix(envStoreInterval, "s")
-			//TODO need implements some methods while try catch error
-			//return nil , fmt.Errorf("cannot cut s from STORE_INTERVAL: %w", err)
+
 		}
 		if storeInt, err := strconv.Atoi(envStoreInterval); err == nil {
 			cfg.StoreInterval = storeInt
@@ -71,6 +69,5 @@ func LoadServerConfig() (*ServerConfig, error) {
 			return nil, fmt.Errorf("cannot parseRATE_LIMIT: %w", err)
 		}
 	}
-
 	return cfg, nil
 }

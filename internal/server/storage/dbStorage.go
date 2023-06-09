@@ -17,6 +17,7 @@ var db Storage = &dbStorage{}
 
 func (db *dbStorage) Сreate(ctx context.Context, cfg *config.ServerConfig) Storage {
 	var err error
+
 	db.conn, err = pgx.Connect(ctx, cfg.DatabaseAddress)
 	if err != nil {
 		logging.Fatalf("cannot connected to db: %s", err)

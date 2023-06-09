@@ -144,4 +144,3 @@ func (m *memStorage) GetAll(ctx context.Context) ([]string, error) {
 func (m *memStorage) Close(ctx context.Context) {
 
 }
-

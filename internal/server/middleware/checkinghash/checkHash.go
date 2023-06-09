@@ -21,6 +21,9 @@ func CheckHash(key string) gin.HandlerFunc {
 			gin.Request.Body = io.NopCloser(bytes.NewBuffer(body))
 
 			hash := gin.Request.Header.Get("HashSHA256")
+			if hash == "" {
+				gin.Next()
+			}
 			check, err := hashing.CheckingHash(hash, key, body)
 			if err != nil {
 				logging.Errorf("cannot check hash %s", err)

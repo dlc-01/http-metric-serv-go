@@ -4,39 +4,28 @@ import (
 	"context"
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/collector"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/go-resty/resty/v2"
 	"time"
 )
 
+const metricsChanSize = 1000
+
 var (
-	done   = make(chan bool)
-	client = resty.New()
-	cfg    *config.AgentConfig
+	done    = make(chan bool)
+	client  = resty.New()
+	metrisC = make(chan []metrics.Metric, metricsChanSize)
 )
 
-func Run(cfg *config.AgentConfig) {
-	//TODO тз на эти итеры было оч расплывчатое мб что то не правильно понял, тесты тоже не работают
-	reportTicker := time.NewTicker(time.Second * time.Duration(cfg.Report))
-	poolTicker := time.Duration(time.Second * time.Duration(cfg.Poll))
-	chanStor := make(chan []metrics.Metric, cfg.LimitM)
-	go collector.CollectMetrics(context.Background(), chanStor, poolTicker)
-	running := true
+func Run(ctx context.Context, cfg *config.AgentConfig) {
 
-	for running {
-		select {
-		case <-reportTicker.C:
-			logging.Info("report")
-			if err := sendMetrics(cfg, chanStor); err != nil {
-				logging.Errorf("cannot send metrics: %s", err)
-			}
-		case <-done:
-			running = false
-		}
-	}
+	poolTicker := time.NewTicker(time.Second * time.Duration(cfg.Poll))
+	go collector.CollectMetricsRuntime(ctx, metrisC, poolTicker)
+	go collector.CollectMetricsGopsutil(ctx, metrisC, poolTicker)
+	go sendMetrics(cfg, metrisC)
+
 }
 
 func Shutdown() {
-	done <- true
+	close(metrisC)
 }
