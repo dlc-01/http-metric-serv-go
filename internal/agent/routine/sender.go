@@ -11,6 +11,7 @@ import (
 )
 
 func sendMetrics(cfg *config.AgentConfig, metricsC chan []metrics.Metric) {
+	//TODO мы не используем интервал по отправлению запросов это гуд?
 	wg := sync.WaitGroup{}
 	wg.Add(cfg.LimitM)
 	for i := 0; i < cfg.LimitM; i++ {
@@ -20,7 +21,6 @@ func sendMetrics(cfg *config.AgentConfig, metricsC chan []metrics.Metric) {
 }
 
 func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg *config.AgentConfig) {
-
 	headers := map[string]string{
 		"Content-Type":     "application/json",
 		"Content-Encoding": "gzip",
