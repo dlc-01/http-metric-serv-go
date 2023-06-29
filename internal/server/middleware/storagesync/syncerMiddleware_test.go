@@ -5,28 +5,40 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 )
 
-func TestDumpRestoreFile(t *testing.T) {
+func TestGetSyncMiddlewareFile(t *testing.T) {
 	testValue1 := 2022.02
 	testDelta1 := int64(24)
 	testValue2 := 2003.03
 	testDelta2 := int64(23)
 
-	cfg := config.ServerConfig{FileStoragePath: "/tmp/test_save.json", StoreInterval: 0}
+	cfg := config.ServerConfig{FileStoragePath: "/tmp/test_save.json", StoreInterval: 1, Restore: true}
 
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
 	}
 	os.Remove(cfg.FileStoragePath)
+
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	RunSync(&cfg)
+
+	router := gin.Default()
+	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed), GetSyncMiddleware())
+	router.POST("/update/", json.UpdateJSONHandler)
+	router.POST("/value/", json.ValueJSONHandler)
 
 	tests := []struct {
 		name          string
@@ -45,18 +57,42 @@ func TestDumpRestoreFile(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		jsonsCounter, err := tt.metricCounter.ToJSONWithGzip()
+		if err != nil {
+			logging.Fatalf("cannot generate request body: %wCounter", err)
+		}
+
+		reqCounter, err := http.NewRequest(http.MethodPost, "/update/", jsonsCounter)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		reqCounter.Header.Set("Content-Type", "application/json")
+		reqCounter.Header.Set("Content-Encoding", "gzip")
+
+		wCounter := httptest.NewRecorder()
+		router.ServeHTTP(wCounter, reqCounter)
+		jsonsGauge, err := tt.metricGauge.ToJSONWithGzip()
+		if err != nil {
+			logging.Fatalf("cannot generate request body: %wCounter", err)
+		}
+
+		reqGauge, err := http.NewRequest(http.MethodPost, "/update/", jsonsGauge)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		reqGauge.Header.Set("Content-Type", "application/json")
+		reqGauge.Header.Set("Content-Encoding", "gzip")
+
+		wGauge := httptest.NewRecorder()
+		router.ServeHTTP(wGauge, reqGauge)
+		time.Sleep(time.Second)
 		t.Run(tt.name, func(t *testing.T) {
-
-			storage.SetMetric(context.Background(), tt.metricGauge)
-			storage.SetMetric(context.Background(), tt.metricCounter)
-
 			dumpFile()
-			storage.Init(context.Background(), &config.ServerConfig{})
 
-			err := restoreFile()
-			if err != nil {
-				logging.Fatalf("cannot restore %s", err)
-			}
+			storage.Init(context.TODO(), conf)
+			RunSync(conf)
 
 			gauge, err := storage.GetMetric(context.Background(), tt.metricGauge)
 			if err != nil {
@@ -67,10 +103,11 @@ func TestDumpRestoreFile(t *testing.T) {
 				logging.Errorf("cannot get counter metric: %s", err)
 			}
 
-			assert.Equal(t, gauge, tt.metricGauge)
-			assert.Equal(t, counter, tt.metricCounter)
+			assert.Equal(t, *gauge.Value, *tt.metricGauge.Value)
+			assert.Equal(t, *counter.Delta, *tt.metricCounter.Delta)
 
 			os.Remove(cfg.FileStoragePath)
 		})
 	}
+
 }

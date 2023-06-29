@@ -1,6 +1,8 @@
 package url
 
 import (
+	"context"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"github.com/gin-gonic/gin"
@@ -12,10 +14,10 @@ import (
 
 func TestValueHandlerGauge(t *testing.T) {
 	logging.InitLogger()
+	storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
 	router.POST("/update/:types/:name/:value", UpdateHandler)
 	router.GET("/value/:types/:name", ValueHandler)
-	storage.Init()
 
 	testsGauge := []struct {
 		name               string
@@ -57,10 +59,11 @@ func TestValueHandlerGauge(t *testing.T) {
 
 }
 func TestValueHandlerCounter(t *testing.T) {
+	storage.Init(context.Background(), &config.ServerConfig{})
 	router := gin.Default()
+
 	router.POST("/update/:types/:name/:value", UpdateHandler)
 	router.GET("/value/:types/:name", ValueHandler)
-	storage.Init()
 
 	testsCounter := []struct {
 		name             string

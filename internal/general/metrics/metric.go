@@ -19,17 +19,37 @@ type Metric struct {
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
 }
 
-func (m *Metric) ToJSON() (*bytes.Buffer, error) {
+func (m *Metric) ToJSONWithGzip() (*bytes.Buffer, error) {
 	json, err := json.Marshal(m)
 	if err != nil {
 		return nil, fmt.Errorf("cannot marshal request to json: %w", err)
 	}
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
-	
+
 	defer gz.Close()
 
 	if _, err = gz.Write(json); err != nil {
+		return nil, fmt.Errorf("cannot compresed data: %w", err)
+	}
+	return &buf, nil
+}
+
+func ToJSONs(m []Metric) ([]byte, error) {
+	json, err := json.Marshal(m)
+	if err != nil {
+		return nil, fmt.Errorf("cannot marshal request to json: %w", err)
+	}
+	return json, nil
+}
+
+func Gzipper(json []byte) (*bytes.Buffer, error) {
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+
+	defer gz.Close()
+
+	if _, err := gz.Write(json); err != nil {
 		return nil, fmt.Errorf("cannot compresed data: %w", err)
 	}
 	return &buf, nil
