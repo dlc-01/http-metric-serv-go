@@ -31,8 +31,7 @@ func BenchmarkSetMetricsBatch(b *testing.B) {
 	Init(context.Background(), &conf)
 	b.Run("setMetrics benchmarks", func(b *testing.B) {
 		vF := 50.1001
-		var vI int64
-		vI = 50
+		var vI int64 = 50
 		metric := []metrics.Metric{
 			{
 				ID:    "new",
@@ -56,8 +55,7 @@ func BenchmarkGetMetric(b *testing.B) {
 	Init(context.Background(), &conf)
 	b.Run("setMetrics benchmarks", func(b *testing.B) {
 		vF := 50.1001
-		var vI int64
-		vI = 50
+		var vI int64 = 50
 		metrics := []metrics.Metric{
 			{
 				ID:    "newC",
