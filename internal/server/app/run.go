@@ -11,16 +11,20 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/checkinghash"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
 func Run(cfg *config.ServerConfig) {
 	router := setupRouter(cfg)
+
 	router.Run(cfg.ServerAddress)
+
 }
 
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
+	pprof.Register(router)
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
 		router.Use(checkinghash.CheckHash(cfg.HashKey))

@@ -130,7 +130,6 @@ func (m *memStorage) PingStorage(ctx context.Context) error {
 func (m *memStorage) GetAll(ctx context.Context) ([]string, error) {
 	mux.RLock()
 	defer mux.RUnlock()
-
 	names := make([]string, 0)
 	for cm := range m.Counters {
 		names = append(names, cm)

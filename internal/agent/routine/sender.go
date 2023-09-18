@@ -11,7 +11,7 @@ import (
 )
 
 func sendMetrics(cfg *config.AgentConfig, metricsC chan []metrics.Metric) {
-	//TODO мы не используем интервал по отправлению запросов это гуд?
+
 	wg := sync.WaitGroup{}
 	wg.Add(cfg.LimitM)
 	for i := 0; i < cfg.LimitM; i++ {

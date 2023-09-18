@@ -8,6 +8,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"log"
+	_ "net/http/pprof"
 )
 
 func main() {
@@ -19,7 +20,7 @@ func main() {
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
 	}
-
+	//cfg.DatabaseAddress = "postgresql://localhost:5432"
 	storage.Init(context.Background(), cfg)
 
 	if cfg.DatabaseAddress == "" {

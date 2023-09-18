@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker, ) {
+func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {
 	for range poolTicker.C {
 		var Runtime runtime.MemStats
 		runtime.ReadMemStats(&Runtime)
@@ -83,7 +83,7 @@ func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric,
 	}
 }
 
-func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker, ) {
+func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {
 	for range poolTicker.C {
 		v, _ := mem.VirtualMemory()
 		countCPU, _ := cpu.Counts(true)
@@ -102,6 +102,5 @@ func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric
 		}
 		metrisC <- all
 		logging.Info("collect")
-
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 	"log"
+	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
