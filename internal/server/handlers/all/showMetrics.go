@@ -2,10 +2,12 @@ package all
 
 import (
 	"fmt"
+	"html/template"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"html/template"
 )
 
 func ShowMetrics(gin *gin.Context) {

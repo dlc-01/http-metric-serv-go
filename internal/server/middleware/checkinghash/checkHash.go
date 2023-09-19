@@ -2,11 +2,13 @@ package checkinghash
 
 import (
 	"bytes"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 )
 
 func CheckHash(key string) gin.HandlerFunc {

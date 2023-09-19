@@ -2,14 +2,16 @@ package storagesync
 
 import (
 	"context"
+	"log"
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/stretchr/testify/assert"
-	"log"
-	"os"
-	"testing"
 )
 
 func TestDumpRestoreFile(t *testing.T) {

@@ -2,14 +2,16 @@ package collector
 
 import (
 	"context"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
 	"math/rand"
 	"runtime"
 	"time"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
 func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {

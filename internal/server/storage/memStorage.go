@@ -3,9 +3,10 @@ package storage
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"sync"
 )
 
 type memStorage struct {

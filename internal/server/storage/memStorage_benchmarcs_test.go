@@ -2,10 +2,12 @@ package storage
 
 import (
 	"context"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func BenchmarkSetMetric(b *testing.B) {

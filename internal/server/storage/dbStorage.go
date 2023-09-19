@@ -3,10 +3,12 @@ package storage
 import (
 	"context"
 	"fmt"
+
+	"github.com/jackc/pgx/v5"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/jackc/pgx/v5"
 )
 
 type dbStorage struct {

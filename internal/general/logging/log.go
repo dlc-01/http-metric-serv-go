@@ -2,10 +2,11 @@ package logging
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	_ "net/http/pprof"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var sLog zap.SugaredLogger

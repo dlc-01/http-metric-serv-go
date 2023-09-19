@@ -3,11 +3,13 @@ package json
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func UpdateJSONHandler(gin *gin.Context) {

@@ -2,20 +2,22 @@ package storagesync
 
 import (
 	"context"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/json"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
 func TestGetSyncMiddlewareFile(t *testing.T) {

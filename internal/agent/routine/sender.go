@@ -2,12 +2,13 @@ package routine
 
 import (
 	"fmt"
+	"net/http"
+	"sync"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"net/http"
-	"sync"
 )
 
 func sendMetrics(cfg *config.AgentConfig, metricsC chan []metrics.Metric) {

@@ -2,10 +2,12 @@ package gzip
 
 import (
 	"compress/gzip"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 )
 
 const (

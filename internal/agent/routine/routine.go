@@ -2,12 +2,14 @@ package routine
 
 import (
 	"context"
+	_ "net/http/pprof"
+	"time"
+
+	"github.com/go-resty/resty/v2"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/collector"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/go-resty/resty/v2"
-	_ "net/http/pprof"
-	"time"
 )
 
 const metricsChanSize = 1000

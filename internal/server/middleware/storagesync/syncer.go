@@ -1,10 +1,11 @@
 package storagesync
 
 import (
-	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jackc/pgx/v5/stdlib"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 )
 
 var conf *config.ServerConfig
