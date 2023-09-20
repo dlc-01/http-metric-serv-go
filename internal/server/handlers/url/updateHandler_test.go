@@ -61,6 +61,7 @@ func TestUpdateHandlerGauge(t *testing.T) {
 }
 
 func TestUpdateHandlerCounter(t *testing.T) {
+	logging.InitLogger()
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	router := gin.Default()
