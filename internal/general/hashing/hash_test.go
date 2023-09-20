@@ -64,8 +64,8 @@ func TestCheckingHash(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			jsons, _ := metrics.ToJSONs(tt.responseBody)
-			hash := HashingDate(tt.decodeKey, jsons)
+			jsons, _ := metrics.ToJSON(tt.responseBody)
+			hash := HashingData(tt.decodeKey, jsons)
 			bool, _ := CheckingHash(hash, tt.encodeKey, jsons)
 			assert.Equal(t, tt.expectedResult, bool)
 		})

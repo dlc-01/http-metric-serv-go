@@ -11,6 +11,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+// ValueHandler — handler that searches for a metric by name and type taken from the request url.
 func ValueHandler(gin *gin.Context) {
 	metric := metrics.Metric{ID: gin.Param("name"), MType: gin.Param("types")}
 

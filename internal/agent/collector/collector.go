@@ -14,6 +14,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+// CollectMetricsRuntime — function that collects Runtime metrics by timer and sends them to the channel.
 func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {
 	for range poolTicker.C {
 		var Runtime runtime.MemStats
@@ -85,6 +86,7 @@ func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric,
 	}
 }
 
+// CollectMetricsGopsutil — function that collects Gopsutil metrics by timer and sends them to the channel.
 func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {
 	for range poolTicker.C {
 		v, _ := mem.VirtualMemory()

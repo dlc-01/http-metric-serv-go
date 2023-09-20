@@ -12,6 +12,7 @@ var conf *config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
 var workWithDB bool
 
+// GetSyncMiddleware — middleware for gin that dump Metric to the file.
 func GetSyncMiddleware() gin.HandlerFunc {
 	return func(gin *gin.Context) {
 		if conf.DatabaseAddress == "" {
@@ -27,6 +28,8 @@ func GetSyncMiddleware() gin.HandlerFunc {
 	}
 }
 
+// RunSync — function that use for restoring data from the file and
+// starting goroutine that dump data after a certain period of time.
 func RunSync(cfg *config.ServerConfig) {
 
 	conf = cfg
@@ -43,6 +46,7 @@ func RunSync(cfg *config.ServerConfig) {
 
 }
 
+// ShutdownSync  — function that use for dump data last type in the program.
 func ShutdownSync() error {
 	return dumpFile()
 }

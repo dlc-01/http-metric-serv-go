@@ -17,6 +17,7 @@ const (
 	NoCompression      = gzip.NoCompression
 )
 
+// Gzip — middleware for gin that use for compress and decompress gzip.
 func Gzip(level int) gin.HandlerFunc {
 	return func(gin *gin.Context) {
 		headerContentGzip := strings.Contains(gin.Request.Header.Get("Content-Encoding"), "gzip")

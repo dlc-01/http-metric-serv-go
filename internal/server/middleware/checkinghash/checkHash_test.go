@@ -128,11 +128,11 @@ func TestMiddleware(t *testing.T) {
 
 			storage.Init(context.Background(), &config.ServerConfig{})
 
-			jsons, err := metrics.ToJSONs(tt.responseBody)
+			jsons, err := metrics.ToJSON(tt.responseBody)
 			if err != nil {
 				logging.Fatalf("cannot generate request body: %s", err)
 			}
-			hash := hashing.HashingDate(tt.encodeKey, jsons)
+			hash := hashing.HashingData(tt.encodeKey, jsons)
 			gzip, err := metrics.Gzipper(jsons)
 			if err != nil {
 				logging.Fatalf("cannot gzip body: %s", err)

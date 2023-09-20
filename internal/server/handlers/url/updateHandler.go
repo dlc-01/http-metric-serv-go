@@ -12,6 +12,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+// UpdateHandler — handler that saves metric data for which it takes data from url.
 func UpdateHandler(gin *gin.Context) {
 	metric := metrics.Metric{ID: gin.Param("name"), MType: gin.Param("types")}
 	values := gin.Param("value")

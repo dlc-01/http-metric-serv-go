@@ -133,7 +133,7 @@ func TestUpdatesButchJSONHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			storage.Init(context.Background(), &config.ServerConfig{})
-			jsons, err := metrics.ToJSONs(tt.responseBody)
+			jsons, err := metrics.ToJSON(tt.responseBody)
 			if err != nil {
 				logging.Fatalf("cannot generate request body: %w", err)
 			}

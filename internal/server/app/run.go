@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
@@ -16,6 +15,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/storagesync"
 )
 
+// Run — function that set up and run sever.
 func Run(cfg *config.ServerConfig) {
 	router := setupRouter(cfg)
 
@@ -25,7 +25,7 @@ func Run(cfg *config.ServerConfig) {
 
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
-	pprof.Register(router)
+	//pprof.Register(router)
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
 		router.Use(checkinghash.CheckHash(cfg.HashKey))

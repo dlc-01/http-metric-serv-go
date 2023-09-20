@@ -8,16 +8,19 @@ import (
 	"strings"
 )
 
+// ServerConfig — structure for starting and running the server.
 type ServerConfig struct {
-	ServerAddress   string
-	StoreInterval   int
-	FileStoragePath string
-	Restore         bool
-	DatabaseAddress string
-	HashKey         string
-	LimitM          int
+	ServerAddress   string // server startup address
+	StoreInterval   int    // data storage interval
+	FileStoragePath string // storage path
+	Restore         bool   // data restoring check
+	DatabaseAddress string // database address
+	HashKey         string // hash key
+	LimitM          int    // limit to receive metric
 }
 
+// LoadServerConfig — function to load data for server startup by
+// means of flags and environment variables.
 func LoadServerConfig() (*ServerConfig, error) {
 	cfg := &ServerConfig{}
 	flag.StringVar(&cfg.ServerAddress, "a", "localhost:8080", "server address")

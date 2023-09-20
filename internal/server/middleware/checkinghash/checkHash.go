@@ -11,6 +11,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 )
 
+// CheckHash — middleware that use for checking header for http request "HashSHA256".
 func CheckHash(key string) gin.HandlerFunc {
 	return func(gin *gin.Context) {
 		if key != "" {

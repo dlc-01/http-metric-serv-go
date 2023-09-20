@@ -19,6 +19,7 @@ var (
 	metrisC = make(chan []metrics.Metric, metricsChanSize)
 )
 
+// Run  — function use for starting goroutine that collect metric and that it to the server.
 func Run(ctx context.Context, cfg *config.AgentConfig) {
 
 	poolTicker := time.NewTicker(time.Second * time.Duration(cfg.Poll))

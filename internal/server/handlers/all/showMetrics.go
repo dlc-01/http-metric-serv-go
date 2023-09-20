@@ -10,6 +10,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+// ShowMetrics — handler that show all metrics in html format.
 func ShowMetrics(gin *gin.Context) {
 	gin.Writer.Header().Set("content-type", "Content-Type: text/html; charset=utf-8")
 

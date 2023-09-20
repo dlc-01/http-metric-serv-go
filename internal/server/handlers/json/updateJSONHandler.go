@@ -12,6 +12,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+// UpdateJSONHandler — handler that save metric that in json format.
 func UpdateJSONHandler(gin *gin.Context) {
 	var metric metrics.Metric
 	var buf bytes.Buffer

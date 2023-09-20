@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// AgentConfig — structure for starting and running agent of the server.
 type AgentConfig struct {
 	ServerAddress string
 	Report        int
@@ -15,6 +16,8 @@ type AgentConfig struct {
 	LimitM        int
 }
 
+// LoadAgentConfig — function to load data for agent of server startup by
+// means of flags and environment variables.
 func LoadAgentConfig() (*AgentConfig, error) {
 	cfg := &AgentConfig{}
 	flag.StringVar(&cfg.ServerAddress, "a", "localhost:8080", "server address")

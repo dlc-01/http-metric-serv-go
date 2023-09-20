@@ -128,7 +128,7 @@ func (m *memStorage) PingStorage(ctx context.Context) error {
 	return fmt.Errorf("databse not connected")
 }
 
-func (m *memStorage) GetAll(ctx context.Context) ([]string, error) {
+func (m *memStorage) GetAllStrings(ctx context.Context) ([]string, error) {
 	mux.RLock()
 	defer mux.RUnlock()
 	names := make([]string, 0)

@@ -111,7 +111,7 @@ func (db *dbStorage) GetAllMetrics(ctx context.Context) ([]metrics.Metric, error
 	return metricsAll, nil
 }
 
-func (db *dbStorage) GetAll(ctx context.Context) ([]string, error) {
+func (db *dbStorage) GetAllStrings(ctx context.Context) ([]string, error) {
 
 	if err := db.PingStorage(ctx); err != nil {
 		return []string{}, fmt.Errorf("error while try to ping db: %w", err)

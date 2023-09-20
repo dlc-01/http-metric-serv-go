@@ -12,6 +12,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+// UpdatesButchJSONHandler — handler that saves metrics in butches in json format.
 func UpdatesButchJSONHandler(gin *gin.Context) {
 	var data []metrics.Metric
 	var buf bytes.Buffer

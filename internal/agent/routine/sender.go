@@ -27,14 +27,14 @@ func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg 
 		"Content-Encoding": "gzip",
 	}
 	for items := range metricsC {
-		jsons, err := metrics.ToJSONs(items)
+		jsons, err := metrics.ToJSON(items)
 		if err != nil {
 			logging.Errorf("cannot generate request body: %s", err)
 			return
 		}
 
 		if cfg.HashKey != "" {
-			headers["HashSHA256"] = hashing.HashingDate(cfg.HashKey, jsons)
+			headers["HashSHA256"] = hashing.HashingData(cfg.HashKey, jsons)
 		}
 
 		gzip, err := metrics.Gzipper(jsons)
