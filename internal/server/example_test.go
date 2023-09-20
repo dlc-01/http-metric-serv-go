@@ -1,4 +1,4 @@
-package handlers
+package server
 
 import (
 	"context"
@@ -20,7 +20,7 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
-func Example_UpdateJSONHandler() {
+func ExampleUpdateJSONHandler() {
 	logging.InitLogger()
 	router := gin.Default()
 	storage.Init(context.Background(), &config.ServerConfig{})
@@ -35,7 +35,7 @@ func Example_UpdateJSONHandler() {
 	fmt.Println(req)
 }
 
-func Example_ValueJSONHandler() {
+func ExampleValueJSONHandler() {
 	logging.InitLogger()
 	router := gin.Default()
 	storage.Init(context.Background(), &config.ServerConfig{})
@@ -52,7 +52,7 @@ func Example_ValueJSONHandler() {
 	fmt.Println(get)
 }
 
-func Example_ShowMetrics() {
+func ExampleShowMetrics() {
 	logging.InitLogger()
 	router := gin.Default()
 	storage.Init(context.Background(), &config.ServerConfig{})
@@ -67,7 +67,7 @@ func Example_ShowMetrics() {
 	fmt.Println(get)
 }
 
-func Example_UpdatesButchJSONHandler() {
+func ExampleUpdatesButchJSONHandler() {
 	logging.InitLogger()
 	storage.Init(context.Background(), &config.ServerConfig{})
 
@@ -111,7 +111,7 @@ func Example_UpdatesButchJSONHandler() {
 
 }
 
-func Example_UpdateHandler() {
+func ExampleUpdateHandler() {
 	logging.InitLogger()
 	storage.Init(context.Background(), &config.ServerConfig{})
 
@@ -127,7 +127,7 @@ func Example_UpdateHandler() {
 
 }
 
-func Example_ValueHandler() {
+func ExampleValueHandler() {
 	logging.InitLogger()
 	storage.Init(context.Background(), &config.ServerConfig{})
 
