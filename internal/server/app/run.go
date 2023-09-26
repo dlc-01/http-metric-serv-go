@@ -25,7 +25,6 @@ func Run(cfg *config.ServerConfig) {
 
 func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 	router := gin.Default()
-	//pprof.Register(router)
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
 		router.Use(checkinghash.CheckHash(cfg.HashKey))
