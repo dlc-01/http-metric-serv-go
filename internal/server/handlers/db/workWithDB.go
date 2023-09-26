@@ -1,12 +1,15 @@
 package db
 
 import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
+// PingDB — handler that checks if the database is connected.
 func PingDB(gin *gin.Context) {
 
 	if err := storage.PingStorage(gin); err != nil {

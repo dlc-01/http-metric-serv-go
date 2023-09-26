@@ -4,13 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
+// ValueJSONHandler — handler that searches for a metric by name and type taken from the json.
 func ValueJSONHandler(gin *gin.Context) {
 	var metric metrics.Metric
 	var buf bytes.Buffer

@@ -2,14 +2,16 @@ package main
 
 import (
 	"context"
+	"log"
+	_ "net/http/pprof"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/routine"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"log"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func main() {

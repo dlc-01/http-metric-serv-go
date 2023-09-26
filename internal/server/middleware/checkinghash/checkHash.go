@@ -2,15 +2,17 @@ package checkinghash
 
 import (
 	"bytes"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 )
 
+// CheckHash — middleware that use for checking header for http request "HashSHA256".
 func CheckHash(key string) gin.HandlerFunc {
-	//TODO я вроде как все сделал по тз а тест не проходит вроде как требуется чтоб с ключаом было хещирование а на тесте без хэша
 	return func(gin *gin.Context) {
 		if key != "" {
 			body, err := io.ReadAll(gin.Request.Body)

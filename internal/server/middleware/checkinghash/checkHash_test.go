@@ -2,6 +2,13 @@ package checkinghash
 
 import (
 	"context"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
@@ -9,11 +16,6 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/handlers/jsonbatch"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/gzip"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 func TestMiddleware(t *testing.T) {
@@ -126,11 +128,11 @@ func TestMiddleware(t *testing.T) {
 
 			storage.Init(context.Background(), &config.ServerConfig{})
 
-			jsons, err := metrics.ToJSONs(tt.responseBody)
+			jsons, err := metrics.ToJSON(tt.responseBody)
 			if err != nil {
 				logging.Fatalf("cannot generate request body: %s", err)
 			}
-			hash := hashing.HashingDate(tt.encodeKey, jsons)
+			hash := hashing.HashingData(tt.encodeKey, jsons)
 			gzip, err := metrics.Gzipper(jsons)
 			if err != nil {
 				logging.Fatalf("cannot gzip body: %s", err)

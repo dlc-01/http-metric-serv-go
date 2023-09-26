@@ -3,13 +3,16 @@ package jsonbatch
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
+// UpdatesButchJSONHandler — handler that saves metrics in butches in json format.
 func UpdatesButchJSONHandler(gin *gin.Context) {
 	var data []metrics.Metric
 	var buf bytes.Buffer

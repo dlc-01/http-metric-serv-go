@@ -2,21 +2,24 @@ package routine
 
 import (
 	"context"
+	_ "net/http/pprof"
+	"time"
+
+	"github.com/go-resty/resty/v2"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/collector"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/go-resty/resty/v2"
-	"time"
 )
 
 const metricsChanSize = 1000
 
 var (
-	done    = make(chan bool)
 	client  = resty.New()
 	metrisC = make(chan []metrics.Metric, metricsChanSize)
 )
 
+// Run  — function use for starting goroutine that collect metric and that it to the server.
 func Run(ctx context.Context, cfg *config.AgentConfig) {
 
 	poolTicker := time.NewTicker(time.Second * time.Duration(cfg.Poll))

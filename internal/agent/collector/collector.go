@@ -2,17 +2,20 @@ package collector
 
 import (
 	"context"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
 	"math/rand"
 	"runtime"
 	"time"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
-func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker, ) {
+// CollectMetricsRuntime — function that collects Runtime metrics by timer and sends them to the channel.
+func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {
 	for range poolTicker.C {
 		var Runtime runtime.MemStats
 		runtime.ReadMemStats(&Runtime)
@@ -83,7 +86,8 @@ func CollectMetricsRuntime(ctx context.Context, metrisC chan<- []metrics.Metric,
 	}
 }
 
-func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker, ) {
+// CollectMetricsGopsutil — function that collects Gopsutil metrics by timer and sends them to the channel.
+func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric, poolTicker *time.Ticker) {
 	for range poolTicker.C {
 		v, _ := mem.VirtualMemory()
 		countCPU, _ := cpu.Counts(true)
@@ -102,6 +106,5 @@ func CollectMetricsGopsutil(ctx context.Context, metrisC chan<- []metrics.Metric
 		}
 		metrisC <- all
 		logging.Info("collect")
-
 	}
 }

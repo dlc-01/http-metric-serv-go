@@ -2,16 +2,17 @@ package routine
 
 import (
 	"fmt"
+	"net/http"
+	"sync"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"net/http"
-	"sync"
 )
 
 func sendMetrics(cfg *config.AgentConfig, metricsC chan []metrics.Metric) {
-	//TODO мы не используем интервал по отправлению запросов это гуд?
+
 	wg := sync.WaitGroup{}
 	wg.Add(cfg.LimitM)
 	for i := 0; i < cfg.LimitM; i++ {
@@ -26,14 +27,14 @@ func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg 
 		"Content-Encoding": "gzip",
 	}
 	for items := range metricsC {
-		jsons, err := metrics.ToJSONs(items)
+		jsons, err := metrics.ToJSON(items)
 		if err != nil {
 			logging.Errorf("cannot generate request body: %s", err)
 			return
 		}
 
 		if cfg.HashKey != "" {
-			headers["HashSHA256"] = hashing.HashingDate(cfg.HashKey, jsons)
+			headers["HashSHA256"] = hashing.HashingData(cfg.HashKey, jsons)
 		}
 
 		gzip, err := metrics.Gzipper(jsons)

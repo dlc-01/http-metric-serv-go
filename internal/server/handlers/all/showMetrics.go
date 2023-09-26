@@ -2,12 +2,15 @@ package all
 
 import (
 	"fmt"
+	"html/template"
+
+	"github.com/gin-gonic/gin"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"html/template"
 )
 
+// ShowMetrics — handler that show all metrics in html format.
 func ShowMetrics(gin *gin.Context) {
 	gin.Writer.Header().Set("content-type", "Content-Type: text/html; charset=utf-8")
 

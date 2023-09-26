@@ -3,9 +3,10 @@ package storage
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"sync"
 )
 
 type memStorage struct {
@@ -127,10 +128,9 @@ func (m *memStorage) PingStorage(ctx context.Context) error {
 	return fmt.Errorf("databse not connected")
 }
 
-func (m *memStorage) GetAll(ctx context.Context) ([]string, error) {
+func (m *memStorage) GetAllStrings(ctx context.Context) ([]string, error) {
 	mux.RLock()
 	defer mux.RUnlock()
-
 	names := make([]string, 0)
 	for cm := range m.Counters {
 		names = append(names, cm)

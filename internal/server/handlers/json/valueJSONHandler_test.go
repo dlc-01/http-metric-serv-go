@@ -2,16 +2,18 @@ package json
 
 import (
 	"context"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
 func TestValueJSONHandler(t *testing.T) {
