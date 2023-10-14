@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-// HashingData — function for hashing data using sha256 method
+// HashingData — function for hashing data using sha256 method.
 func HashingData(key string, data []byte) string {
 	h := hmac.New(sha256.New, []byte(key))
 	h.Write(data)
