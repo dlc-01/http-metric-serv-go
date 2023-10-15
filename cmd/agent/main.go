@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	_ "net/http/pprof"
 	"os"
@@ -14,7 +15,21 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+var (
+	Version string = "N/A"
+	Date    string = "N/A"
+	Commit  string = "N/A"
+)
+
+func printBuildInfo() {
+	fmt.Printf("Build version: %s\n", Version)
+	fmt.Printf("Build date: %s\n", Date)
+	fmt.Printf("Build commit: %s\n", Commit)
+}
+
 func main() {
+	printBuildInfo()
+
 	cfg, err := config.LoadAgentConfig()
 	if err != nil {
 		log.Fatalf("cannot load config: %s", err)
