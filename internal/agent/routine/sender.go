@@ -2,6 +2,7 @@ package routine
 
 import (
 	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
 	"net/http"
 	"sync"
 
@@ -33,6 +34,15 @@ func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg 
 			return
 		}
 
+		if cfg.PathCryptoKey != "" {
+			encryptbuf, err := encryption.MetEncryptor.Encrypt(jsons)
+			if err != nil {
+				logging.Errorf("cannot encrypt metrics: %s", err)
+			}
+
+			jsons = encryptbuf
+		}
+
 		if cfg.HashKey != "" {
 			headers["HashSHA256"] = hashing.HashingData(cfg.HashKey, jsons)
 		}
@@ -51,7 +61,7 @@ func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg 
 			return
 		}
 		if resp.StatusCode() != http.StatusOK && resp.StatusCode() != http.StatusAccepted {
-			logging.Errorf("unexpected status reponse code: %v", resp.StatusCode())
+			logging.Errorf("unexpected status response code: %v", resp.StatusCode())
 			return
 		}
 

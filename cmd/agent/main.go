@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
 	"log"
 	_ "net/http/pprof"
 	"os"
@@ -27,6 +28,15 @@ func printBuildInfo() {
 	fmt.Printf("Build commit: %s\n", Commit)
 }
 
+func initEncoder(cfg *config.AgentConfig) error {
+	if cfg.PathCryptoKey != "" {
+		if err := encryption.InitEncryptor(cfg.PathCryptoKey); err != nil {
+			return fmt.Errorf("cannot creating encryptor: %w", err)
+		}
+	}
+	return nil
+}
+
 func main() {
 	printBuildInfo()
 
@@ -46,6 +56,11 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	if err := initEncoder(cfg); err != nil {
+		logging.Fatalf("cannot init encryptor: %w", err)
+	}
+
 	go routine.Run(ctx, cfg)
 	defer routine.Shutdown()
 	logging.Info("agent has been started")

@@ -17,6 +17,7 @@ type ServerConfig struct {
 	DatabaseAddress string // database address
 	HashKey         string // hash key
 	LimitM          int    // limit to receive metric
+	PathCryptoKey   string // path for cryptoKey
 }
 
 // LoadServerConfig — function to load data for server startup by
@@ -30,6 +31,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	flag.StringVar(&cfg.DatabaseAddress, "d", "", "database address")
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
 	flag.IntVar(&cfg.LimitM, "l", 8, "limit to receive metric")
+	flag.StringVar(&cfg.PathCryptoKey, "crypto-key", "", "path to public crypto key")
 	flag.Parse()
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		cfg.ServerAddress = envServerAddress
@@ -64,13 +66,15 @@ func LoadServerConfig() (*ServerConfig, error) {
 	if envHashKey := os.Getenv("KEY"); envHashKey != "" {
 		cfg.HashKey = envHashKey
 	}
-
 	if envLimitM := os.Getenv("RATE_LIMIT"); envLimitM != "" {
 		if intLimitM, err := strconv.ParseInt(envLimitM, 10, 32); err == nil {
 			cfg.LimitM = int(intLimitM)
 		} else {
 			return nil, fmt.Errorf("cannot parseRATE_LIMIT: %w", err)
 		}
+	}
+	if envPathCryptoKey := os.Getenv("CRYPTO_KEY"); envPathCryptoKey != "" {
+		cfg.PathCryptoKey = envPathCryptoKey
 	}
 	return cfg, nil
 }
