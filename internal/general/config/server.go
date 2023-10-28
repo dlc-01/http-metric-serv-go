@@ -85,7 +85,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	}
 	if cfg.Config != "" {
 		var err error
-		cfg, err = configFromJsonServer(cfg)
+		cfg, err = configFromJSONServer(cfg)
 		if err != nil {
 			return nil, err
 		}
