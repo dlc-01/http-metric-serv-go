@@ -71,7 +71,7 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	}
 	if cfg.Config != "" {
 		var err error
-		cfg, err = configFromJsonAgent(cfg)
+		cfg, err = configFromJSONAgent(cfg)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +81,7 @@ func LoadAgentConfig() (*AgentConfig, error) {
 
 }
 
-func configFromJsonAgent(cfg *AgentConfig) (*AgentConfig, error) {
+func configFromJSONAgent(cfg *AgentConfig) (*AgentConfig, error) {
 	f, err := os.ReadFile(cfg.Config)
 	if err != nil {
 		return nil, fmt.Errorf("can`t open file: %w", err)

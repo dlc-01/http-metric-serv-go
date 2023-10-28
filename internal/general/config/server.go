@@ -94,7 +94,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	return cfg, nil
 }
 
-func configFromJsonServer(cfg *ServerConfig) (*ServerConfig, error) {
+func configFromJSONServer(cfg *ServerConfig) (*ServerConfig, error) {
 	f, err := os.ReadFile(cfg.Config)
 	if err != nil {
 		return nil, fmt.Errorf("can`t open file: %w", err)
