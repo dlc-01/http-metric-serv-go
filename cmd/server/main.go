@@ -37,7 +37,7 @@ func main() {
 	if err := logging.InitLogger(); err != nil {
 		log.Fatalf("cannot init loger: %s", err)
 	}
-	//cfg.DatabaseAddress = "postgresql://localhost:5432"
+
 	storage.Init(context.Background(), cfg)
 
 	if cfg.DatabaseAddress == "" {

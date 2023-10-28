@@ -1,21 +1,23 @@
 package config
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // AgentConfig — structure for starting and running agent of the server.
 type AgentConfig struct {
-	ServerAddress string // server client startup address
-	Report        int    // report interval to server
-	Poll          int    // poll interval to client
-	HashKey       string // hash key
-	LimitM        int    // limit to receive metric
-	PathCryptoKey string // path for cryptoKey
-
+	ServerAddress string `json:"address"`         // server client startup address
+	Report        int    `json:"report_interval"` // report interval to server
+	Poll          int    `json:"poll_interval"`   // poll interval to client
+	HashKey       string `json:"hash_key"`        // hash key
+	LimitM        int    `json:"limit_m"`         // limit to receive metric
+	PathCryptoKey string `json:"crypto_key"`      // path for cryptoKey
+	Config        string //  path to config in JSON
 }
 
 // LoadAgentConfig — function to load data for agent of server startup by
@@ -28,6 +30,8 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
 	flag.IntVar(&cfg.LimitM, "l", 8, "limit to collect metric")
 	flag.StringVar(&cfg.PathCryptoKey, "crypto-key", "", "path to private crypto key")
+	flag.StringVar(&cfg.Config, "config", "", "path to config in json")
+	flag.StringVar(&cfg.Config, "c", "", "path to config in json")
 	flag.Parse()
 
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
@@ -62,7 +66,62 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	if envPathCryptoKey := os.Getenv("CRYPTO_KEY"); envPathCryptoKey != "" {
 		cfg.PathCryptoKey = envPathCryptoKey
 	}
+	if envPathConfig := os.Getenv("CONFIG"); envPathConfig != "" {
+		cfg.Config = envPathConfig
+	}
+	if cfg.Config != "" {
+		var err error
+		cfg, err = configFromJsonAgent(cfg)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return cfg, nil
 
+}
+
+func configFromJsonAgent(cfg *AgentConfig) (*AgentConfig, error) {
+	f, err := os.ReadFile(cfg.Config)
+	if err != nil {
+		return nil, fmt.Errorf("can`t open file: %w", err)
+	}
+	newCfg := map[string]interface{}{}
+	err = json.Unmarshal(f, &newCfg)
+	if err != nil {
+		return nil, fmt.Errorf("can`t unmarshal json: %w", err)
+	}
+	for key, val := range newCfg {
+		switch key {
+		case "address":
+			cfg.ServerAddress = val.(string)
+		case "report_interval":
+			if strings.HasSuffix(val.(string), "s") {
+				val, _ = strings.CutSuffix(val.(string), "s")
+			}
+			if storeInt, err := strconv.Atoi(val.(string)); err == nil {
+				cfg.Report = storeInt
+
+			} else {
+				return nil, fmt.Errorf("cannot convert report interval to int: %w", err)
+			}
+		case "pool_interval":
+			if strings.HasSuffix(val.(string), "s") {
+				val, _ = strings.CutSuffix(val.(string), "s")
+			}
+			if storeInt, err := strconv.Atoi(val.(string)); err == nil {
+				cfg.Report = storeInt
+
+			} else {
+				return nil, fmt.Errorf("cannot convert pool interval to int: %w", err)
+			}
+		case "crypto_key":
+			cfg.PathCryptoKey = val.(string)
+		case "hash_key":
+			cfg.HashKey = val.(string)
+		case "limit_m":
+			cfg.LimitM = val.(int)
+		}
+	}
+	return cfg, nil
 }

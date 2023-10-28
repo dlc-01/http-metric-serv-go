@@ -1,0 +1,8 @@
+{
+  "address": "localhost:8080",
+  "restore": true,
+  "store_interval": "1s",
+  "store_file": "/tmp/runtimeMetrics-db.json",
+  "database_dsn": "postgresql://localhost:5432",
+  "crypto_key": ""
+}
