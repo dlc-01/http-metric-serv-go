@@ -32,7 +32,7 @@ type Storage interface {
 	PingStorage(context.Context) error
 
 	// Close  — function that closing connection to db
-	Close(context.Context)
+	Close(context.Context) error
 }
 
 // Init — function that initialize two types of storage (database and RAM).
@@ -80,6 +80,6 @@ func GetAll(ctx context.Context) ([]string, error) {
 }
 
 // Close — proxying Close in that package.
-func Close(ctx context.Context) {
-	serverStorage.Close(ctx)
+func Close(ctx context.Context) error {
+	return serverStorage.Close(ctx)
 }

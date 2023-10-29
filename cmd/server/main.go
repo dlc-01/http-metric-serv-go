@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"log"
 	_ "net/http/pprof"
+	"os"
+	signal "os/signal"
+	"syscall"
 
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
@@ -40,12 +43,21 @@ func main() {
 
 	storage.Init(context.Background(), cfg)
 
+	term := make(chan os.Signal, 1)
+	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	if cfg.DatabaseAddress == "" {
 		storagesync.RunSync(cfg)
 	}
 
 	app.Run(cfg)
-	storage.Close(context.Background())
+	<-term
+	if err = storage.Close(ctx); err != nil {
+		logging.Fatalf("can't close storage: %s", err)
+	}
 	if cfg.DatabaseAddress == "" {
 		if err := storagesync.ShutdownSync(); err != nil {
 			logging.Fatalf("cannot shutdown storage syncer: %s", err)

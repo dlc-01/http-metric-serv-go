@@ -52,7 +52,7 @@ func main() {
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	term := make(chan os.Signal, 1)
-	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

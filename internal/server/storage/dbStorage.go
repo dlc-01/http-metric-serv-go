@@ -143,8 +143,12 @@ func (db *dbStorage) PingStorage(ctx context.Context) error {
 	return nil
 }
 
-func (db *dbStorage) Close(ctx context.Context) {
-	db.conn.Close(ctx)
+func (db *dbStorage) Close(ctx context.Context) error {
+	err := db.conn.Close(ctx)
+	if err != nil {
+		return fmt.Errorf("error file closing connection : %w", err)
+	}
+	return nil
 }
 
 func (db *dbStorage) migrationDB(ctx context.Context) error {
