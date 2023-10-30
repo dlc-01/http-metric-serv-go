@@ -10,7 +10,6 @@ import (
 
 var conf *config.ServerConfig
 var shouldDumpMetricsOnMetrics bool
-var workWithDB bool
 
 // GetSyncMiddleware — middleware for gin that dump Metric to the file.
 func GetSyncMiddleware() gin.HandlerFunc {

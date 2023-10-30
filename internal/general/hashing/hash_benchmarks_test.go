@@ -1,10 +1,12 @@
 package hashing
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
-	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func BenchmarkCheckingHash(b *testing.B) {

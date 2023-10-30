@@ -141,6 +141,6 @@ func (m *memStorage) GetAllStrings(ctx context.Context) ([]string, error) {
 	return names, nil
 }
 
-func (m *memStorage) Close(ctx context.Context) {
-
+func (m *memStorage) Close(ctx context.Context) error {
+	return nil
 }

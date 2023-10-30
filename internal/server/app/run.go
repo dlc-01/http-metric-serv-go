@@ -1,6 +1,9 @@
 package app
 
 import (
+	"fmt"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/decryptor"
 	"github.com/gin-gonic/gin"
 
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
@@ -17,14 +20,26 @@ import (
 
 // Run — function that set up and run sever.
 func Run(cfg *config.ServerConfig) {
-	router := setupRouter(cfg)
+	router, err := setupRouter(cfg)
+	if err != nil {
+		logging.Fatalf("error while starting server: %s", err)
+	}
 
-	router.Run(cfg.ServerAddress)
+	err = router.Run(cfg.ServerAddress)
+	if err != nil {
+		logging.Fatalf("error while starting server: %s", err)
+	}
 
 }
 
-func setupRouter(cfg *config.ServerConfig) *gin.Engine {
+func setupRouter(cfg *config.ServerConfig) (*gin.Engine, error) {
 	router := gin.Default()
+	if cfg.PathCryptoKey != "" {
+		if err := encryption.InitDecryptor(cfg.PathCryptoKey); err != nil {
+			return nil, fmt.Errorf("cannot create decryptor: %w", err)
+		}
+		router.Use(decryptor.DecryptMiddleware())
+	}
 	router.Use(logging.GetMiddlewareLogger(), gzip.Gzip(gzip.BestSpeed))
 	if cfg.HashKey != "" {
 		router.Use(checkinghash.CheckHash(cfg.HashKey))
@@ -44,5 +59,5 @@ func setupRouter(cfg *config.ServerConfig) *gin.Engine {
 		updateRouterGroup.POST("/updates", jsonbatch.UpdatesButchJSONHandler)
 
 	}
-	return router
+	return router, nil
 }

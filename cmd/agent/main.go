@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	_ "net/http/pprof"
 	"os"
@@ -10,11 +11,35 @@ import (
 
 	"github.com/dlc-01/http-metric-serv-go/internal/agent/routine"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/storage"
 )
 
+var (
+	Version string = "N/A"
+	Date    string = "N/A"
+	Commit  string = "N/A"
+)
+
+func printBuildInfo() {
+	fmt.Printf("Build version: %s\n", Version)
+	fmt.Printf("Build date: %s\n", Date)
+	fmt.Printf("Build commit: %s\n", Commit)
+}
+
+func initEncoder(cfg *config.AgentConfig) error {
+	if cfg.PathCryptoKey != "" {
+		if err := encryption.InitEncryptor(cfg.PathCryptoKey); err != nil {
+			return fmt.Errorf("cannot creating encryptor: %w", err)
+		}
+	}
+	return nil
+}
+
 func main() {
+	printBuildInfo()
+
 	cfg, err := config.LoadAgentConfig()
 	if err != nil {
 		log.Fatalf("cannot load config: %s", err)
@@ -27,10 +52,15 @@ func main() {
 	storage.Init(context.Background(), &config.ServerConfig{})
 
 	term := make(chan os.Signal, 1)
-	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(term, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	if err := initEncoder(cfg); err != nil {
+		logging.Fatalf("cannot init encryptor: %w", err)
+	}
+
 	go routine.Run(ctx, cfg)
 	defer routine.Shutdown()
 	logging.Info("agent has been started")
