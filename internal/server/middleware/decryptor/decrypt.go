@@ -2,11 +2,13 @@ package decryptor
 
 import (
 	"bytes"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
+	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 )
 
 func DecryptMiddleware() gin.HandlerFunc {

@@ -1,9 +1,10 @@
 package analytics
 
 import (
+	"go/ast"
+
 	"github.com/charithe/durationcheck"
 	"github.com/kisielk/errcheck/errcheck"
-	"go/ast"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/asmdecl"
 	"golang.org/x/tools/go/analysis/passes/assign"

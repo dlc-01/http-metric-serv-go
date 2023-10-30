@@ -2,9 +2,10 @@ package routine
 
 import (
 	"fmt"
-	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
 	"net/http"
 	"sync"
+
+	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
 
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/hashing"
