@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -17,7 +18,8 @@ type AgentConfig struct {
 	HashKey       string `json:"hash_key"`        // hash key
 	LimitM        int    `json:"limit_m"`         // limit to receive metric
 	PathCryptoKey string `json:"crypto_key"`      // path for cryptoKey
-	Config        string //  path to config in JSON
+	Config        string // path to config in JSON
+	IP            string `json:"ip"` //	IP-address host agent
 }
 
 // LoadAgentConfig — function to load data for agent of server startup by
@@ -76,6 +78,14 @@ func LoadAgentConfig() (*AgentConfig, error) {
 			return nil, err
 		}
 	}
+
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return nil, fmt.Errorf("can't get agent ip: %w", err)
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	cfg.IP = localAddr.IP.String()
 
 	return cfg, nil
 

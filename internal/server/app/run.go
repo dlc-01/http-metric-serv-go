@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/encryption"
 	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/decryptor"
+	"github.com/dlc-01/http-metric-serv-go/internal/server/middleware/subnet"
 	"github.com/gin-gonic/gin"
 
 	"github.com/dlc-01/http-metric-serv-go/internal/general/config"
@@ -34,6 +35,9 @@ func Run(cfg *config.ServerConfig) {
 
 func setupRouter(cfg *config.ServerConfig) (*gin.Engine, error) {
 	router := gin.Default()
+	if cfg.TrustedSubnet != "" {
+		router.Use(subnet.CheckSubnet(cfg.TrustedSubnet))
+	}
 	if cfg.PathCryptoKey != "" {
 		if err := encryption.InitDecryptor(cfg.PathCryptoKey); err != nil {
 			return nil, fmt.Errorf("cannot create decryptor: %w", err)
