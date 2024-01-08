@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package grpc;
+
+option go_package = "github.com/dlc-01/http-metric-serv-go/internal/protobuf";
+
+message Metric {
+  string type = 1;
+  string name = 2;
+  double gauge = 3;
+  int64 counter = 4;
+}
+
+message UpdateMetricRequest {
+  Metric metric = 1;
+}
+
+message UpdateMetricResponse {
+  Metric metric = 1;
+  bool success = 2;
+}
+
+message UpdateButchMetricsRequest {
+  repeated Metric metrics = 1;
+}
+
+message UpdateButchMetricsResponse {
+  bool success = 1;
+}
+
+service MetricsService {
+  rpc UpdateMetric(UpdateMetricRequest) returns (UpdateMetricResponse);
+  rpc UpdateButchMetrics(UpdateButchMetricsRequest) returns (UpdateButchMetricsResponse);
+}
