@@ -52,7 +52,7 @@ func SendMetricViaGrpc(cfg *config.AgentConfig, metricsC chan metrics.Metric) {
 func sendMetricViaGrpc(wg *sync.WaitGroup, c pb.MetricsServiceClient, mCh <-chan metrics.Metric) {
 	for m := range mCh {
 		newM := castMetricToGrpc(m)
-		_, err := c.UpdateMetric(context.Background(), &pb.UpdateMetricRequest{Metric: &newM})
+		_, err := c.UpdateMetric(context.Background(), &pb.UpdateMetricRequest{Metric: newM})
 		if err != nil {
 			logging.Errorf("error while sending metric via grpc %w", err)
 		}
@@ -74,7 +74,7 @@ func sendBatchMetricsViaGrpc(wg *sync.WaitGroup, c pb.MetricsServiceClient, mCh 
 
 }
 
-func castMetricToGrpc(m metrics.Metric) pb.Metric {
+func castMetricToGrpc(m metrics.Metric) *pb.Metric {
 	metric := pb.Metric{Name: m.ID, Type: m.MType}
 	switch metric.Type {
 	case metrics.GaugeType:
@@ -82,14 +82,14 @@ func castMetricToGrpc(m metrics.Metric) pb.Metric {
 	case metrics.CounterType:
 		metric.Counter = *m.Delta
 	}
-	return metric
+	return &metric
 }
 
 func castMetricsToGrpc(m []metrics.Metric) []*pb.Metric {
 	metricGrpc := make([]*pb.Metric, 0)
 	for _, v := range m {
 		metric := castMetricToGrpc(v)
-		metricGrpc = append(metricGrpc, &metric)
+		metricGrpc = append(metricGrpc, metric)
 	}
 	return metricGrpc
 }
