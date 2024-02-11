@@ -2,6 +2,7 @@ package grpcserver
 
 import (
 	"context"
+	"fmt"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/logging"
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	pb "github.com/dlc-01/http-metric-serv-go/internal/protobuf"
@@ -24,11 +25,11 @@ func (s *GrpsServer) UpdateMetric(ctx context.Context, in *pb.UpdateMetricReques
 	switch in.Metric.Type {
 	case metrics.GaugeType:
 		if in.Metric.Gauge < 0 {
-			err = status.Error(codes.NotFound, "can't find any metrics")
+			err = status.Error(codes.NotFound, fmt.Sprintf("can't find any metrics"))
 			return nil, err
 		} else {
 			if err = storage.SetMetric(ctx, metrics.Metric{ID: in.Metric.Name, MType: in.Metric.Type, Value: &in.Metric.Gauge}); err != nil {
-				err = status.Errorf(codes.Internal, "cannot set metric: %w", err)
+				err = status.Errorf(codes.Internal, fmt.Sprintf("cannot set metric: %v", err))
 				logging.Errorf("%w", err)
 				return nil, err
 			}
@@ -37,10 +38,10 @@ func (s *GrpsServer) UpdateMetric(ctx context.Context, in *pb.UpdateMetricReques
 
 	case metrics.CounterType:
 		if in.Metric.Counter < 0 {
-			err = status.Error(codes.NotFound, "can't find any metrics")
+			err = status.Error(codes.NotFound, fmt.Sprintf("can't find any metrics"))
 		} else {
 			if err = storage.SetMetric(ctx, metrics.Metric{ID: in.Metric.Name, MType: in.Metric.Type, Delta: &in.Metric.Counter}); err != nil {
-				err = status.Errorf(codes.Internal, "cannot set metric: %w", err)
+				err = status.Errorf(codes.Internal, fmt.Sprintf("cannot set metric: %v", err))
 				logging.Errorf("%w", err)
 				return nil, err
 			}
@@ -50,7 +51,7 @@ func (s *GrpsServer) UpdateMetric(ctx context.Context, in *pb.UpdateMetricReques
 
 	default:
 		response.Metric = nil
-		err = status.Error(codes.NotFound, "cannot found that type metric")
+		err = status.Error(codes.NotFound, fmt.Sprintf("cannot found that type metric"))
 		logging.Errorf("error: %w", err)
 		return nil, err
 	}
@@ -66,21 +67,21 @@ func (s *GrpsServer) UpdateBatchMetrics(ctx context.Context, in *pb.UpdateBatchM
 		switch m.Type {
 		case metrics.GaugeType:
 			if m.Gauge < 0 {
-				err = status.Error(codes.NotFound, "can't find any metrics")
+				err = status.Error(codes.NotFound, fmt.Sprintf("can't find any metrics"))
 			} else {
 				metric.Value = &m.Gauge
 			}
 
 		case metrics.CounterType:
 			if m.Counter < 0 {
-				err = status.Error(codes.NotFound, "can't find any metrics")
+				err = status.Error(codes.NotFound, fmt.Sprintf("can't find any metrics"))
 			} else {
 				metric.Delta = &m.Counter
 
 			}
 
 		default:
-			err = status.Error(codes.NotFound, "cannot found that type metric")
+			err = status.Error(codes.NotFound, fmt.Sprintf("cannot found that type metric"))
 			logging.Errorf("error: %w", err)
 			return nil, err
 		}
@@ -89,7 +90,7 @@ func (s *GrpsServer) UpdateBatchMetrics(ctx context.Context, in *pb.UpdateBatchM
 		}
 	}
 	if err = storage.SetMetricsBatch(ctx, metricRequest); err != nil {
-		err = status.Errorf(codes.Internal, "error while setting metric butch : %w", err)
+		err = status.Errorf(codes.Internal, fmt.Sprintf("error while setting metric butch : %v", err))
 		logging.Errorf("%w", err)
 		return nil, err
 	}
