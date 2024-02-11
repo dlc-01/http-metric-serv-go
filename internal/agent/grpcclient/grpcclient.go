@@ -7,7 +7,9 @@ import (
 	"github.com/dlc-01/http-metric-serv-go/internal/general/metrics"
 	pb "github.com/dlc-01/http-metric-serv-go/internal/protobuf"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 	"sync"
 )
 
@@ -38,7 +40,10 @@ func SendMetricViaGrpc(cfg *config.AgentConfig, metricsC chan metrics.Metric) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		logging.Errorf("error while connecting to GRPC server: %w", err)
+		if status.Code(err) != codes.OK {
+			logging.Errorf("error while connecting to GRPC server: %w", err)
+		}
+
 	}
 
 	c := pb.NewMetricsServiceClient(conn)
@@ -54,7 +59,9 @@ func sendMetricViaGrpc(wg *sync.WaitGroup, c pb.MetricsServiceClient, mCh <-chan
 		newM := castMetricToGrpc(m)
 		_, err := c.UpdateMetric(context.Background(), &pb.UpdateMetricRequest{Metric: newM})
 		if err != nil {
-			logging.Errorf("error while sending metric via grpc %w", err)
+			if status.Code(err) != codes.OK {
+				logging.Errorf("error while sending metric via grpc %w", err)
+			}
 		}
 	}
 	wg.Done()
@@ -67,7 +74,9 @@ func sendBatchMetricsViaGrpc(wg *sync.WaitGroup, c pb.MetricsServiceClient, mCh 
 		metric := castMetricsToGrpc(m)
 		_, err := c.UpdateBatchMetrics(ctx, &pb.UpdateBatchMetricsRequest{Metrics: metric})
 		if err != nil {
-			logging.Errorf("error while sending metric via grpc %w", err)
+			if status.Code(err) != codes.OK {
+				logging.Errorf("error while sending metric via grpc %w", err)
+			}
 		}
 	}
 	wg.Done()
