@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strconv"
 	"strings"
@@ -17,7 +18,9 @@ type AgentConfig struct {
 	HashKey       string `json:"hash_key"`        // hash key
 	LimitM        int    `json:"limit_m"`         // limit to receive metric
 	PathCryptoKey string `json:"crypto_key"`      // path for cryptoKey
-	Config        string //  path to config in JSON
+	Config        string // path to config in JSON
+	IP            string `json:"ip"`   //	IP-address host agent
+	GRPC          bool   `json:"grpc"` //	use grpc or not
 }
 
 // LoadAgentConfig — function to load data for agent of server startup by
@@ -32,6 +35,7 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	flag.StringVar(&cfg.PathCryptoKey, "crypto-key", "", "path to private crypto key")
 	flag.StringVar(&cfg.Config, "config", "", "path to config in json")
 	flag.StringVar(&cfg.Config, "c", "", "path to config in json")
+	flag.BoolVar(&cfg.GRPC, "grpc", false, "use grpc?")
 	flag.Parse()
 
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
@@ -69,6 +73,13 @@ func LoadAgentConfig() (*AgentConfig, error) {
 	if envPathConfig := os.Getenv("CONFIG"); envPathConfig != "" {
 		cfg.Config = envPathConfig
 	}
+	if envGRPC := os.Getenv("GRPC"); envGRPC != "" {
+		if boolEnvGrpc, err := strconv.ParseBool(envGRPC); err == nil {
+			cfg.GRPC = boolEnvGrpc
+		} else {
+			return nil, fmt.Errorf("cannot parse GRPC: %w", err)
+		}
+	}
 	if cfg.Config != "" {
 		var err error
 		cfg, err = configFromJSONAgent(cfg)
@@ -76,6 +87,14 @@ func LoadAgentConfig() (*AgentConfig, error) {
 			return nil, err
 		}
 	}
+
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		return nil, fmt.Errorf("can't get agent ip: %w", err)
+	}
+	defer conn.Close()
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	cfg.IP = localAddr.IP.String()
 
 	return cfg, nil
 
@@ -121,6 +140,9 @@ func configFromJSONAgent(cfg *AgentConfig) (*AgentConfig, error) {
 			cfg.HashKey = val.(string)
 		case "limit_m":
 			cfg.LimitM = val.(int)
+		case "GRPC":
+			cfg.GRPC = val.(bool)
+
 		}
 	}
 	return cfg, nil

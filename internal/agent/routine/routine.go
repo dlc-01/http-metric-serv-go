@@ -2,6 +2,7 @@ package routine
 
 import (
 	"context"
+	"github.com/dlc-01/http-metric-serv-go/internal/agent/grpcclient"
 	_ "net/http/pprof"
 	"time"
 
@@ -25,7 +26,11 @@ func Run(ctx context.Context, cfg *config.AgentConfig) {
 	poolTicker := time.NewTicker(time.Second * time.Duration(cfg.Poll))
 	go collector.CollectMetricsRuntime(ctx, metrisC, poolTicker)
 	go collector.CollectMetricsGopsutil(ctx, metrisC, poolTicker)
-	go sendMetrics(cfg, metrisC)
+	if cfg.GRPC {
+		go grpcclient.SendMetricsViaGrpc(cfg, metrisC)
+	} else {
+		go sendMetrics(cfg, metrisC)
+	}
 
 }
 

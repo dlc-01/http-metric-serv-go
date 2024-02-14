@@ -19,6 +19,9 @@ type ServerConfig struct {
 	HashKey         string `json:"hash_key"`       // hash key
 	LimitM          int    `json:"limit_m"`        // limit to receive metric
 	PathCryptoKey   string `json:"crypto_key"`     // path for cryptoKey
+	TrustedSubnet   string `json:"trusted_subnet"` // representation of classless addressing (CIDR).
+	GRPC            bool   `json:"grpc"`           //	use grpc or not
+	GRPCAddress     string `json:"grpc_address"`   // grpc Address
 	Config          string //  path to config in JSON
 }
 
@@ -35,7 +38,10 @@ func LoadServerConfig() (*ServerConfig, error) {
 	flag.IntVar(&cfg.LimitM, "l", 8, "limit to receive metric")
 	flag.StringVar(&cfg.PathCryptoKey, "crypto-key", "", "path to public crypto key")
 	flag.StringVar(&cfg.Config, "c", "", "path to config in json")
+	flag.StringVar(&cfg.Config, "t", "", "string representation of classless addressing (CIDR).")
 	flag.StringVar(&cfg.Config, "config", "", "path to config in json")
+	flag.BoolVar(&cfg.GRPC, "grpc", false, "use grpc?")
+	flag.StringVar(&cfg.GRPCAddress, "grpc_address", "", "grpc address")
 	flag.Parse()
 	if envServerAddress := os.Getenv("ADDRESS"); envServerAddress != "" {
 		cfg.ServerAddress = envServerAddress
@@ -79,6 +85,19 @@ func LoadServerConfig() (*ServerConfig, error) {
 	}
 	if envPathCryptoKey := os.Getenv("CRYPTO_KEY"); envPathCryptoKey != "" {
 		cfg.PathCryptoKey = envPathCryptoKey
+	}
+	if envTrustedSubnet := os.Getenv("TRUSTED_SUBNET"); envTrustedSubnet != "" {
+		cfg.TrustedSubnet = envTrustedSubnet
+	}
+	if envGRPC := os.Getenv("GRPC"); envGRPC != "" {
+		if boolEnvGrpc, err := strconv.ParseBool(envGRPC); err == nil {
+			cfg.GRPC = boolEnvGrpc
+		} else {
+			return nil, fmt.Errorf("cannot parse GRPC: %w", err)
+		}
+	}
+	if envGRPCAddress := os.Getenv("GRPC_ADDRESS"); envGRPCAddress != "" {
+		cfg.GRPCAddress = envGRPCAddress
 	}
 	if envPathConfig := os.Getenv("CONFIG"); envPathConfig != "" {
 		cfg.Config = envPathConfig
@@ -130,6 +149,12 @@ func configFromJSONServer(cfg *ServerConfig) (*ServerConfig, error) {
 			cfg.LimitM = int(value.(float64))
 		case "crypto_key":
 			cfg.PathCryptoKey = value.(string)
+		case "trusted_subnet":
+			cfg.TrustedSubnet = value.(string)
+		case "grpc_address":
+			cfg.GRPCAddress = value.(string)
+		case "GRPC":
+			cfg.GRPC = value.(bool)
 		}
 	}
 	return cfg, nil

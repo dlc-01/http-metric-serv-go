@@ -54,6 +54,8 @@ func sendMetricsRoutine(wg *sync.WaitGroup, metricsC chan []metrics.Metric, cfg 
 			return
 		}
 
+		headers["X-Real-IP"] = cfg.IP
+
 		resp, err := client.R().SetHeaders(headers).
 			SetBody(gzip).
 			Post(fmt.Sprintf("http://%s/updates/", cfg.ServerAddress))
